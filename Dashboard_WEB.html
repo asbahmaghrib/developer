@@ -15,7 +15,6 @@
         }
 
         :root {
-            /* -- DEFAULT DARK THEME (cyan/gold) -- */
             --bg-deep: #0a0e17;
             --bg-card: rgba(16, 26, 45, 0.75);
             --bg-card-hover: rgba(26, 42, 72, 0.85);
@@ -45,7 +44,6 @@
 
             --transition: 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
 
-            /* Sweep (dark) */
             --sweep-0: rgba(0, 229, 176, 0);
             --sweep-1: rgba(0, 229, 176, 0.06);
             --sweep-2: rgba(0, 229, 176, 0.14);
@@ -54,13 +52,10 @@
             --sweep-5: rgba(0, 229, 176, 0.06);
             --sweep-6: rgba(0, 229, 176, 0);
 
-            /* star-burst colors */
             --star-glow: rgba(247, 201, 72, 0.6);
         }
 
-        /* ================================================================
-           LIGHT MODE — NAVY + PUTIH ELEGAN
-           ================================================================ */
+        /* ===== LIGHT MODE — NAVY + PUTIH ELEGAN ===== */
         body.light-mode {
             --bg-deep: #081224;
             --bg-card: rgba(255, 255, 255, 0.05);
@@ -82,10 +77,7 @@
             --red: #f08a8a;
 
             --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.04);
-            --radius-card: 20px;
-            --radius-glass: 28px;
 
-            /* Sweep (navy/gold) */
             --sweep-0: rgba(212, 175, 55, 0);
             --sweep-1: rgba(212, 175, 55, 0.05);
             --sweep-2: rgba(212, 175, 55, 0.12);
@@ -109,7 +101,6 @@
             transition: background 0.5s ease, color 0.4s ease;
         }
 
-        /* Grid latar belakang */
         body::before {
             content: '';
             position: fixed;
@@ -123,7 +114,6 @@
             transition: opacity 0.5s ease;
         }
 
-        /* Orb glow */
         body::after {
             content: '';
             position: fixed;
@@ -166,7 +156,6 @@
             }
         }
 
-        /* ===== BINTANG LATAR (light mode) ===== */
         body.light-mode .star-bg {
             position: fixed;
             inset: 0;
@@ -201,7 +190,6 @@
             }
         }
 
-        /* ===== LAYOUT ===== */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -209,7 +197,6 @@
             z-index: 2;
         }
 
-        /* ===== GLASS PANEL ===== */
         .glass-panel {
             background: var(--bg-glass);
             backdrop-filter: blur(14px);
@@ -694,7 +681,6 @@
             box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.03);
         }
 
-        /* ===== SWEEP ANIMATION ===== */
         .card::before {
             content: '';
             position: absolute;
@@ -727,7 +713,6 @@
             }
         }
 
-        /* ===== STAR BURST ANIMATION (hover) ===== */
         .card .star-burst-container {
             position: absolute;
             inset: 0;
@@ -776,7 +761,6 @@
             }
         }
 
-        /* ===== CARD CONTENT ===== */
         .card-icon {
             font-size: 2rem;
             margin-bottom: 12px;
@@ -828,7 +812,6 @@
             color: #b8d0e0;
         }
 
-        /* ===== FAVORITE STAR ===== */
         .favorite-icon {
             position: absolute;
             top: 10px;
@@ -872,7 +855,6 @@
             text-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty-message {
             text-align: center;
             padding: 48px 20px;
@@ -902,7 +884,6 @@
             opacity: 0.4;
         }
 
-        /* ===== FOOTER ===== */
         footer {
             margin-top: 32px;
             text-align: center;
@@ -932,9 +913,7 @@
             opacity: 0.5;
         }
 
-        /* ================================================================
-           RESPONSIVE
-           ================================================================ */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 700px) {
             body {
                 padding: 14px 14px 22px;
@@ -1127,12 +1106,30 @@
 
     <script>
         // ================================================================
-        //  DATA MENU — hanya yang tersisa setelah penghapusan
+        //  DATA MENU — Qwen AI logo sekarang pakai SVG langsung (bukan base64)
         // ================================================================
 
-        const qwenLogoSVG =
-            `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTI1IDVMMzUgMjBMMjUgMzVMMTUgMjBMMjUgNVoiIGZpbGw9IiMzNzYzRkYiLz4KPHBhdGggZD0iTTEwIDI1TDI1IDM1TDQwIDI1TDI1IDE1TDEwIDI1WiIgZmlsbD0iIzM3NjNGRiIvPgo8cGF0aCBkPSJNMjUgMTVMMzUgMzBMMjUgNDVMMTUgMzBMMjUgMTVaIiBmaWxsPSIjMzc2M0ZGIiBvcGFjaXR5PSIwLjgiLz4KPC9zdmc+`;
+        // --- Qwen AI Logo (SVG markup, bukan base64) ---
+        const qwenLogoSVG = `
+            <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25 5L35 20L25 35L15 20L25 5Z" fill="#3763FF"/>
+                <path d="M10 25L25 35L40 25L25 15L10 25Z" fill="#3763FF"/>
+                <path d="M25 15L35 30L25 45L15 30L25 15Z" fill="#3763FF" opacity="0.8"/>
+            </svg>
+            <div style="font-family: 'JetBrains Mono', Arial, sans-serif; font-weight:bold; font-size: 10px; color: #3763FF; letter-spacing: 2px; margin-top: 2px; text-transform: uppercase;">Qwen</div>
+        `;
 
+        // --- Speedtest Logo (SVG markup + label) ---
+        const speedtestLogoSVG = `
+            <svg width="50" height="50" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 18,72 A 34,34 0 1,1 82,72" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+                <line x1="50" y1="65" x2="70" y2="45" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+                <circle cx="50" cy="65" r="4" fill="#ffffff" />
+            </svg>
+            <div style="font-family: 'JetBrains Mono', Arial, sans-serif; font-weight:bold; font-size: 11px; color: #ffffff; letter-spacing: 2px; margin-top: 2px; text-transform: uppercase;">SPEEDTEST</div>
+        `;
+
+        // DATA MENU
         const menuData = [
             { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/",
                 category: "Komunikasi", keywords: "wa web" },
@@ -1143,13 +1140,24 @@
                 category: "AI", keywords: "gemini ai" },
             { name: "DeepSeek AI", icon: "fas fa-robot", color: "#4d88ff", url: "https://chat.deepseek.com/",
                 category: "AI", keywords: "deepseek ai" },
+            // Qwen AI — pakai logo SVG langsung
             { name: "Qwen AI", logo: qwenLogoSVG, icon: "fas fa-robot", color: "#3763FF",
                 url: "https://chat.qwen.ai/", category: "AI", keywords: "qwen ai chatbot alibaba" },
             { name: "Data Alat (Excel)", icon: "fas fa-file-excel", color: "#217346",
                 url: "https://1drv.ms/x/c/4955526dc9bda579/IQBKkfhUj420Sa4L_o1DCABBAYDavNcinH9PxU5Sj8Zx8xA",
                 category: "Data", keywords: "excel data" },
             { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/",
-                category: "Hiburan", keywords: "video" }
+                category: "Hiburan", keywords: "video" },
+            // Speedtest
+            {
+                name: "Speedtest",
+                logo: speedtestLogoSVG,
+                icon: "",
+                color: "#ffffff",
+                url: "https://www.speedtest.net/id",
+                category: "Tools",
+                keywords: "speedtest internet jaringan okt"
+            }
         ];
 
         // ================================================================
@@ -1269,7 +1277,7 @@
         applyTheme();
 
         // ================================================================
-        //  STAR BURST — animasi bintang saat hover kartu
+        //  STAR BURST
         // ================================================================
         function createStarBurst(cardElement, event) {
             const rect = cardElement.getBoundingClientRect();
@@ -1304,7 +1312,8 @@
                 const size = 3 + Math.random() * 5;
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
-                star.style.boxShadow = `0 0 ${size * 2}px ${star.style.background}, 0 0 ${size * 4}px ${star.style.background}40`;
+                star.style.boxShadow =
+                    `0 0 ${size * 2}px ${star.style.background}, 0 0 ${size * 4}px ${star.style.background}40`;
                 star.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
                 star.style.animationDelay = (Math.random() * 0.15) + 's';
                 if (Math.random() > 0.6) {
@@ -1369,9 +1378,14 @@
 
             grid.innerHTML = filtered.map(item => {
                 const isFav = favorites.includes(item.name);
-                const iconHTML = item.logo ?
-                    `<img src="${item.logo}" alt="${item.name}" />` :
-                    `<i class="${item.icon}" style="color:${item.color}"></i>`;
+
+                let iconHTML = '';
+                if (item.logo) {
+                    // Langsung pakai SVG markup (sudah berupa string HTML)
+                    iconHTML = item.logo;
+                } else {
+                    iconHTML = `<i class="${item.icon}" style="color:${item.color}"></i>`;
+                }
 
                 return `
                             <div class="card" data-url="${item.url.replace(/"/g, '&quot;')}" data-name="${item.name}">
@@ -1389,7 +1403,6 @@
             document.querySelectorAll('.card').forEach(card => {
                 const url = card.getAttribute('data-url');
 
-                // Star burst on hover (mouse enter)
                 card.addEventListener('mouseenter', (e) => {
                     createStarBurst(card, e);
                 });
