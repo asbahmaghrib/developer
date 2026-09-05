@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>Profil Saya</title>
+    <title>Profil Saya — Firebase</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    </script>
+
     <style>
         /* ============================================================
            RESET & GLOBAL — CENTERED PORTRAIT LAYOUT
@@ -50,7 +57,7 @@
         }
 
         /* ============================================================
-           APP WRAPPER — center, portrait, responsive
+           APP WRAPPER
            ============================================================ */
         .app-wrapper {
             width: 100%;
@@ -91,7 +98,7 @@
         }
 
         /* ============================================================
-           STARS BACKGROUND (inside wrapper)
+           STARS BACKGROUND
            ============================================================ */
         #stars-container {
             position: absolute;
@@ -225,6 +232,81 @@
             gap: 4px;
             flex-shrink: 0;
         }
+
+        /* ---- ONLINE STATUS ---- */
+        .online-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8px;
+            font-weight: 600;
+            padding: 2px 8px 2px 6px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            color: #888;
+            transition: all 0.3s;
+            white-space: nowrap;
+            cursor: default;
+        }
+        [data-theme="dark"] .online-status {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .online-status .online-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .online-status .online-dot.online {
+            background: #4caf50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+        }
+        .online-status .online-dot.offline {
+            background: #e53935;
+            box-shadow: 0 0 6px rgba(229, 57, 53, 0.4);
+        }
+        .online-status .online-dot.checking {
+            background: #ffa726;
+            box-shadow: 0 0 6px rgba(255, 167, 38, 0.3);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+        .online-status .online-label {
+            font-size: 7px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .online-status.online {
+            border-color: rgba(76, 175, 80, 0.2);
+            background: rgba(76, 175, 80, 0.05);
+        }
+        [data-theme="dark"] .online-status.online {
+            border-color: rgba(76, 175, 80, 0.15);
+            background: rgba(76, 175, 80, 0.04);
+        }
+        .online-status.offline {
+            border-color: rgba(229, 57, 53, 0.2);
+            background: rgba(229, 57, 53, 0.05);
+        }
+        [data-theme="dark"] .online-status.offline {
+            border-color: rgba(229, 57, 53, 0.15);
+            background: rgba(229, 57, 53, 0.04);
+        }
+
         .datetime {
             font-size: 9px;
             color: #888;
@@ -633,7 +715,6 @@
             background: #2a2622;
         }
 
-        /* ===== PENCIL OVERLAY ===== */
         .photo-overlay {
             position: absolute;
             inset: 2px;
@@ -673,7 +754,6 @@
             background: rgba(0, 0, 0, 0.35);
         }
 
-        /* ===== DROPDOWN ===== */
         .photo-dropdown {
             position: absolute;
             top: calc(100% + 8px);
@@ -755,9 +835,6 @@
             display: none !important;
         }
 
-        /* ============================================================
-           PROFILE INFO
-           ============================================================ */
         .profile-info {
             flex: 1;
             min-width: 0;
@@ -1841,7 +1918,7 @@
         }
 
         /* ============================================================
-           LOCK OVERLAY — visual only, no click blocking
+           LOCK OVERLAY
            ============================================================ */
         .lock-overlay {
             position: absolute;
@@ -2183,6 +2260,14 @@
                 font-size: 8px;
                 padding: 1px 8px;
             }
+            .online-status {
+                font-size: 7px;
+                padding: 1px 6px 1px 4px;
+            }
+            .online-status .online-dot {
+                width: 5px;
+                height: 5px;
+            }
             .balance-row {
                 flex-direction: row;
                 align-items: center;
@@ -2335,6 +2420,14 @@
                 font-size: 7px;
                 padding: 1px 6px;
             }
+            .online-status {
+                font-size: 6px;
+                padding: 1px 4px 1px 3px;
+            }
+            .online-status .online-dot {
+                width: 4px;
+                height: 4px;
+            }
             .motivation-text {
                 font-size: 9px;
             }
@@ -2452,6 +2545,27 @@
                 transform: translateY(0);
             }
         }
+
+        /* ---- Loading shimmer for Firebase ---- */
+        .syncing-badge {
+            font-size: 7px;
+            color: #aaa;
+            animation: pulse 1.2s ease-in-out infinite;
+            display: inline-block;
+            margin-left: 4px;
+        }
+        [data-theme="dark"] .syncing-badge {
+            color: #888;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2484,6 +2598,13 @@
                     </span>
                 </div>
                 <div class="header-actions">
+
+                    <!-- ONLINE STATUS -->
+                    <span class="online-status" id="onlineStatus">
+                        <span class="online-dot checking" id="onlineDot"></span>
+                        <span class="online-label" id="onlineLabel">Memeriksa</span>
+                    </span>
+
                     <div class="datetime" id="datetimeDisplay">
                         <i class="fas fa-clock clock-icon"></i>
                         <span id="dateDisplay">01 September 2026</span>
@@ -2786,33 +2907,123 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT — FIREBASE + APP LOGIC
     ============================================================ -->
     <script>
         // ============================================================
-        //  STARRY SKY
+        //  1. FIREBASE CONFIG & INIT
         // ============================================================
-        (function createStars() {
-            const container = document.getElementById('stars-container');
-            const count = 60;
-            for (let i = 0; i < count; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = 1 + Math.random() * 2;
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
-                star.style.animationDelay = (Math.random() * 5) + 's';
-                container.appendChild(star);
-            }
-        })();
+        const firebaseConfig = {
+            apiKey: "AIzaSyDun090vEoNDfnMyDwDyKAq2VLKajSUTHg",
+            authDomain: "my-profile-95234.firebaseapp.com",
+            databaseURL: "https://my-profile-95234-default-rtdb.firebaseio.com",
+            projectId: "my-profile-95234",
+            storageBucket: "my-profile-95234.firebasestorage.app",
+            messagingSenderId: "350981993664",
+            appId: "1:350981993664:web:640fb0569d7fcf414a2925",
+            measurementId: "G-L027PJ0NSB"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const DATA_PATH = '/profile/data';
 
         // ============================================================
-        //  DATA & LOCALSTORAGE
+        //  2. ONLINE / OFFLINE STATUS
+        // ============================================================
+        let isOnline = false;
+        let connectionChecked = false;
+
+        const onlineStatusEl = document.getElementById('onlineStatus');
+        const onlineDot = document.getElementById('onlineDot');
+        const onlineLabel = document.getElementById('onlineLabel');
+
+        function setOnlineStatus(status) {
+            isOnline = status;
+            connectionChecked = true;
+            onlineDot.className = 'online-dot ' + (status ? 'online' : 'offline');
+            onlineLabel.textContent = status ? 'Online' : 'Offline';
+            onlineStatusEl.className = 'online-status ' + (status ? 'online' : 'offline');
+
+            // Jika offline, tampilkan indikator pada status lock juga
+            const lockStatusEl = document.getElementById('lockStatus');
+            if (!status) {
+                lockStatusEl.style.borderColor = 'rgba(229,57,53,0.2)';
+                lockStatusEl.style.background = 'rgba(229,57,53,0.04)';
+            } else {
+                lockStatusEl.style.borderColor = '';
+                lockStatusEl.style.background = '';
+            }
+        }
+
+        // Firebase connection listener
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                setOnlineStatus(true);
+                // Jika online, sync data dari Firebase
+                syncFromFirebase();
+            } else {
+                setOnlineStatus(false);
+            }
+        });
+
+        // ============================================================
+        //  3. DATA LAYER — Firebase + localStorage cache
         // ============================================================
         const STORAGE_KEY = 'profileAppDataV6';
+        let data = null;
+        let isLoading = true;
+        let pendingWrites = 0;
+
+        // Default data (sama seperti sebelumnya)
+        const expDetailsData = {
+            'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': [
+                'Praregist', 'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                'Monitor tiket (update done + penambahan) s.d jam shift',
+                'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                'Share rekap progres tiket selesai jam shift',
+                'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                'Regist & allow pemasangan baru', 'On cek laporan tim fastrespon',
+                'Menyiapkan atau pengembalian barang teknisi', 'Penyesuaian jadwal shift',
+                'Pendataan kode sn router', 'Share rekap tiket harian selesai full all teknisi',
+                'Monitor barang (cek stok, input stok dan perapihan)', 'Customer service fastrespon',
+                'Perapihan kodepos pada data pelanggan'
+            ],
+            'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': [
+                'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                'Arsip berkas'
+            ]
+        };
+
+        function getDefaultData() {
+            return {
+                photo: null,
+                name: 'Muhamad Maulana',
+                bio: 'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.',
+                education: 'Institut Bisnis & Multimedia asmi – Sarjana Administrasi Bisnis, 3.64/4.00',
+                training: 'Training Prakerja (2024): Microsoft Excel & Data Entry',
+                skills: ['Microsoft Excel', 'Microsoft Word', 'Fast Typing', 'Coding AI', 'Inventory',
+                    'Customer Service / Fastres', 'Monitoring & Rekap'
+                ],
+                experience: [
+                    'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)',
+                    'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)'
+                ],
+                dailyIncomes: [
+                    { id: '1', date: todayStr(), amount: 150000, note: 'Proyek A' },
+                    { id: '2', date: yesterdayStr(), amount: 200000, note: 'Konsultasi' },
+                ],
+                plans: [],
+                planHistory: [],
+                shortcomings: [],
+                shortcomingHistory: [],
+                habits: [],
+                habitHistory: [],
+            };
+        }
 
         function todayStr() {
             return new Date().toISOString().split('T')[0];
@@ -2836,81 +3047,127 @@
             return `${parseInt(parts[2])} ${bulan[parseInt(parts[1])-1]} ${parts[0]}`;
         }
 
-        const expDetailsData = {
-            'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': [
-                'Praregist', 'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
-                'Monitor tiket (update done + penambahan) s.d jam shift',
-                'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
-                'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
-                'Share rekap progres tiket selesai jam shift',
-                'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
-                'Regist & allow pemasangan baru', 'On cek laporan tim fastrespon',
-                'Menyiapkan atau pengembalian barang teknisi', 'Penyesuaian jadwal shift',
-                'Pendataan kode sn router', 'Share rekap tiket harian selesai full all teknisi',
-                'Monitor barang (cek stok, input stok dan perapihan)', 'Customer service fastrespon',
-                'Perapihan kodepos pada data pelanggan'
-            ],
-            'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': [
-                'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
-                'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
-                'Arsip berkas'
-            ]
-        };
-
-        const defaultData = {
-            photo: null,
-            name: 'Muhamad Maulana',
-            bio: 'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.',
-            education: 'Institut Bisnis & Multimedia asmi – Sarjana Administrasi Bisnis, 3.64/4.00',
-            training: 'Training Prakerja (2024): Microsoft Excel & Data Entry',
-            skills: ['Microsoft Excel', 'Microsoft Word', 'Fast Typing', 'Coding AI', 'Inventory',
-                'Customer Service / Fastres', 'Monitoring & Rekap'
-            ],
-            experience: [
-                'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)',
-                'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)'
-            ],
-            dailyIncomes: [
-                { id: '1', date: todayStr(), amount: 150000, note: 'Proyek A' },
-                { id: '2', date: yesterdayStr(), amount: 200000, note: 'Konsultasi' },
-            ],
-            plans: [],
-            planHistory: [],
-            shortcomings: [],
-            shortcomingHistory: [],
-            habits: [],
-            habitHistory: [],
-        };
-
-        let data = loadData();
-
-        function loadData() {
+        // --- Load from localStorage ---
+        function loadFromLocalStorage() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    const merged = { ...JSON.parse(JSON.stringify(defaultData)), ...parsed };
+                    const defaults = getDefaultData();
+                    // Merge
+                    const merged = { ...defaults, ...parsed };
                     return merged;
                 }
             } catch (_) { /* ignore */ }
-            return JSON.parse(JSON.stringify(defaultData));
+            return null;
         }
 
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        function saveToLocalStorage(d) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+            } catch (_) { /* ignore */ }
+        }
+
+        // --- Load from Firebase ---
+        function loadFromFirebase() {
+            return new Promise((resolve, reject) => {
+                database.ref(DATA_PATH).once('value', (snap) => {
+                    const val = snap.val();
+                    if (val) {
+                        // merge with defaults to ensure all fields exist
+                        const defaults = getDefaultData();
+                        const merged = { ...defaults, ...val };
+                        resolve(merged);
+                    } else {
+                        resolve(null);
+                    }
+                }, reject);
+            });
+        }
+
+        function saveToFirebase(d) {
+            return database.ref(DATA_PATH).set(d);
+        }
+
+        // --- Sync: from Firebase to localStorage + UI ---
+        async function syncFromFirebase() {
+            if (!isOnline) return;
+            try {
+                const fbData = await loadFromFirebase();
+                if (fbData) {
+                    data = fbData;
+                    saveToLocalStorage(data);
+                    renderAll();
+                    console.log('✅ Data dimuat dari Firebase');
+                } else {
+                    // Tidak ada data di Firebase, coba pakai localStorage
+                    const localData = loadFromLocalStorage();
+                    if (localData) {
+                        data = localData;
+                        // push ke Firebase
+                        await saveToFirebase(data);
+                        console.log('📤 Data lokal disinkronkan ke Firebase');
+                    } else {
+                        data = getDefaultData();
+                        saveToLocalStorage(data);
+                        await saveToFirebase(data);
+                        console.log('📦 Data default dibuat dan disimpan ke Firebase');
+                    }
+                    renderAll();
+                }
+            } catch (err) {
+                console.warn('⚠️ Gagal sync dari Firebase, pakai localStorage:', err);
+                const localData = loadFromLocalStorage();
+                if (localData) {
+                    data = localData;
+                } else {
+                    data = getDefaultData();
+                    saveToLocalStorage(data);
+                }
+                renderAll();
+            }
+            isLoading = false;
+        }
+
+        // --- Save data (digunakan oleh semua operasi write) ---
+        async function saveDataAndSync() {
+            if (!data) return;
+            // selalu simpan ke localStorage
+            saveToLocalStorage(data);
+
+            // jika online, simpan ke Firebase
+            if (isOnline) {
+                try {
+                    await saveToFirebase(data);
+                    console.log('💾 Data disimpan ke Firebase');
+                } catch (err) {
+                    console.warn('⚠️ Gagal simpan ke Firebase, data tetap di localStorage:', err);
+                }
+            } else {
+                console.log('💾 Data disimpan ke localStorage (offline)');
+            }
         }
 
         // ============================================================
-        //  STATE
+        //  4. RENDER ALL
         // ============================================================
-        let isLocked = false;
-        const PASSWORD = '0789';
-        let currentTheme = 'light';
-        let currentSlide = 0;
-        let currentSubSlide = 0;
+        function renderAll() {
+            if (!data) return;
+            renderPhoto();
+            renderName();
+            renderBio();
+            renderEducation();
+            renderTraining();
+            renderSkills();
+            renderExperience();
+            renderDaily();
+            renderPlans();
+            renderShortcomings();
+            renderHabits();
+        }
 
         // ============================================================
-        //  DOM REFS
+        //  5. DOM REFS (sama seperti sebelumnya)
         // ============================================================
         const $ = id => document.getElementById(id);
         const container = $('appContainer');
@@ -2986,7 +3243,7 @@
         const subSlides = document.querySelectorAll('.sub-slide');
 
         // ============================================================
-        //  DATE & TIME
+        //  6. DATE & TIME
         // ============================================================
         function updateDateTime() {
             const now = new Date();
@@ -3006,7 +3263,7 @@
         updateDateTime();
 
         // ============================================================
-        //  MOTIVATIONAL QUOTES
+        //  7. MOTIVATIONAL QUOTES
         // ============================================================
         const quotes = [
             { text: "Kesuksesan dimulai dari langkah kecil yang diambil hari ini.", author: "Motivasi" },
@@ -3066,8 +3323,10 @@
         resetQuoteTimer();
 
         // ============================================================
-        //  THEME
+        //  8. THEME
         // ============================================================
+        let currentTheme = 'light';
+
         function loadTheme() {
             try {
                 const saved = localStorage.getItem('profileAppTheme');
@@ -3095,8 +3354,11 @@
         themeToggle.addEventListener('click', toggleTheme);
 
         // ============================================================
-        //  LOCK SYSTEM
+        //  9. LOCK SYSTEM
         // ============================================================
+        let isLocked = false;
+        const PASSWORD = '0789';
+
         function updateLockUI() {
             if (isLocked) {
                 lockIcon.className = 'fas fa-lock';
@@ -3172,7 +3434,7 @@
         });
 
         // ============================================================
-        //  PHOTO DROPDOWN
+        //  10. PHOTO DROPDOWN
         // ============================================================
         let dropdownOpen = false;
 
@@ -3198,7 +3460,7 @@
             if (!data.photo) { alert('Tidak ada foto.'); return; }
             if (!confirm('Hapus foto profil?')) return;
             data.photo = null;
-            saveData();
+            saveDataAndSync();
             renderPhoto();
         });
         $('dropdownView').addEventListener('click', (e) => { e.stopPropagation();
@@ -3213,17 +3475,19 @@
             if (file.size > 2 * 1024 * 1024) { alert('Maksimal 2MB!');
                 this.value = ''; return; }
             const reader = new FileReader();
-            reader.onload = function(ev) { data.photo = ev.target.result;
-                saveData();
+            reader.onload = function(ev) {
+                data.photo = ev.target.result;
+                saveDataAndSync();
                 renderPhoto();
-                fileInput.value = ''; };
+                fileInput.value = '';
+            };
             reader.onerror = function() { alert('Gagal membaca file.');
                 fileInput.value = ''; };
             reader.readAsDataURL(file);
         });
 
         // ============================================================
-        //  VIEW PROFILE MODAL
+        //  11. VIEW PROFILE MODAL
         // ============================================================
         function openViewProfileModal() {
             const imgSrc = data.photo ||
@@ -3240,7 +3504,7 @@
         viewProfileModal.addEventListener('click', (e) => { if (e.target === viewProfileModal) closeViewProfileModal(); });
 
         // ============================================================
-        //  RENDER FUNCTIONS
+        //  12. RENDER FUNCTIONS (semua menggunakan data + saveDataAndSync)
         // ============================================================
         function renderPhoto() {
             if (data.photo) { profilePhoto.src = data.photo; } else {
@@ -3369,7 +3633,7 @@
                     if (isLocked) return;
                     if (!confirm('Hapus pengalaman ini?')) return;
                     data.experience.splice(index, 1);
-                    saveData();
+                    saveDataAndSync();
                     renderExperience();
                 });
                 header.appendChild(delBtn);
@@ -3404,7 +3668,7 @@
                 const newText = input.value.trim();
                 if (save && newText && newText !== currentText) {
                     data[key][index] = newText;
-                    saveData();
+                    saveDataAndSync();
                     renderFn();
                 } else if (save && !newText) {
                     deleteItem(index, key, renderFn);
@@ -3423,7 +3687,7 @@
             if (isLocked) return;
             if (!confirm('Hapus item ini?')) return;
             data[key].splice(index, 1);
-            saveData();
+            saveDataAndSync();
             renderFn();
         }
 
@@ -3433,7 +3697,7 @@
             if (!val) { alert('Masukkan ' + placeholderMsg + '!'); return; }
             if (data[key].includes(val)) { alert('"' + val + '" sudah ada!'); return; }
             data[key].push(val);
-            saveData();
+            saveDataAndSync();
             renderFn();
             inputEl.value = '';
             inputEl.focus();
@@ -3531,7 +3795,7 @@
                     item.date = newDate;
                     item.note = newNote;
                     item.amount = newAmount;
-                    saveData();
+                    saveDataAndSync();
                     renderDaily();
                 } else { renderDaily(); }
             };
@@ -3551,7 +3815,7 @@
             if (isLocked) return;
             if (!confirm('Hapus catatan ini?')) return;
             data.dailyIncomes = data.dailyIncomes.filter(d => d.id !== id);
-            saveData();
+            saveDataAndSync();
             renderDaily();
         }
 
@@ -3570,7 +3834,7 @@
                 amount: amount,
                 note: note || 'Tanpa keterangan',
             });
-            saveData();
+            saveDataAndSync();
             renderDaily();
             dailyDate.value = '';
             dailyAmount.value = '';
@@ -3580,7 +3844,7 @@
         }
 
         // ============================================================
-        //  SLIDE NAVIGATION
+        //  13. SLIDE NAVIGATION
         // ============================================================
         function goToSlide(index) {
             currentSlide = index;
@@ -3593,6 +3857,8 @@
             if (index === 1) goToSubSlide(0);
         }
 
+        let currentSlide = 0;
+
         function goToSubSlide(index) {
             currentSubSlide = index;
             subTabBtns.forEach((btn, i) => {
@@ -3602,6 +3868,8 @@
                 slide.classList.toggle('active-sub', i === index);
             });
         }
+
+        let currentSubSlide = 0;
 
         mainTabBtns.forEach((btn) => {
             btn.addEventListener('click', () => {
@@ -3616,7 +3884,7 @@
         });
 
         // ============================================================
-        //  PLAN / SHORTCOMING / HABIT
+        //  14. PLAN / SHORTCOMING / HABIT
         // ============================================================
         function renderPlans() {
             const items = data.plans || [];
@@ -3655,7 +3923,7 @@
             data.plans.splice(idx, 1);
             data.planHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
                 date: todayStr(), completedAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderPlans();
             triggerStarBurst();
         }
@@ -3663,7 +3931,7 @@
         function deletePlan(id) {
             if (!confirm('Hapus rencana ini?')) return;
             data.plans = data.plans.filter(p => p.id !== id);
-            saveData();
+            saveDataAndSync();
             renderPlans();
         }
 
@@ -3673,7 +3941,7 @@
             if (!text) { alert('Masukkan rencana!'); return; }
             data.plans.push({ id: 'p' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
                 createdAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderPlans();
             planInput.value = '';
             planInput.focus();
@@ -3738,7 +4006,7 @@
             data.shortcomings.splice(idx, 1);
             data.shortcomingHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item
                     .text, date: todayStr(), completedAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderShortcomings();
             triggerStarBurst();
         }
@@ -3746,7 +4014,7 @@
         function deleteShortcoming(id) {
             if (!confirm('Hapus kekurangan ini?')) return;
             data.shortcomings = data.shortcomings.filter(p => p.id !== id);
-            saveData();
+            saveDataAndSync();
             renderShortcomings();
         }
 
@@ -3756,7 +4024,7 @@
             if (!text) { alert('Masukkan kekurangan!'); return; }
             data.shortcomings.push({ id: 's' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
                 createdAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderShortcomings();
             shortcomingInput.value = '';
             shortcomingInput.focus();
@@ -3821,7 +4089,7 @@
             data.habits.splice(idx, 1);
             data.habitHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
                 date: todayStr(), completedAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderHabits();
             triggerStarBurst();
         }
@@ -3829,7 +4097,7 @@
         function deleteHabit(id) {
             if (!confirm('Hapus habit ini?')) return;
             data.habits = data.habits.filter(p => p.id !== id);
-            saveData();
+            saveDataAndSync();
             renderHabits();
         }
 
@@ -3839,7 +4107,7 @@
             if (!text) { alert('Masukkan habit!'); return; }
             data.habits.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
                 createdAt: nowISO() });
-            saveData();
+            saveDataAndSync();
             renderHabits();
             habitInput.value = '';
             habitInput.focus();
@@ -3867,7 +4135,7 @@
         }
 
         // ============================================================
-        //  STAR BURST
+        //  15. STAR BURST
         // ============================================================
         function triggerStarBurst() {
             const burst = document.createElement('div');
@@ -3898,7 +4166,7 @@
         }
 
         // ============================================================
-        //  UI EVENTS — inline edits
+        //  16. UI EVENTS — inline edits
         // ============================================================
 
         // --- Name ---
@@ -3915,7 +4183,7 @@
             if (isLocked) return;
             const val = nameInput.value.trim();
             if (val) { data.name = val;
-                saveData();
+                saveDataAndSync();
                 renderName();
                 renderPhoto(); } else { alert('Nama tidak boleh kosong!'); return; }
             nameDisplay.style.display = 'block';
@@ -3945,7 +4213,7 @@
             const val = bioInput.value.trim();
             data.bio = val ||
                 'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
-            saveData();
+            saveDataAndSync();
             renderBio();
             bioDisplay.style.display = 'flex';
             bioEdit.style.display = 'none';
@@ -3974,7 +4242,7 @@
             if (isLocked) return;
             const val = eduInput.value.trim();
             if (val) { data.education = val;
-                saveData();
+                saveDataAndSync();
                 renderEducation(); } else { alert('Pendidikan tidak boleh kosong!'); return; }
             eduDisplay.style.display = 'flex';
             eduEdit.style.display = 'none';
@@ -4003,7 +4271,7 @@
             if (isLocked) return;
             const val = trainingInput.value.trim();
             if (val) { data.training = val;
-                saveData();
+                saveDataAndSync();
                 renderTraining(); } else { alert('Pelatihan tidak boleh kosong!'); return; }
             trainingValue.style.display = 'inline';
             trainingEdit.style.display = 'none';
@@ -4054,33 +4322,75 @@
                 addHabit(); } });
 
         // ============================================================
-        //  INIT
+        //  17. STARRY SKY
         // ============================================================
-        function init() {
-            loadTheme();
-            renderPhoto();
-            renderName();
-            renderBio();
-            renderEducation();
-            renderTraining();
-            renderSkills();
-            renderExperience();
-            renderDaily();
-            renderPlans();
-            renderShortcomings();
-            renderHabits();
+        (function createStars() {
+            const container = document.getElementById('stars-container');
+            const count = 60;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 2;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(star);
+            }
+        })();
 
+        // ============================================================
+        //  18. INIT — tunggu koneksi atau load dari cache
+        // ============================================================
+        async function initApp() {
+            // Coba muat dari localStorage dulu agar UI cepat
+            const localData = loadFromLocalStorage();
+            if (localData) {
+                data = localData;
+                renderAll();
+                console.log('📂 Data dari localStorage (cache)');
+            } else {
+                data = getDefaultData();
+                saveToLocalStorage(data);
+                renderAll();
+                console.log('📦 Data default dibuat');
+            }
+
+            // Jika sudah online, sync dari Firebase (di-trigger oleh listener .info/connected)
+            // Tapi jika listener belum triggered, coba manual setelah 2 detik
+            setTimeout(async () => {
+                if (!connectionChecked) {
+                    // Coba cek status
+                    try {
+                        const snap = await database.ref('.info/connected').once('value');
+                        if (snap.val() === true) {
+                            setOnlineStatus(true);
+                            await syncFromFirebase();
+                        } else {
+                            setOnlineStatus(false);
+                        }
+                    } catch (_) {
+                        setOnlineStatus(false);
+                    }
+                }
+            }, 2000);
+
+            // Lock state awal
             isLocked = false;
             updateLockUI();
 
+            // Navigasi awal
             goToSlide(0);
             goToSubSlide(0);
 
-            console.log('✅ Profil App siap — Muhamad Maulana');
+            console.log('✅ Profil App dengan Firebase siap!');
             console.log('🔒 Password: 0789');
+            console.log('📡 Status: ' + (isOnline ? 'Online' : 'Offline (cache)'));
         }
 
-        init();
+        initApp();
     </script>
 
 </body>
