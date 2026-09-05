@@ -1,0 +1,4087 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Profil Saya</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* ============================================================
+           RESET & GLOBAL — CENTERED PORTRAIT LAYOUT
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e8e4de;
+            color: #1e1a16;
+            transition: background 0.3s, color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        [data-theme="dark"] {
+            background: #0e0c0a;
+            color: #eae6e0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 6px;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #3d3a36;
+        }
+
+        /* ============================================================
+           APP WRAPPER — center, portrait, responsive
+           ============================================================ */
+        .app-wrapper {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 860px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            background: #f6f4f0;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        [data-theme="dark"] .app-wrapper {
+            background: #12100e;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 520px) {
+            .app-wrapper {
+                max-height: 100vh;
+                border-radius: 16px;
+            }
+            html,
+            body {
+                padding: 6px;
+            }
+        }
+        @media (max-width: 420px) {
+            .app-wrapper {
+                border-radius: 12px;
+            }
+            html,
+            body {
+                padding: 4px;
+            }
+        }
+
+        /* ============================================================
+           STARS BACKGROUND (inside wrapper)
+           ============================================================ */
+        #stars-container {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: #f6f4f0;
+            transition: background 0.3s;
+            border-radius: 24px;
+        }
+        [data-theme="dark"] #stars-container {
+            background: #12100e;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        [data-theme="dark"] .star {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ============================================================
+           MAIN CONTAINER
+           ============================================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 12px 12px;
+            background: rgba(255, 252, 248, 0.88);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.3s;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+        [data-theme="dark"] .container {
+            background: rgba(18, 16, 14, 0.94);
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 4px;
+            position: relative;
+            z-index: 10;
+        }
+        [data-theme="dark"] .header {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-left h1 {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .header-left h1 {
+            color: #eae6e0;
+        }
+        .header-left h1 .star-logo {
+            color: #c9a84c;
+            font-size: 15px;
+        }
+
+        .lock-status {
+            font-size: 9px;
+            font-weight: 500;
+            padding: 1px 10px 1px 8px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.04);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #888;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        [data-theme="dark"] .lock-status {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #bbb;
+        }
+        .lock-status .status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .lock-status .status-dot.unlocked {
+            background: #6b8f5e;
+        }
+        .lock-status .status-dot.locked {
+            background: #c97a47;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .datetime {
+            font-size: 9px;
+            color: #888;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 2px 10px 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        [data-theme="dark"] .datetime {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #bbb;
+        }
+        .datetime .clock-icon {
+            color: #c9a84c;
+            font-size: 9px;
+        }
+        .time-sep {
+            color: #ccc;
+        }
+        [data-theme="dark"] .time-sep {
+            color: #666;
+        }
+
+        .lock-btn,
+        .theme-toggle {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+        [data-theme="dark"] .lock-btn,
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+        }
+        .lock-btn:hover,
+        .theme-toggle:hover {
+            border-color: #c9a84c;
+            color: #c9a84c;
+        }
+        .lock-btn.locked {
+            border-color: #c97a47;
+            color: #c97a47;
+        }
+        .theme-toggle .fa-sun {
+            display: none;
+        }
+        .theme-toggle .fa-moon {
+            display: inline-block;
+        }
+        [data-theme="dark"] .theme-toggle .fa-sun {
+            display: inline-block;
+        }
+        [data-theme="dark"] .theme-toggle .fa-moon {
+            display: none;
+        }
+
+        /* ============================================================
+           MOTIVATION BAR
+           ============================================================ */
+        .motivation-bar {
+            flex-shrink: 0;
+            padding: 4px 12px;
+            margin: 4px 0 5px 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 30px;
+            transition: background 0.3s;
+        }
+        [data-theme="dark"] .motivation-bar {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .motivation-icon {
+            color: #c9a84c;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .motivation-text {
+            font-size: 11px;
+            font-weight: 400;
+            color: #3a342e;
+            flex: 1;
+            transition: opacity 0.3s, transform 0.3s;
+            line-height: 1.3;
+            font-style: italic;
+        }
+        [data-theme="dark"] .motivation-text {
+            color: #d5d0ca;
+        }
+        .motivation-text.fade {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+        .motivation-author {
+            font-size: 9px;
+            color: #aaa;
+            font-style: italic;
+            margin-left: 4px;
+        }
+        [data-theme="dark"] .motivation-author {
+            color: #888;
+        }
+        .motivation-dots {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .motivation-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .motivation-dots span {
+            background: rgba(255, 255, 255, 0.10);
+        }
+        .motivation-dots span.active {
+            background: #c9a84c;
+            transform: scale(1.3);
+        }
+
+        /* ============================================================
+           TAB NAV
+           ============================================================ */
+        .tab-nav {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 5;
+        }
+        [data-theme="dark"] .tab-nav {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .tab-nav .tab-btn {
+            flex: 1;
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            text-align: center;
+        }
+        .tab-nav .tab-btn i {
+            margin-right: 4px;
+            font-size: 10px;
+        }
+        .tab-nav .tab-btn:hover {
+            color: #555;
+        }
+        [data-theme="dark"] .tab-nav .tab-btn:hover {
+            color: #ddd;
+        }
+        .tab-nav .tab-btn.active {
+            background: #c9a84c;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(201, 168, 76, 0.20);
+        }
+        .tab-nav .tab-btn.active:hover {
+            color: #fff;
+        }
+
+        /* ============================================================
+           SLIDES WRAPPER
+           ============================================================ */
+        .slides-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 10px;
+            position: relative;
+            min-height: 0;
+        }
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0 1px;
+        }
+        .slide.active-slide {
+            display: flex;
+            animation: slideIn 0.3s ease forwards;
+        }
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============================================================
+           SUB TAB
+           ============================================================ */
+        .sub-tab-nav {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 5px;
+        }
+        [data-theme="dark"] .sub-tab-nav {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .sub-tab-nav .sub-tab-btn {
+            flex: 1;
+            padding: 3px 6px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            text-align: center;
+        }
+        .sub-tab-nav .sub-tab-btn i {
+            margin-right: 3px;
+            font-size: 9px;
+        }
+        .sub-tab-nav .sub-tab-btn:hover {
+            color: #555;
+        }
+        [data-theme="dark"] .sub-tab-nav .sub-tab-btn:hover {
+            color: #ddd;
+        }
+        .sub-tab-nav .sub-tab-btn.active {
+            background: #c9a84c;
+            color: #fff;
+        }
+
+        .sub-slides-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 8px;
+            position: relative;
+            min-height: 0;
+        }
+        .sub-slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sub-slide.active-sub {
+            display: flex;
+            animation: subSlideIn 0.3s ease forwards;
+        }
+        @keyframes subSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============================================================
+           CARDS
+           ============================================================ */
+        .card {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 7px 10px;
+            margin-bottom: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: background 0.3s, border-color 0.3s;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .card {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .card:last-child {
+            margin-bottom: 0;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+        .card-header h2 {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .card-header h2 {
+            color: #eae6e0;
+        }
+        .card-header h2 i {
+            color: #c9a84c;
+            font-size: 11px;
+        }
+
+        /* ============================================================
+           PROFILE
+           ============================================================ */
+        .profile-section {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+            flex-wrap: nowrap;
+        }
+
+        .photo-wrapper {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 2px;
+            background: #c9a84c;
+            box-shadow: 0 2px 10px rgba(201, 168, 76, 0.15);
+            transition: all 0.3s;
+            align-self: center;
+            z-index: 5;
+        }
+        .photo-wrapper:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.25);
+        }
+        .photo-wrapper::after {
+            content: '✦';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            font-size: 10px;
+            color: #c9a84c;
+            animation: starPulse 2s ease-in-out infinite;
+        }
+        @keyframes starPulse {
+            0%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        .photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            display: block;
+            background: #f0ede8;
+        }
+        [data-theme="dark"] .photo-wrapper img {
+            border-color: #1e1a16;
+            background: #2a2622;
+        }
+
+        /* ===== PENCIL OVERLAY ===== */
+        .photo-overlay {
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(2px);
+            cursor: pointer;
+            z-index: 10;
+        }
+        .photo-wrapper:hover .photo-overlay {
+            opacity: 1;
+        }
+        .photo-overlay .pencil-icon {
+            font-size: 22px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(201, 168, 76, 0.4);
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+        .photo-wrapper:hover .photo-overlay .pencil-icon {
+            transform: scale(1.08);
+        }
+        [data-theme="dark"] .photo-overlay .pencil-icon {
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 60px rgba(201, 168, 76, 0.3);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        /* ===== DROPDOWN ===== */
+        .photo-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.92) translateY(6px);
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            min-width: 150px;
+            padding: 4px 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            pointer-events: none;
+        }
+        [data-theme="dark"] .photo-dropdown {
+            background: #1e1a16;
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+        .photo-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1) translateY(0);
+            pointer-events: auto;
+        }
+        .photo-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #333;
+            background: none;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: inherit;
+            text-align: left;
+            border-radius: 4px;
+        }
+        [data-theme="dark"] .photo-dropdown .dropdown-item {
+            color: #ddd;
+        }
+        .photo-dropdown .dropdown-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .photo-dropdown .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .photo-dropdown .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        [data-theme="dark"] .photo-dropdown .dropdown-item i {
+            color: #aaa;
+        }
+        .photo-dropdown .dropdown-item.danger:hover {
+            color: #c97a47;
+        }
+        .photo-dropdown .dropdown-item.danger:hover i {
+            color: #c97a47;
+        }
+        .photo-dropdown .dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 3px 10px;
+        }
+        [data-theme="dark"] .photo-dropdown .dropdown-divider {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        #fileInput {
+            display: none !important;
+        }
+
+        /* ============================================================
+           PROFILE INFO
+           ============================================================ */
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            justify-content: center;
+        }
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .profile-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .profile-name {
+            color: #eae6e0;
+        }
+        .profile-name .value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .profile-name .value.empty {
+            color: #777;
+        }
+
+        .btn-edit-sm {
+            background: none;
+            border: none;
+            color: #bbb;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-edit-sm:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: #c9a84c;
+        }
+        [data-theme="dark"] .btn-edit-sm:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .profile-bio {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        [data-theme="dark"] .profile-bio {
+            color: #bbb;
+        }
+        .profile-bio .value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .profile-bio .value.empty {
+            color: #777;
+        }
+
+        .profile-edu-line {
+            font-size: 9px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 1px 0;
+        }
+        [data-theme="dark"] .profile-edu-line {
+            color: #bbb;
+        }
+        .profile-edu-line i {
+            color: #c9a84c;
+            font-size: 9px;
+            width: 14px;
+            text-align: center;
+        }
+        .profile-edu-line .edu-text {
+            color: #444;
+        }
+        [data-theme="dark"] .profile-edu-line .edu-text {
+            color: #d5d0ca;
+        }
+
+        .profile-training-line {
+            font-size: 9px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 1px 0;
+        }
+        [data-theme="dark"] .profile-training-line {
+            color: #bbb;
+        }
+        .profile-training-line i {
+            color: #c9a84c;
+            font-size: 9px;
+            width: 14px;
+            text-align: center;
+        }
+        .profile-training-line #trainingValue {
+            color: #444;
+        }
+        [data-theme="dark"] .profile-training-line #trainingValue {
+            color: #d5d0ca;
+        }
+
+        .golden-field {
+            border: 1px solid rgba(201, 168, 76, 0.20);
+            border-radius: 6px;
+            padding: 1px 6px;
+            background: rgba(201, 168, 76, 0.03);
+            transition: border-color 0.3s;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .golden-field {
+            color: #eae6e0;
+            border-color: rgba(201, 168, 76, 0.15);
+        }
+        .golden-field:hover {
+            border-color: rgba(201, 168, 76, 0.35);
+        }
+
+        .info-input {
+            width: 100%;
+            padding: 3px 8px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 6px;
+            font-size: 10px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.6);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .info-input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .info-input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.08);
+        }
+        .info-input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .info-input::placeholder {
+            color: #888;
+        }
+        textarea.info-input {
+            resize: vertical;
+            min-height: 26px;
+        }
+
+        .btn-save {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 14px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .btn-save:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.25);
+        }
+        .btn-save.cancel {
+            background: #ddd;
+            color: #666;
+        }
+        .btn-save.cancel:hover {
+            background: #ccc;
+            transform: none;
+            box-shadow: none;
+        }
+        [data-theme="dark"] .btn-save.cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: #aaa;
+        }
+        [data-theme="dark"] .btn-save.cancel:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .edit-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .inline-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .inline-edit-row .info-input {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        /* ============================================================
+           SKILLS / EXPERIENCE
+           ============================================================ */
+        .skills-scroll,
+        .exp-scroll {
+            max-height: 42px;
+            overflow-y: auto;
+            padding-right: 3px;
+            margin-bottom: 2px;
+        }
+        .skills-container,
+        .exp-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            min-height: 20px;
+        }
+        .skill-tag,
+        .exp-tag {
+            background: rgba(0, 0, 0, 0.04);
+            padding: 1px 8px 1px 10px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            animation: tagIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-6px);
+        }
+        [data-theme="dark"] .skill-tag,
+        [data-theme="dark"] .exp-tag {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+        }
+        @keyframes tagIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .skill-tag .skill-text,
+        .exp-tag .exp-text {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .skill-tag .skill-text:hover,
+        .exp-tag .exp-text:hover {
+            color: #c9a84c;
+        }
+        .skill-tag .skill-delete,
+        .exp-tag .exp-delete {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 8px;
+            padding: 0 2px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        [data-theme="dark"] .skill-tag .skill-delete,
+        [data-theme="dark"] .exp-tag .exp-delete {
+            color: #888;
+        }
+        .skill-tag .skill-delete:hover,
+        .exp-tag .exp-delete:hover {
+            color: #c97a47;
+        }
+        .skill-edit-input,
+        .exp-edit-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #c9a84c;
+            font-size: 9px;
+            font-weight: 500;
+            font-family: inherit;
+            color: #1e1a16;
+            padding: 0 4px;
+            min-width: 30px;
+            outline: none;
+        }
+        [data-theme="dark"] .skill-edit-input,
+        [data-theme="dark"] .exp-edit-input {
+            color: #eae6e0;
+        }
+
+        .add-skill-form,
+        .add-exp-form {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .add-skill-form input,
+        .add-exp-form input {
+            flex: 1;
+            min-width: 60px;
+            padding: 2px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .add-skill-form input,
+        [data-theme="dark"] .add-exp-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .add-skill-form input::placeholder,
+        .add-exp-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .add-skill-form input::placeholder,
+        [data-theme="dark"] .add-exp-form input::placeholder {
+            color: #888;
+        }
+        .add-skill-form input:focus,
+        .add-exp-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .add-skill-form button,
+        .add-exp-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 12px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .add-skill-form button:hover,
+        .add-exp-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+        .empty-skills,
+        .empty-exp {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+        }
+        [data-theme="dark"] .empty-skills,
+        [data-theme="dark"] .empty-exp {
+            color: #888;
+        }
+
+        /* ============================================================
+           EXPERIENCE DETAIL
+           ============================================================ */
+        .exp-detail-item {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 4px 10px;
+            margin-bottom: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+        [data-theme="dark"] .exp-detail-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .exp-detail-item:last-child {
+            margin-bottom: 0;
+        }
+        .exp-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 2px 0;
+        }
+        .exp-detail-header .exp-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: #1e1a16;
+            flex: 1;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-title {
+            color: #eae6e0;
+        }
+        .exp-detail-header .exp-period {
+            font-size: 8px;
+            color: #999;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-period {
+            color: #aaa;
+        }
+        .exp-detail-header .exp-toggle {
+            color: #bbb;
+            font-size: 10px;
+            transition: transform 0.25s;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-toggle {
+            color: #888;
+        }
+        .exp-detail-header .exp-toggle.open {
+            transform: rotate(180deg);
+        }
+        .exp-detail-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 4px;
+        }
+        .exp-detail-body.open {
+            max-height: 300px;
+            padding: 4px 4px 2px 4px;
+        }
+        .exp-detail-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .exp-detail-body ul li {
+            font-size: 9px;
+            color: #666;
+            padding: 1px 0 1px 12px;
+            position: relative;
+            line-height: 1.4;
+        }
+        [data-theme="dark"] .exp-detail-body ul li {
+            color: #bbb;
+        }
+        .exp-detail-body ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #c9a84c;
+            font-size: 10px;
+        }
+        .exp-empty-details {
+            font-size: 9px;
+            color: #bbb;
+            font-style: italic;
+        }
+
+        /* ============================================================
+           KEUANGAN
+           ============================================================ */
+        .finance-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .balance-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .balance-row {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+        .balance-amount {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .balance-amount {
+            color: #eae6e0;
+        }
+        .balance-amount span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #c9a84c;
+            margin-right: 2px;
+        }
+        .balance-label {
+            font-size: 9px;
+            color: #aaa;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .balance-label {
+            color: #999;
+        }
+        .balance-meta {
+            font-size: 9px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        [data-theme="dark"] .balance-meta {
+            color: #999;
+        }
+
+        .add-daily-form {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 4px 0 5px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .add-daily-form {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+        .add-daily-form input {
+            padding: 2px 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .add-daily-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .add-daily-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .add-daily-form input::placeholder {
+            color: #888;
+        }
+        .add-daily-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .add-daily-form input.date-input {
+            min-width: 85px;
+        }
+        .add-daily-form input.amount-input {
+            min-width: 65px;
+        }
+        .add-daily-form input.note-input {
+            flex: 1;
+            min-width: 55px;
+        }
+        .add-daily-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 14px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .add-daily-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+
+        .daily-list-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 3px;
+            margin-top: 4px;
+            min-height: 0;
+        }
+        .daily-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .daily-item {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 3px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            font-size: 10px;
+        }
+        [data-theme="dark"] .daily-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .daily-item:hover {
+            border-color: rgba(201, 168, 76, 0.15);
+        }
+        .daily-item .date {
+            font-size: 9px;
+            font-weight: 500;
+            color: #888;
+            min-width: 55px;
+        }
+        [data-theme="dark"] .daily-item .date {
+            color: #aaa;
+        }
+        .daily-item .note {
+            flex: 1;
+            font-size: 9px;
+            color: #555;
+            min-width: 35px;
+        }
+        [data-theme="dark"] .daily-item .note {
+            color: #ccc;
+        }
+        .daily-item .amount {
+            font-weight: 600;
+            font-size: 10px;
+            min-width: 45px;
+            text-align: right;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .daily-item .amount {
+            color: #eae6e0;
+        }
+        .daily-item .amount.positive {
+            color: #6b8f5e;
+        }
+        [data-theme="dark"] .daily-item .amount.positive {
+            color: #7dab6e;
+        }
+        .daily-item .item-actions {
+            display: flex;
+            gap: 3px;
+            margin-left: auto;
+        }
+        .daily-item .item-actions button {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            padding: 1px 3px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .daily-item .item-actions button {
+            color: #888;
+        }
+        .daily-item .item-actions .edit-daily:hover {
+            color: #c9a84c;
+        }
+        .daily-item .item-actions .delete-daily:hover {
+            color: #c97a47;
+        }
+        .daily-item .item-actions .save-daily {
+            background: #c9a84c;
+            color: #fff;
+            padding: 1px 10px;
+            border-radius: 14px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+        .daily-item .item-actions .save-daily:hover {
+            background: #b8973a;
+        }
+        .daily-item .item-actions .cancel-daily {
+            background: rgba(0, 0, 0, 0.04);
+            color: #888;
+            padding: 1px 10px;
+            border-radius: 14px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .daily-item .item-actions .cancel-daily {
+            background: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .daily-item .edit-field {
+            padding: 1px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 4px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            min-width: 35px;
+            transition: border-color 0.2s;
+        }
+        [data-theme="dark"] .daily-item .edit-field {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .daily-item .edit-field::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .daily-item .edit-field::placeholder {
+            color: #888;
+        }
+        .daily-item .edit-field:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+        .daily-item .edit-field.date-field {
+            min-width: 65px;
+        }
+        .daily-item .edit-field.amount-field {
+            min-width: 45px;
+        }
+        .daily-item .edit-field.note-field {
+            flex: 1;
+            min-width: 45px;
+        }
+        .empty-daily {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+            padding: 3px 0;
+        }
+        [data-theme="dark"] .empty-daily {
+            color: #888;
+        }
+
+        /* ============================================================
+           PLAN / SHORTCOMING / HABIT
+           ============================================================ */
+        .plan-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .plan-add-form {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+        .plan-add-form input {
+            flex: 1;
+            min-width: 55px;
+            padding: 2px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .plan-add-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .plan-add-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-add-form input::placeholder {
+            color: #888;
+        }
+        .plan-add-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .plan-add-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 12px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .plan-add-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+
+        .plan-items-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 3px;
+            margin-bottom: 3px;
+            min-height: 0;
+        }
+        .plan-items {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-height: 16px;
+        }
+        .plan-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            animation: tagIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-4px);
+            font-size: 10px;
+        }
+        [data-theme="dark"] .plan-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .plan-item:hover {
+            border-color: rgba(201, 168, 76, 0.12);
+        }
+        .plan-item .plan-text {
+            flex: 1;
+            font-size: 10px;
+            color: #444;
+        }
+        [data-theme="dark"] .plan-item .plan-text {
+            color: #d5d0ca;
+        }
+        .plan-item .plan-text.done {
+            text-decoration: line-through;
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-item .plan-text.done {
+            color: #777;
+        }
+        .plan-item .plan-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.3);
+            color: transparent;
+            font-size: 8px;
+        }
+        [data-theme="dark"] .plan-item .plan-check {
+            border-color: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .plan-item .plan-check:hover {
+            border-color: #c9a84c;
+        }
+        .plan-item .plan-check.checked {
+            background: #6b8f5e;
+            border-color: #6b8f5e;
+            color: #fff;
+        }
+        .plan-item .plan-delete {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 9px;
+            padding: 1px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        [data-theme="dark"] .plan-item .plan-delete {
+            color: #888;
+        }
+        .plan-item .plan-delete:hover {
+            color: #c97a47;
+        }
+
+        .plan-section-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #888;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .plan-section-title {
+            color: #aaa;
+        }
+        .plan-section-title i {
+            color: #c9a84c;
+            font-size: 9px;
+        }
+
+        .plan-history-wrapper {
+            max-height: 42px;
+            overflow-y: auto;
+            padding-right: 3px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 3px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .plan-history-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .plan-history-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 1px 3px;
+            font-size: 9px;
+            color: #888;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        [data-theme="dark"] .plan-history-item {
+            border-bottom-color: rgba(255, 255, 255, 0.03);
+            color: #aaa;
+        }
+        .plan-history-item:last-child {
+            border-bottom: none;
+        }
+        .plan-history-item .h-icon {
+            color: #c9a84c;
+            font-size: 8px;
+        }
+        .plan-history-item .h-text {
+            flex: 1;
+            color: #555;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .plan-history-item .h-text {
+            color: #ccc;
+        }
+        .plan-history-item .h-date {
+            font-size: 8px;
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-history-item .h-date {
+            color: #888;
+        }
+        .empty-plan {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+            padding: 2px 0;
+        }
+        [data-theme="dark"] .empty-plan {
+            color: #888;
+        }
+
+        .badge-count {
+            display: inline-block;
+            background: #c9a84c;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 600;
+            padding: 0 6px;
+            border-radius: 10px;
+            line-height: 14px;
+        }
+        .badge-count.done {
+            background: #6b8f5e;
+        }
+        [data-theme="dark"] .badge-count {
+            color: #fff;
+        }
+
+        /* ============================================================
+           STAR BURST
+           ============================================================ */
+        .habit-star-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .burst-star {
+            position: absolute;
+            font-size: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            animation: burstFly 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 1;
+        }
+        @keyframes burstFly {
+            0% {
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        .habit-reward-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.35);
+            z-index: 10000;
+            pointer-events: none;
+            animation: rewardPop 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes rewardPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+                opacity: 0;
+            }
+            30% {
+                transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+                opacity: 1;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================================
+           LOCK OVERLAY — visual only, no click blocking
+           ============================================================ */
+        .lock-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background: transparent;
+            pointer-events: none;
+            transition: background 0.4s, backdrop-filter 0.4s;
+            z-index: 2;
+            border: 2px solid transparent;
+            transition: border-color 0.4s, background 0.4s;
+        }
+        .lock-overlay.active {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(201, 168, 76, 0.15);
+            pointer-events: none;
+        }
+        [data-theme="dark"] .lock-overlay.active {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(201, 168, 76, 0.10);
+        }
+
+        .lock-overlay .lock-badge {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 14px;
+            color: #c9a84c;
+            opacity: 0;
+            transition: opacity 0.4s;
+            text-shadow: 0 2px 8px rgba(201, 168, 76, 0.2);
+        }
+        .lock-overlay.active .lock-badge {
+            opacity: 0.6;
+        }
+
+        /* ============================================================
+           LOCK STATE
+           ============================================================ */
+        .container.locked .photo-overlay {
+            display: none !important;
+        }
+        .container.locked .btn-edit-sm {
+            display: none !important;
+        }
+        .container.locked .skill-delete,
+        .container.locked .exp-delete {
+            display: none !important;
+        }
+        .container.locked .add-skill-form,
+        .container.locked .add-exp-form {
+            display: none !important;
+        }
+        .container.locked .add-daily-form {
+            display: none !important;
+        }
+        .container.locked .edit-daily {
+            display: none !important;
+        }
+        .container.locked .delete-daily {
+            display: none !important;
+        }
+        .container.locked .btn-save {
+            display: none !important;
+        }
+        .container.locked .edit-actions {
+            display: none !important;
+        }
+        .container.locked .photo-dropdown {
+            display: none !important;
+        }
+        .container.locked .photo-wrapper {
+            cursor: default !important;
+        }
+        .container.locked .photo-wrapper:hover .photo-overlay {
+            opacity: 0 !important;
+        }
+        .container.locked .skill-text,
+        .container.locked .exp-text {
+            cursor: default !important;
+        }
+        .container.locked .skill-text:hover,
+        .container.locked .exp-text:hover {
+            color: inherit !important;
+        }
+        .container.locked .plan-check {
+            cursor: default !important;
+            pointer-events: none !important;
+        }
+        .container.locked .plan-delete {
+            display: none !important;
+        }
+        .container.locked .plan-add-form {
+            display: none !important;
+        }
+        .container.locked .sub-tab-nav {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .container.locked .exp-detail-header {
+            cursor: default !important;
+        }
+        .container.locked .exp-detail-body {
+            max-height: 300px !important;
+            padding: 4px 4px 2px 4px !important;
+        }
+        .container.locked .exp-toggle {
+            display: none !important;
+        }
+        .container.locked .photo-wrapper::after {
+            display: none !important;
+        }
+
+        /* ============================================================
+           MODALS
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 16px;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 20px;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            transform: scale(0.92) translateY(12px);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .modal-box {
+            background: #1e1a16;
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .modal-overlay.open .modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .modal-box h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .modal-box h3 {
+            color: #eae6e0;
+        }
+        .modal-box h3 i {
+            color: #c9a84c;
+            margin-right: 6px;
+        }
+        .modal-box p {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        [data-theme="dark"] .modal-box p {
+            color: #999;
+        }
+        .modal-box .modal-input {
+            width: 100%;
+            padding: 6px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.6);
+            color: #1e1a16;
+            transition: all 0.25s;
+            margin-bottom: 8px;
+        }
+        [data-theme="dark"] .modal-box .modal-input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .modal-box .modal-input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .modal-box .modal-input::placeholder {
+            color: #888;
+        }
+        .modal-box .modal-input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.08);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+        .modal-actions .btn-modal {
+            padding: 4px 16px;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .modal-actions .btn-modal.primary {
+            background: #c9a84c;
+            color: #fff;
+        }
+        .modal-actions .btn-modal.primary:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.25);
+        }
+        .modal-actions .btn-modal.cancel {
+            background: rgba(0, 0, 0, 0.04);
+            color: #888;
+        }
+        [data-theme="dark"] .modal-actions .btn-modal.cancel {
+            background: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .modal-actions .btn-modal.cancel:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .modal-actions .btn-modal.cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .modal-error {
+            color: #c97a47;
+            font-size: 10px;
+            margin-top: -6px;
+            margin-bottom: 6px;
+            display: none;
+        }
+        .modal-error.show {
+            display: block;
+        }
+
+        .modal-box.view-profile {
+            text-align: center;
+            max-width: 360px;
+        }
+        .modal-box.view-profile .view-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #c9a84c;
+            margin: 0 auto 6px;
+            display: block;
+        }
+        .modal-box.view-profile .view-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .modal-box.view-profile .view-name {
+            color: #eae6e0;
+        }
+        .modal-box.view-profile .view-bio {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+        [data-theme="dark"] .modal-box.view-profile .view-bio {
+            color: #aaa;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 700px) {
+            .app-wrapper {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 16px;
+            }
+            .container {
+                padding: 6px 8px 10px;
+                border-radius: 16px;
+            }
+            #stars-container {
+                border-radius: 16px;
+            }
+            .profile-section {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: nowrap;
+            }
+            .photo-wrapper {
+                width: 52px;
+                height: 52px;
+            }
+            .photo-overlay .pencil-icon {
+                font-size: 18px;
+                width: 30px;
+                height: 30px;
+                padding: 4px;
+            }
+            .profile-info {
+                gap: 1px;
+            }
+            .profile-name {
+                font-size: 13px;
+            }
+            .profile-bio {
+                font-size: 9px;
+            }
+            .profile-edu-line,
+            .profile-training-line {
+                font-size: 8px;
+            }
+            .header {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+            .header-left h1 {
+                font-size: 13px;
+            }
+            .header-actions {
+                flex-wrap: wrap;
+            }
+            .datetime {
+                font-size: 8px;
+                padding: 1px 8px;
+            }
+            .balance-row {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .balance-amount {
+                font-size: 16px;
+            }
+            .daily-item {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+                flex-wrap: wrap;
+                padding: 3px 8px;
+            }
+            .daily-item .date {
+                min-width: 45px;
+            }
+            .daily-item .amount {
+                text-align: left;
+                min-width: auto;
+            }
+            .daily-item .item-actions {
+                margin-left: auto;
+            }
+            .add-daily-form {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .add-daily-form input {
+                flex: 1;
+                min-width: 45px;
+            }
+            .add-skill-form,
+            .add-exp-form {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .add-skill-form input,
+            .add-exp-form input {
+                flex: 1;
+                min-width: 45px;
+            }
+            .tab-nav .tab-btn {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+            .tab-nav .tab-btn i {
+                margin-right: 3px;
+            }
+            .sub-tab-nav .sub-tab-btn {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+            .plan-add-form {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .plan-add-form input {
+                flex: 1;
+                min-width: 45px;
+            }
+            .motivation-text {
+                font-size: 10px;
+            }
+            .modal-box {
+                padding: 14px 12px;
+            }
+            .modal-box.view-profile .view-avatar {
+                width: 64px;
+                height: 64px;
+            }
+            .photo-dropdown {
+                left: 50%;
+                transform: translateX(-50%) scale(0.95) translateY(4px);
+                min-width: 130px;
+            }
+            .photo-dropdown.open {
+                transform: translateX(-50%) scale(1) translateY(0);
+            }
+            .card {
+                padding: 5px 8px;
+                margin-bottom: 4px;
+            }
+            .skills-scroll,
+            .exp-scroll {
+                max-height: 36px;
+            }
+            .plan-history-wrapper {
+                max-height: 36px;
+            }
+            .exp-detail-body ul li {
+                font-size: 8px;
+            }
+            .exp-detail-header .exp-title {
+                font-size: 9px;
+            }
+            .exp-detail-header .exp-period {
+                font-size: 8px;
+            }
+            .container.locked .sub-tab-nav {
+                opacity: 1 !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 4px 5px 8px;
+            }
+            .photo-wrapper {
+                width: 44px;
+                height: 44px;
+                padding: 1px;
+            }
+            .photo-overlay .pencil-icon {
+                font-size: 15px;
+                width: 26px;
+                height: 26px;
+                padding: 3px;
+            }
+            .photo-wrapper::after {
+                font-size: 8px;
+                top: -2px;
+                right: -2px;
+            }
+            .profile-name {
+                font-size: 12px;
+            }
+            .profile-bio {
+                font-size: 8px;
+            }
+            .profile-edu-line,
+            .profile-training-line {
+                font-size: 7px;
+            }
+            .balance-amount {
+                font-size: 14px;
+            }
+            .header-left h1 {
+                font-size: 11px;
+            }
+            .lock-btn,
+            .theme-toggle {
+                width: 22px;
+                height: 22px;
+                font-size: 9px;
+            }
+            .datetime {
+                font-size: 7px;
+                padding: 1px 6px;
+            }
+            .motivation-text {
+                font-size: 9px;
+            }
+            .tab-nav .tab-btn {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+            .sub-tab-nav .sub-tab-btn {
+                font-size: 7px;
+                padding: 2px 3px;
+            }
+            .card {
+                padding: 4px 6px;
+                margin-bottom: 3px;
+            }
+            .card-header h2 {
+                font-size: 10px;
+            }
+            .skill-tag,
+            .exp-tag {
+                font-size: 8px;
+                padding: 1px 6px 1px 8px;
+            }
+            .daily-item {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .daily-item .date {
+                font-size: 7px;
+                min-width: 35px;
+            }
+            .daily-item .amount {
+                font-size: 9px;
+            }
+            .skills-scroll,
+            .exp-scroll {
+                max-height: 30px;
+            }
+            .plan-history-wrapper {
+                max-height: 30px;
+            }
+            .modal-box {
+                padding: 10px 8px;
+            }
+            .modal-box.view-profile .view-avatar {
+                width: 56px;
+                height: 56px;
+            }
+            .exp-detail-body ul li {
+                font-size: 7px;
+                padding: 0 0 0 10px;
+            }
+            .exp-detail-header .exp-title {
+                font-size: 8px;
+            }
+            .exp-detail-header .exp-period {
+                font-size: 7px;
+            }
+            .golden-field {
+                padding: 0 4px;
+            }
+            .info-input {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .btn-save {
+                font-size: 8px;
+                padding: 1px 10px;
+            }
+            .profile-edu-line i,
+            .profile-training-line i {
+                font-size: 7px;
+                width: 12px;
+            }
+            .lock-overlay .lock-badge {
+                font-size: 11px;
+                top: 4px;
+                right: 6px;
+            }
+            .photo-dropdown {
+                min-width: 120px;
+                top: calc(100% + 6px);
+            }
+            .photo-dropdown .dropdown-item {
+                font-size: 10px;
+                padding: 5px 12px;
+                gap: 8px;
+            }
+            .photo-dropdown .dropdown-item i {
+                font-size: 10px;
+                width: 16px;
+            }
+        }
+
+        .text-muted {
+            color: #aaa;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .text-muted {
+            color: #888;
+        }
+        .mt-1 {
+            margin-top: 3px;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    APP WRAPPER
+    ============================================================ -->
+    <div class="app-wrapper">
+
+        <!-- STARS BACKGROUND -->
+        <div id="stars-container"></div>
+
+        <!-- MAIN CONTAINER -->
+        <div class="container" id="appContainer">
+
+            <!-- LOCK OVERLAY -->
+            <div class="lock-overlay" id="lockOverlay">
+                <span class="lock-badge"><i class="fas fa-lock"></i></span>
+            </div>
+
+            <!-- ============================================================
+            HEADER
+            ============================================================ -->
+            <div class="header">
+                <div class="header-left">
+                    <h1><i class="fas fa-star star-logo"></i> Profil Saya</h1>
+                    <span class="lock-status" id="lockStatus">
+                        <span class="status-dot unlocked" id="statusDot"></span>
+                        <span id="statusLabel">Terbuka</span>
+                    </span>
+                </div>
+                <div class="header-actions">
+                    <div class="datetime" id="datetimeDisplay">
+                        <i class="fas fa-clock clock-icon"></i>
+                        <span id="dateDisplay">01 September 2026</span>
+                        <span class="time-sep">/</span>
+                        <span id="timeDisplay">21:31:00</span>
+                    </div>
+                    <button class="lock-btn" id="lockBtn" title="Kunci / Buka">
+                        <i class="fas fa-lock-open" id="lockIcon"></i>
+                    </button>
+                    <button class="theme-toggle" id="themeToggle" title="Tema">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+            MOTIVATION
+            ============================================================ -->
+            <div class="motivation-bar" id="motivationBar">
+                <span class="motivation-icon"><i class="fas fa-quote-right"></i></span>
+                <span class="motivation-text" id="motivationText">
+                    "Kesuksesan dimulai dari langkah kecil yang diambil hari ini."
+                    <span class="motivation-author">— Motivasi</span>
+                </span>
+                <div class="motivation-dots" id="motivationDots"></div>
+            </div>
+
+            <!-- ============================================================
+            TAB NAV
+            ============================================================ -->
+            <div class="tab-nav" id="mainTabNav">
+                <button class="tab-btn active" data-slide="0"><i class="fas fa-user"></i> Profil</button>
+                <button class="tab-btn" data-slide="1"><i class="fas fa-tasks"></i> Rencana</button>
+                <button class="tab-btn" data-slide="2"><i class="fas fa-wallet"></i> Keuangan</button>
+            </div>
+
+            <!-- ============================================================
+            SLIDES
+            ============================================================ -->
+            <div class="slides-wrapper" id="slidesWrapper">
+
+                <!-- ============================================================
+                SLIDE 0 — PROFIL
+                ============================================================ -->
+                <div class="slide active-slide" data-slide="0">
+
+                    <!-- PROFILE CARD -->
+                    <div class="card" id="profileCard" style="flex-shrink:0;">
+                        <div class="profile-section">
+                            <!-- Photo -->
+                            <div class="photo-wrapper" id="photoWrapper">
+                                <img id="profilePhoto" src="https://ui-avatars.com/api/?name=Muhamad+Maulana&background=c9a84c&color=fff&size=120" alt="Foto" />
+                                <div class="photo-overlay" id="photoOverlay">
+                                    <i class="fas fa-pencil-alt pencil-icon"></i>
+                                </div>
+                                <div class="photo-dropdown" id="photoDropdown">
+                                    <button class="dropdown-item" id="dropdownUpload"><i class="fas fa-upload"></i> Ganti Foto</button>
+                                    <button class="dropdown-item" id="dropdownDelete"><i class="fas fa-trash-alt"></i> Hapus</button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item" id="dropdownView"><i class="fas fa-eye"></i> Lihat Profil</button>
+                                </div>
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*" />
+
+                            <!-- Info -->
+                            <div class="profile-info">
+                                <!-- Name -->
+                                <div class="profile-name-row">
+                                    <span class="profile-name" id="nameDisplay">
+                                        <span class="value" id="nameValue">Muhamad Maulana</span>
+                                    </span>
+                                    <button class="btn-edit-sm" id="editNameBtn"><i class="fas fa-pen"></i></button>
+                                    <div id="nameEdit" class="hidden" style="display:none; flex:1;">
+                                        <div class="inline-edit-row">
+                                            <input type="text" id="nameInput" class="info-input" placeholder="Nama" />
+                                            <button class="btn-save" id="saveNameBtn">Simpan</button>
+                                            <button class="btn-save cancel" id="cancelNameBtn">Batal</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bio -->
+                                <div class="profile-bio" id="bioDisplay">
+                                    <span class="value" id="bioValue">User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.</span>
+                                    <button class="btn-edit-sm" id="editBioBtn"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div id="bioEdit" class="hidden" style="display:none;">
+                                    <textarea id="bioInput" class="info-input" rows="1" placeholder="Bio..."></textarea>
+                                    <div class="edit-actions">
+                                        <button class="btn-save" id="saveBioBtn">Simpan</button>
+                                        <button class="btn-save cancel" id="cancelBioBtn">Batal</button>
+                                    </div>
+                                </div>
+
+                                <!-- Education -->
+                                <div class="profile-edu-line" id="eduDisplay">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span class="edu-text" id="eduValue">Institut Bisnis & Multimedia asmi – Sarjana Administrasi Bisnis, 3.64/4.00</span>
+                                    <button class="btn-edit-sm" id="editEduBtn"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div id="eduEdit" class="hidden" style="display:none;">
+                                    <div class="inline-edit-row">
+                                        <input type="text" id="eduInput" class="info-input" placeholder="Pendidikan..." />
+                                        <button class="btn-save" id="saveEduBtn">Simpan</button>
+                                        <button class="btn-save cancel" id="cancelEduBtn">Batal</button>
+                                    </div>
+                                </div>
+
+                                <!-- Training -->
+                                <div class="profile-training-line">
+                                    <i class="fas fa-certificate"></i>
+                                    <span id="trainingValue">Training Prakerja (2024): Microsoft Excel & Data Entry</span>
+                                    <button class="btn-edit-sm" id="editTrainingBtn"><i class="fas fa-pen"></i></button>
+                                </div>
+                                <div id="trainingEdit" class="hidden" style="display:none;">
+                                    <div class="inline-edit-row">
+                                        <input type="text" id="trainingInput" class="info-input" placeholder="Pelatihan..." />
+                                        <button class="btn-save" id="saveTrainingBtn">Simpan</button>
+                                        <button class="btn-save cancel" id="cancelTrainingBtn">Batal</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SKILLS CARD -->
+                    <div class="card" id="skillsCard" style="flex-shrink:0;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-code"></i> Keterampilan</h2>
+                        </div>
+                        <div class="skills-scroll">
+                            <div class="skills-container" id="skillsContainer"></div>
+                        </div>
+                        <div class="add-skill-form" id="addSkillForm" style="margin-top:2px;">
+                            <input type="text" id="skillInput" placeholder="Tambah skill..." maxlength="30" />
+                            <button id="addSkillBtn"><i class="fas fa-plus"></i> Tambah</button>
+                        </div>
+                    </div>
+
+                    <!-- EXPERIENCE CARD -->
+                    <div class="card" id="experienceCard" style="flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:0; overflow:hidden;">
+                        <div class="card-header" style="flex-shrink:0;">
+                            <h2><i class="fas fa-briefcase"></i> Pengalaman</h2>
+                        </div>
+                        <div style="flex:1; overflow-y:auto; min-height:0; padding-right:2px;" id="expScrollContainer">
+                            <div id="expContainer"></div>
+                        </div>
+                        <div class="add-exp-form" id="addExpForm" style="flex-shrink:0; margin-top:3px;">
+                            <input type="text" id="expInput" placeholder="Tambah pengalaman..." maxlength="80" />
+                            <button id="addExpBtn"><i class="fas fa-plus"></i> Tambah</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================
+                SLIDE 1 — RENCANA & HABIT
+                ============================================================ -->
+                <div class="slide" data-slide="1">
+
+                    <div class="sub-tab-nav" id="subTabNav">
+                        <button class="sub-tab-btn active" data-sub="0"><i class="fas fa-list-check"></i> Rencana</button>
+                        <button class="sub-tab-btn" data-sub="1"><i class="fas fa-exclamation-triangle"></i> Kekurangan</button>
+                        <button class="sub-tab-btn" data-sub="2"><i class="fas fa-heart"></i> Habit</button>
+                    </div>
+
+                    <div class="sub-slides-wrapper" id="subSlidesWrapper">
+
+                        <!-- RENCANA -->
+                        <div class="sub-slide active-sub" data-sub="0">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="planAddForm">
+                                        <input type="text" id="planInput" placeholder="Tambah rencana..." maxlength="60" />
+                                        <button id="planAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="planItemsScroll">
+                                        <div class="plan-items" id="planItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="planHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="planHistoryWrapper">
+                                        <div id="planHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KEKURANGAN -->
+                        <div class="sub-slide" data-sub="1">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="shortcomingAddForm">
+                                        <input type="text" id="shortcomingInput" placeholder="Tambah kekurangan..." maxlength="60" />
+                                        <button id="shortcomingAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="shortcomingItemsScroll">
+                                        <div class="plan-items" id="shortcomingItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="shortcomingHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="shortcomingHistoryWrapper">
+                                        <div id="shortcomingHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HABIT -->
+                        <div class="sub-slide" data-sub="2">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="habitAddForm">
+                                        <input type="text" id="habitInput" placeholder="Tambah habit..." maxlength="60" />
+                                        <button id="habitAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="habitItemsScroll">
+                                        <div class="plan-items" id="habitItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="habitHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="habitHistoryWrapper">
+                                        <div id="habitHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                SLIDE 2 — KEUANGAN
+                ============================================================ -->
+                <div class="slide" data-slide="2">
+                    <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                        <div class="finance-body">
+                            <div class="balance-row">
+                                <div>
+                                    <div class="balance-label">Saldo Saya</div>
+                                    <div class="balance-amount"><span>Rp</span> <span id="balanceTotal">0</span></div>
+                                </div>
+                                <div class="balance-meta">
+                                    <i class="fas fa-calendar-day"></i> Total dari <span id="incomeCount">0</span> transaksi
+                                </div>
+                            </div>
+
+                            <div class="add-daily-form" id="addDailyForm">
+                                <input type="date" id="dailyDate" class="date-input" />
+                                <input type="number" id="dailyAmount" class="amount-input" placeholder="Jumlah (Rp)" min="0" step="500" />
+                                <input type="text" id="dailyNote" class="note-input" placeholder="Keterangan..." maxlength="50" />
+                                <button id="addDailyBtn"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+
+                            <div class="daily-list-wrapper" id="dailyListWrapper">
+                                <div class="daily-list" id="dailyList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL: PASSWORD
+    ============================================================ -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-lock"></i> Masukkan Password</h3>
+            <p>Password untuk mengunci atau membuka profil.</p>
+            <input type="password" class="modal-input" id="passwordInput" placeholder="Password" autocomplete="off" />
+            <div class="modal-error" id="passwordError">Password salah. Coba lagi.</div>
+            <div class="modal-actions">
+                <button class="btn-modal cancel" id="passwordCancel">Batal</button>
+                <button class="btn-modal primary" id="passwordConfirm">Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL: VIEW PROFILE
+    ============================================================ -->
+    <div class="modal-overlay" id="viewProfileModal">
+        <div class="modal-box view-profile">
+            <img id="viewAvatar" class="view-avatar" src="https://ui-avatars.com/api/?name=Muhamad+Maulana&background=c9a84c&color=fff&size=140" alt="Foto" />
+            <div class="view-name" id="viewName">Muhamad Maulana</div>
+            <div class="view-bio" id="viewBio">User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.</div>
+            <div style="margin-top:10px;">
+                <button class="btn-modal primary" id="viewCloseBtn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        // ============================================================
+        //  STARRY SKY
+        // ============================================================
+        (function createStars() {
+            const container = document.getElementById('stars-container');
+            const count = 60;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 2;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(star);
+            }
+        })();
+
+        // ============================================================
+        //  DATA & LOCALSTORAGE
+        // ============================================================
+        const STORAGE_KEY = 'profileAppDataV6';
+
+        function todayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function yesterdayStr() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return d.toISOString().split('T')[0];
+        }
+
+        function nowISO() {
+            return new Date().toISOString();
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            return `${parseInt(parts[2])} ${bulan[parseInt(parts[1])-1]} ${parts[0]}`;
+        }
+
+        const expDetailsData = {
+            'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': [
+                'Praregist', 'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                'Monitor tiket (update done + penambahan) s.d jam shift',
+                'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                'Share rekap progres tiket selesai jam shift',
+                'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                'Regist & allow pemasangan baru', 'On cek laporan tim fastrespon',
+                'Menyiapkan atau pengembalian barang teknisi', 'Penyesuaian jadwal shift',
+                'Pendataan kode sn router', 'Share rekap tiket harian selesai full all teknisi',
+                'Monitor barang (cek stok, input stok dan perapihan)', 'Customer service fastrespon',
+                'Perapihan kodepos pada data pelanggan'
+            ],
+            'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': [
+                'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                'Arsip berkas'
+            ]
+        };
+
+        const defaultData = {
+            photo: null,
+            name: 'Muhamad Maulana',
+            bio: 'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.',
+            education: 'Institut Bisnis & Multimedia asmi – Sarjana Administrasi Bisnis, 3.64/4.00',
+            training: 'Training Prakerja (2024): Microsoft Excel & Data Entry',
+            skills: ['Microsoft Excel', 'Microsoft Word', 'Fast Typing', 'Coding AI', 'Inventory',
+                'Customer Service / Fastres', 'Monitoring & Rekap'
+            ],
+            experience: [
+                'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)',
+                'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)'
+            ],
+            dailyIncomes: [
+                { id: '1', date: todayStr(), amount: 150000, note: 'Proyek A' },
+                { id: '2', date: yesterdayStr(), amount: 200000, note: 'Konsultasi' },
+            ],
+            plans: [],
+            planHistory: [],
+            shortcomings: [],
+            shortcomingHistory: [],
+            habits: [],
+            habitHistory: [],
+        };
+
+        let data = loadData();
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    const merged = { ...JSON.parse(JSON.stringify(defaultData)), ...parsed };
+                    return merged;
+                }
+            } catch (_) { /* ignore */ }
+            return JSON.parse(JSON.stringify(defaultData));
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let isLocked = false;
+        const PASSWORD = '0789';
+        let currentTheme = 'light';
+        let currentSlide = 0;
+        let currentSubSlide = 0;
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const $ = id => document.getElementById(id);
+        const container = $('appContainer');
+        const lockBtn = $('lockBtn');
+        const lockIcon = $('lockIcon');
+        const lockStatus = $('lockStatus');
+        const statusDot = $('statusDot');
+        const statusLabel = $('statusLabel');
+        const lockOverlay = $('lockOverlay');
+        const themeToggle = $('themeToggle');
+
+        const profilePhoto = $('profilePhoto');
+        const photoWrapper = $('photoWrapper');
+        const photoOverlay = $('photoOverlay');
+        const photoDropdown = $('photoDropdown');
+        const fileInput = $('fileInput');
+
+        const nameDisplay = $('nameDisplay');
+        const nameEdit = $('nameEdit');
+        const nameInput = $('nameInput');
+        const nameValue = $('nameValue');
+
+        const bioDisplay = $('bioDisplay');
+        const bioEdit = $('bioEdit');
+        const bioInput = $('bioInput');
+        const bioValue = $('bioValue');
+
+        const eduDisplay = $('eduDisplay');
+        const eduEdit = $('eduEdit');
+        const eduInput = $('eduInput');
+        const eduValue = $('eduValue');
+
+        const trainingValue = $('trainingValue');
+        const trainingEdit = $('trainingEdit');
+        const trainingInput = $('trainingInput');
+
+        const skillsContainer = $('skillsContainer');
+        const skillInput = $('skillInput');
+        const expContainer = $('expContainer');
+        const expInput = $('expInput');
+
+        const dailyList = $('dailyList');
+        const dailyDate = $('dailyDate');
+        const dailyAmount = $('dailyAmount');
+        const dailyNote = $('dailyNote');
+
+        const passwordModal = $('passwordModal');
+        const passwordInput = $('passwordInput');
+        const passwordError = $('passwordError');
+        const viewProfileModal = $('viewProfileModal');
+        const viewAvatar = $('viewAvatar');
+        const viewName = $('viewName');
+        const viewBio = $('viewBio');
+
+        const planInput = $('planInput');
+        const planItems = $('planItems');
+        const planHistoryList = $('planHistoryList');
+        const planHistoryCount = $('planHistoryCount');
+
+        const shortcomingInput = $('shortcomingInput');
+        const shortcomingItems = $('shortcomingItems');
+        const shortcomingHistoryList = $('shortcomingHistoryList');
+        const shortcomingHistoryCount = $('shortcomingHistoryCount');
+
+        const habitInput = $('habitInput');
+        const habitItems = $('habitItems');
+        const habitHistoryList = $('habitHistoryList');
+        const habitHistoryCount = $('habitHistoryCount');
+
+        const mainTabBtns = document.querySelectorAll('.tab-btn');
+        const slides = document.querySelectorAll('.slide');
+        const subTabBtns = document.querySelectorAll('.sub-tab-btn');
+        const subSlides = document.querySelectorAll('.sub-slide');
+
+        // ============================================================
+        //  DATE & TIME
+        // ============================================================
+        function updateDateTime() {
+            const now = new Date();
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            $('dateDisplay').textContent = `${day} ${month} ${year}`;
+            $('timeDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // ============================================================
+        //  MOTIVATIONAL QUOTES
+        // ============================================================
+        const quotes = [
+            { text: "Kesuksesan dimulai dari langkah kecil yang diambil hari ini.", author: "Motivasi" },
+            { text: "Jangan takut gagal, takutlah untuk tidak mencoba sama sekali.", author: "Motivasi" },
+            { text: "Hari ini adalah kesempatan untuk menjadi versi terbaik dirimu.", author: "Motivasi" },
+            { text: "Kegigihan mengalahkan bakat ketika bakat tidak bekerja keras.", author: "Motivasi" },
+            { text: "Setiap pagi adalah awal baru untuk mengejar impian.", author: "Motivasi" },
+            { text: "Jangan bandingkan perjalananmu dengan orang lain.", author: "Motivasi" },
+            { text: "Kamu lebih kuat dari yang kamu pikirkan.", author: "Motivasi" },
+            { text: "Fokus pada progres, bukan pada kesempurnaan.", author: "Motivasi" },
+            { text: "Hidup adalah 10% apa yang terjadi padamu dan 90% bagaimana kamu meresponnya.", author: "Charles R. Swindoll" },
+            { text: "Percayalah pada proses, hasil akan mengikuti.", author: "Motivasi" }
+        ];
+
+        let quoteIndex = 0;
+        let quoteInterval = null;
+        const motivationText = $('motivationText');
+        const motivationDots = $('motivationDots');
+
+        function renderDots() {
+            motivationDots.innerHTML = '';
+            quotes.forEach((_, i) => {
+                const dot = document.createElement('span');
+                dot.className = i === quoteIndex ? 'active' : '';
+                dot.dataset.index = i;
+                dot.addEventListener('click', () => { showQuote(i);
+                    resetQuoteTimer(); });
+                motivationDots.appendChild(dot);
+            });
+        }
+
+        function showQuote(index) {
+            const q = quotes[index];
+            quoteIndex = index;
+            motivationText.classList.add('fade');
+            setTimeout(() => {
+                motivationText.innerHTML =
+                    `"${q.text}" <span class="motivation-author">— ${q.author}</span>`;
+                motivationText.classList.remove('fade');
+                document.querySelectorAll('.motivation-dots span').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === quoteIndex);
+                });
+            }, 300);
+        }
+
+        function nextQuote() {
+            showQuote((quoteIndex + 1) % quotes.length);
+        }
+
+        function resetQuoteTimer() {
+            if (quoteInterval) { clearInterval(quoteInterval);
+                quoteInterval = null; }
+            quoteInterval = setInterval(nextQuote, 7000);
+        }
+        renderDots();
+        showQuote(0);
+        resetQuoteTimer();
+
+        // ============================================================
+        //  THEME
+        // ============================================================
+        function loadTheme() {
+            try {
+                const saved = localStorage.getItem('profileAppTheme');
+                if (saved === 'dark') {
+                    currentTheme = 'dark';
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    currentTheme = 'light';
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            } catch (_) { currentTheme = 'light'; }
+        }
+
+        function toggleTheme() {
+            if (currentTheme === 'light') {
+                currentTheme = 'dark';
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                currentTheme = 'light';
+                document.documentElement.removeAttribute('data-theme');
+            }
+            try { localStorage.setItem('profileAppTheme', currentTheme); } catch (_) {}
+        }
+        loadTheme();
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // ============================================================
+        //  LOCK SYSTEM
+        // ============================================================
+        function updateLockUI() {
+            if (isLocked) {
+                lockIcon.className = 'fas fa-lock';
+                statusDot.className = 'status-dot locked';
+                statusLabel.textContent = 'Terkunci';
+                lockBtn.classList.add('locked');
+                container.classList.add('locked');
+                lockOverlay.classList.add('active');
+                photoOverlay.style.display = 'none';
+            } else {
+                lockIcon.className = 'fas fa-lock-open';
+                statusDot.className = 'status-dot unlocked';
+                statusLabel.textContent = 'Terbuka';
+                lockBtn.classList.remove('locked');
+                container.classList.remove('locked');
+                lockOverlay.classList.remove('active');
+                photoOverlay.style.display = 'flex';
+                document.querySelectorAll('.exp-detail-body').forEach(el => el.classList.remove('open'));
+                document.querySelectorAll('.exp-toggle').forEach(el => el.classList.remove('open'));
+            }
+        }
+
+        function toggleLock(password) {
+            if (password === PASSWORD) {
+                isLocked = !isLocked;
+                updateLockUI();
+                closePhotoDropdown();
+                passwordInput.value = '';
+                passwordError.classList.remove('show');
+                closePasswordModal();
+                if (!isLocked) {
+                    document.querySelectorAll('.exp-detail-body').forEach(el => el.classList.remove('open'));
+                    document.querySelectorAll('.exp-toggle').forEach(el => el.classList.remove('open'));
+                } else {
+                    document.querySelectorAll('.exp-detail-body').forEach(el => el.classList.add('open'));
+                    document.querySelectorAll('.exp-toggle').forEach(el => el.classList.add('open'));
+                }
+                return true;
+            } else {
+                passwordError.classList.add('show');
+                passwordInput.value = '';
+                passwordInput.focus();
+                return false;
+            }
+        }
+
+        function openPasswordModal() {
+            passwordModal.classList.add('open');
+            passwordInput.value = '';
+            passwordError.classList.remove('show');
+            setTimeout(() => passwordInput.focus(), 200);
+        }
+
+        function closePasswordModal() {
+            passwordModal.classList.remove('open');
+            passwordInput.value = '';
+            passwordError.classList.remove('show');
+        }
+
+        lockBtn.addEventListener('click', openPasswordModal);
+        $('passwordConfirm').addEventListener('click', () => { toggleLock(passwordInput.value); });
+        $('passwordCancel').addEventListener('click', closePasswordModal);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault();
+                $('passwordConfirm').click(); }
+            if (e.key === 'Escape') closePasswordModal();
+        });
+        passwordModal.addEventListener('click', (e) => { if (e.target === passwordModal) closePasswordModal(); });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'L') { e.preventDefault();
+                openPasswordModal(); }
+        });
+
+        // ============================================================
+        //  PHOTO DROPDOWN
+        // ============================================================
+        let dropdownOpen = false;
+
+        function togglePhotoDropdown(e) {
+            e.stopPropagation();
+            if (isLocked) return;
+            dropdownOpen = !dropdownOpen;
+            photoDropdown.classList.toggle('open', dropdownOpen);
+        }
+
+        function closePhotoDropdown() { dropdownOpen = false;
+            photoDropdown.classList.remove('open'); }
+        photoOverlay.addEventListener('click', togglePhotoDropdown);
+        document.addEventListener('click', (e) => { if (!photoWrapper.contains(e.target)) closePhotoDropdown(); });
+
+        $('dropdownUpload').addEventListener('click', (e) => { e.stopPropagation();
+            closePhotoDropdown(); if (isLocked) return;
+            fileInput.click(); });
+        $('dropdownDelete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            closePhotoDropdown();
+            if (isLocked) return;
+            if (!data.photo) { alert('Tidak ada foto.'); return; }
+            if (!confirm('Hapus foto profil?')) return;
+            data.photo = null;
+            saveData();
+            renderPhoto();
+        });
+        $('dropdownView').addEventListener('click', (e) => { e.stopPropagation();
+            closePhotoDropdown();
+            openViewProfileModal(); });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('Pilih file gambar!');
+                this.value = ''; return; }
+            if (file.size > 2 * 1024 * 1024) { alert('Maksimal 2MB!');
+                this.value = ''; return; }
+            const reader = new FileReader();
+            reader.onload = function(ev) { data.photo = ev.target.result;
+                saveData();
+                renderPhoto();
+                fileInput.value = ''; };
+            reader.onerror = function() { alert('Gagal membaca file.');
+                fileInput.value = ''; };
+            reader.readAsDataURL(file);
+        });
+
+        // ============================================================
+        //  VIEW PROFILE MODAL
+        // ============================================================
+        function openViewProfileModal() {
+            const imgSrc = data.photo ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'Muhamad Maulana')}&background=c9a84c&color=fff&size=140`;
+            viewAvatar.src = imgSrc;
+            viewName.textContent = data.name || 'Muhamad Maulana';
+            viewBio.textContent = data.bio ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            viewProfileModal.classList.add('open');
+        }
+
+        function closeViewProfileModal() { viewProfileModal.classList.remove('open'); }
+        $('viewCloseBtn').addEventListener('click', closeViewProfileModal);
+        viewProfileModal.addEventListener('click', (e) => { if (e.target === viewProfileModal) closeViewProfileModal(); });
+
+        // ============================================================
+        //  RENDER FUNCTIONS
+        // ============================================================
+        function renderPhoto() {
+            if (data.photo) { profilePhoto.src = data.photo; } else {
+                const name = data.name || 'Muhamad Maulana';
+                profilePhoto.src =
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=c9a84c&color=fff&size=120`;
+            }
+        }
+
+        function renderName() {
+            nameValue.textContent = data.name || 'Muhamad Maulana';
+            nameValue.className = 'value' + (data.name ? '' : ' empty');
+        }
+
+        function renderBio() {
+            bioValue.textContent = data.bio ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            bioValue.className = 'value' + (data.bio ? '' : ' empty');
+        }
+
+        function renderEducation() {
+            eduValue.textContent = data.education || 'Institut Bisnis & Multimedia asmi – Sarjana Administrasi Bisnis, 3.64/4.00';
+        }
+
+        function renderTraining() {
+            trainingValue.textContent = data.training || 'Training Prakerja (2024): Microsoft Excel & Data Entry';
+        }
+
+        function renderSkills() {
+            if (!data.skills || data.skills.length === 0) {
+                skillsContainer.innerHTML = '<span class="empty-skills">Belum ada skill.</span>';
+                return;
+            }
+            skillsContainer.innerHTML = '';
+            data.skills.forEach((skill, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                const textSpan = document.createElement('span');
+                textSpan.className = 'skill-text';
+                textSpan.textContent = skill;
+                textSpan.dataset.index = index;
+                textSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (isLocked) return;
+                    startEditItem(index, 'skills', skillsContainer, 'skill-edit-input', renderSkills);
+                });
+                const delBtn = document.createElement('button');
+                delBtn.className = 'skill-delete';
+                delBtn.innerHTML = '<i class="fas fa-times"></i>';
+                delBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (isLocked) return;
+                    deleteItem(index, 'skills', renderSkills);
+                });
+                tag.appendChild(textSpan);
+                tag.appendChild(delBtn);
+                skillsContainer.appendChild(tag);
+            });
+        }
+
+        function renderExperience() {
+            if (!data.experience || data.experience.length === 0) {
+                expContainer.innerHTML = '<div class="empty-exp">Belum ada pengalaman.</div>';
+                return;
+            }
+            expContainer.innerHTML = '';
+            data.experience.forEach((expStr, index) => {
+                const details = expDetailsData[expStr] || ['Detail tidak tersedia.'];
+                const wrapper = document.createElement('div');
+                wrapper.className = 'exp-detail-item';
+                wrapper.style.animation = 'tagIn 0.3s ease forwards';
+                wrapper.style.animationDelay = (index * 0.05) + 's';
+                wrapper.style.opacity = '0';
+
+                const header = document.createElement('div');
+                header.className = 'exp-detail-header';
+                const title = document.createElement('span');
+                title.className = 'exp-title';
+                const periodMatch = expStr.match(/\(([^)]+)\)/);
+                const period = periodMatch ? periodMatch[1] : '';
+                const mainText = expStr.replace(/\([^)]*\)/, '').trim();
+                title.textContent = mainText;
+
+                const periodSpan = document.createElement('span');
+                periodSpan.className = 'exp-period';
+                periodSpan.textContent = period;
+
+                const toggle = document.createElement('span');
+                toggle.className = 'exp-toggle';
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+
+                header.appendChild(title);
+                header.appendChild(periodSpan);
+                header.appendChild(toggle);
+
+                const body = document.createElement('div');
+                body.className = 'exp-detail-body';
+                const ul = document.createElement('ul');
+                details.forEach(d => {
+                    const li = document.createElement('li');
+                    li.textContent = d;
+                    ul.appendChild(li);
+                });
+                body.appendChild(ul);
+
+                let open = false;
+                header.addEventListener('click', () => {
+                    if (isLocked) return;
+                    open = !open;
+                    body.classList.toggle('open', open);
+                    toggle.classList.toggle('open', open);
+                });
+
+                if (isLocked) {
+                    body.classList.add('open');
+                    toggle.classList.add('open');
+                }
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'exp-delete';
+                delBtn.style.cssText =
+                    'background:none;border:none;color:#bbb;cursor:pointer;font-size:9px;padding:0 4px;flex-shrink:0;';
+                delBtn.innerHTML = '<i class="fas fa-times"></i>';
+                delBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (isLocked) return;
+                    if (!confirm('Hapus pengalaman ini?')) return;
+                    data.experience.splice(index, 1);
+                    saveData();
+                    renderExperience();
+                });
+                header.appendChild(delBtn);
+
+                wrapper.appendChild(header);
+                wrapper.appendChild(body);
+                expContainer.appendChild(wrapper);
+
+                if (isLocked) {
+                    body.classList.add('open');
+                    toggle.classList.add('open');
+                }
+            });
+        }
+
+        function startEditItem(index, key, container, inputClass, renderFn) {
+            if (isLocked) return;
+            const tag = container.children[index];
+            if (!tag) return;
+            const textSpan = tag.querySelector('.skill-text, .exp-text');
+            if (!textSpan) return;
+            const currentText = data[key][index];
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = inputClass;
+            input.value = currentText;
+            input.maxLength = 60;
+            tag.replaceChild(input, textSpan);
+            input.focus();
+            input.select();
+            const finish = (save) => {
+                const newText = input.value.trim();
+                if (save && newText && newText !== currentText) {
+                    data[key][index] = newText;
+                    saveData();
+                    renderFn();
+                } else if (save && !newText) {
+                    deleteItem(index, key, renderFn);
+                } else {
+                    renderFn();
+                }
+            };
+            input.addEventListener('blur', () => finish(true));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault();
+                    input.blur(); } else if (e.key === 'Escape') { finish(false); }
+            });
+        }
+
+        function deleteItem(index, key, renderFn) {
+            if (isLocked) return;
+            if (!confirm('Hapus item ini?')) return;
+            data[key].splice(index, 1);
+            saveData();
+            renderFn();
+        }
+
+        function addItem(key, inputEl, renderFn, placeholderMsg) {
+            if (isLocked) return;
+            const val = inputEl.value.trim();
+            if (!val) { alert('Masukkan ' + placeholderMsg + '!'); return; }
+            if (data[key].includes(val)) { alert('"' + val + '" sudah ada!'); return; }
+            data[key].push(val);
+            saveData();
+            renderFn();
+            inputEl.value = '';
+            inputEl.focus();
+        }
+
+        // --- Daily ---
+        function renderDaily() {
+            const items = data.dailyIncomes || [];
+            if (items.length === 0) {
+                dailyList.innerHTML = '<div class="empty-daily">Belum ada catatan penghasilan.</div>';
+                $('incomeCount').textContent = '0';
+                $('balanceTotal').textContent = '0';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            let html = '';
+            let total = 0;
+            sorted.forEach((item) => {
+                total += Number(item.amount) || 0;
+                const amountFormatted = Number(item.amount).toLocaleString('id-ID');
+                html += `
+                            <div class="daily-item" data-id="${item.id}">
+                                <span class="date"><i class="far fa-calendar-alt"></i> ${formatDateShort(item.date)}</span>
+                                <span class="note">${item.note || 'Tanpa keterangan'}</span>
+                                <span class="amount positive">Rp ${amountFormatted}</span>
+                                <div class="item-actions">
+                                    <button class="edit-daily" data-id="${item.id}" title="Edit"><i class="fas fa-pen"></i></button>
+                                    <button class="delete-daily" data-id="${item.id}" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        `;
+            });
+            dailyList.innerHTML = html;
+            $('incomeCount').textContent = items.length;
+            $('balanceTotal').textContent = total.toLocaleString('id-ID');
+
+            dailyList.querySelectorAll('.edit-daily').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (isLocked) return;
+                    startEditDaily(this.dataset.id);
+                });
+            });
+            dailyList.querySelectorAll('.delete-daily').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (isLocked) return;
+                    deleteDaily(this.dataset.id);
+                });
+            });
+        }
+
+        function startEditDaily(id) {
+            if (isLocked) return;
+            const item = data.dailyIncomes.find(d => d.id === id);
+            if (!item) return;
+            const el = document.querySelector(`.daily-item[data-id="${id}"]`);
+            if (!el) return;
+            const dateSpan = el.querySelector('.date');
+            const noteSpan = el.querySelector('.note');
+            const amountSpan = el.querySelector('.amount');
+            const actions = el.querySelector('.item-actions');
+
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.className = 'edit-field date-field';
+            dateInput.value = item.date;
+            const noteInput = document.createElement('input');
+            noteInput.type = 'text';
+            noteInput.className = 'edit-field note-field';
+            noteInput.value = item.note || '';
+            noteInput.maxLength = 50;
+            const amountInput = document.createElement('input');
+            amountInput.type = 'number';
+            amountInput.className = 'edit-field amount-field';
+            amountInput.value = item.amount;
+            amountInput.min = 0;
+            amountInput.step = 500;
+
+            el.replaceChild(dateInput, dateSpan);
+            el.replaceChild(noteInput, noteSpan);
+            el.replaceChild(amountInput, amountSpan);
+
+            actions.innerHTML = `
+                        <button class="save-daily" data-id="${id}"><i class="fas fa-check"></i> Simpan</button>
+                        <button class="cancel-daily" data-id="${id}">Batal</button>
+                    `;
+            const saveBtn = actions.querySelector('.save-daily');
+            const cancelBtn = actions.querySelector('.cancel-daily');
+            const finish = (save) => {
+                if (save) {
+                    const newDate = dateInput.value;
+                    const newNote = noteInput.value.trim();
+                    const newAmount = parseFloat(amountInput.value) || 0;
+                    if (!newDate) { alert('Tanggal harus diisi!'); return; }
+                    if (newAmount <= 0) { alert('Jumlah harus lebih dari 0!'); return; }
+                    item.date = newDate;
+                    item.note = newNote;
+                    item.amount = newAmount;
+                    saveData();
+                    renderDaily();
+                } else { renderDaily(); }
+            };
+            saveBtn.addEventListener('click', () => finish(true));
+            cancelBtn.addEventListener('click', () => finish(false));
+            [amountInput, noteInput, dateInput].forEach(inp => {
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault();
+                        finish(true); }
+                    if (e.key === 'Escape') { finish(false); }
+                });
+            });
+            dateInput.focus();
+        }
+
+        function deleteDaily(id) {
+            if (isLocked) return;
+            if (!confirm('Hapus catatan ini?')) return;
+            data.dailyIncomes = data.dailyIncomes.filter(d => d.id !== id);
+            saveData();
+            renderDaily();
+        }
+
+        function addDaily() {
+            if (isLocked) return;
+            const date = dailyDate.value;
+            const amount = parseFloat(dailyAmount.value) || 0;
+            const note = dailyNote.value.trim();
+            if (!date) { alert('Pilih tanggal!');
+                dailyDate.focus(); return; }
+            if (amount <= 0) { alert('Masukkan jumlah valid!');
+                dailyAmount.focus(); return; }
+            data.dailyIncomes.push({
+                id: 'd' + Date.now() + Math.random().toString(36).substr(2, 4),
+                date: date,
+                amount: amount,
+                note: note || 'Tanpa keterangan',
+            });
+            saveData();
+            renderDaily();
+            dailyDate.value = '';
+            dailyAmount.value = '';
+            dailyNote.value = '';
+            dailyDate.value = todayStr();
+            dailyDate.focus();
+        }
+
+        // ============================================================
+        //  SLIDE NAVIGATION
+        // ============================================================
+        function goToSlide(index) {
+            currentSlide = index;
+            mainTabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active-slide', i === index);
+            });
+            if (index === 1) goToSubSlide(0);
+        }
+
+        function goToSubSlide(index) {
+            currentSubSlide = index;
+            subTabBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            subSlides.forEach((slide, i) => {
+                slide.classList.toggle('active-sub', i === index);
+            });
+        }
+
+        mainTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                goToSlide(parseInt(btn.dataset.slide));
+            });
+        });
+
+        subTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                goToSubSlide(parseInt(btn.dataset.sub));
+            });
+        });
+
+        // ============================================================
+        //  PLAN / SHORTCOMING / HABIT
+        // ============================================================
+        function renderPlans() {
+            const items = data.plans || [];
+            if (items.length === 0) {
+                planItems.innerHTML = '<div class="empty-plan">Belum ada rencana.</div>';
+            } else {
+                planItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => { if (!isLocked) completePlan(item.id); });
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => { if (!isLocked) deletePlan(item.id); });
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    planItems.appendChild(div);
+                });
+            }
+            renderPlanHistory();
+        }
+
+        function completePlan(id) {
+            const idx = data.plans.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.plans[idx];
+            data.plans.splice(idx, 1);
+            data.planHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
+                date: todayStr(), completedAt: nowISO() });
+            saveData();
+            renderPlans();
+            triggerStarBurst();
+        }
+
+        function deletePlan(id) {
+            if (!confirm('Hapus rencana ini?')) return;
+            data.plans = data.plans.filter(p => p.id !== id);
+            saveData();
+            renderPlans();
+        }
+
+        function addPlan() {
+            if (isLocked) return;
+            const text = planInput.value.trim();
+            if (!text) { alert('Masukkan rencana!'); return; }
+            data.plans.push({ id: 'p' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveData();
+            renderPlans();
+            planInput.value = '';
+            planInput.focus();
+        }
+
+        function renderPlanHistory() {
+            const items = data.planHistory || [];
+            planHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                planHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            planHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-check-circle"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                planHistoryList.appendChild(div);
+            });
+        }
+
+        // --- Shortcoming ---
+        function renderShortcomings() {
+            const items = data.shortcomings || [];
+            if (items.length === 0) {
+                shortcomingItems.innerHTML = '<div class="empty-plan">Belum ada kekurangan.</div>';
+            } else {
+                shortcomingItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => { if (!isLocked) completeShortcoming(item.id); });
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => { if (!isLocked) deleteShortcoming(item.id); });
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    shortcomingItems.appendChild(div);
+                });
+            }
+            renderShortcomingHistory();
+        }
+
+        function completeShortcoming(id) {
+            const idx = data.shortcomings.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.shortcomings[idx];
+            data.shortcomings.splice(idx, 1);
+            data.shortcomingHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item
+                    .text, date: todayStr(), completedAt: nowISO() });
+            saveData();
+            renderShortcomings();
+            triggerStarBurst();
+        }
+
+        function deleteShortcoming(id) {
+            if (!confirm('Hapus kekurangan ini?')) return;
+            data.shortcomings = data.shortcomings.filter(p => p.id !== id);
+            saveData();
+            renderShortcomings();
+        }
+
+        function addShortcoming() {
+            if (isLocked) return;
+            const text = shortcomingInput.value.trim();
+            if (!text) { alert('Masukkan kekurangan!'); return; }
+            data.shortcomings.push({ id: 's' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveData();
+            renderShortcomings();
+            shortcomingInput.value = '';
+            shortcomingInput.focus();
+        }
+
+        function renderShortcomingHistory() {
+            const items = data.shortcomingHistory || [];
+            shortcomingHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                shortcomingHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            shortcomingHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-check-circle"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                shortcomingHistoryList.appendChild(div);
+            });
+        }
+
+        // --- Habit ---
+        function renderHabits() {
+            const items = data.habits || [];
+            if (items.length === 0) {
+                habitItems.innerHTML = '<div class="empty-plan">Belum ada habit.</div>';
+            } else {
+                habitItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => { if (!isLocked) completeHabit(item.id); });
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => { if (!isLocked) deleteHabit(item.id); });
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    habitItems.appendChild(div);
+                });
+            }
+            renderHabitHistory();
+        }
+
+        function completeHabit(id) {
+            const idx = data.habits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.habits[idx];
+            data.habits.splice(idx, 1);
+            data.habitHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
+                date: todayStr(), completedAt: nowISO() });
+            saveData();
+            renderHabits();
+            triggerStarBurst();
+        }
+
+        function deleteHabit(id) {
+            if (!confirm('Hapus habit ini?')) return;
+            data.habits = data.habits.filter(p => p.id !== id);
+            saveData();
+            renderHabits();
+        }
+
+        function addHabit() {
+            if (isLocked) return;
+            const text = habitInput.value.trim();
+            if (!text) { alert('Masukkan habit!'); return; }
+            data.habits.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveData();
+            renderHabits();
+            habitInput.value = '';
+            habitInput.focus();
+        }
+
+        function renderHabitHistory() {
+            const items = data.habitHistory || [];
+            habitHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                habitHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            habitHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-star" style="color:#ffd700;"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                habitHistoryList.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        //  STAR BURST
+        // ============================================================
+        function triggerStarBurst() {
+            const burst = document.createElement('div');
+            burst.className = 'habit-star-burst';
+            document.body.appendChild(burst);
+            const rewardText = document.createElement('div');
+            rewardText.className = 'habit-reward-text';
+            rewardText.textContent = '🌟 Hebat!';
+            document.body.appendChild(rewardText);
+            const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🏆'];
+            for (let i = 0; i < 12; i++) {
+                const star = document.createElement('div');
+                star.className = 'burst-star';
+                star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = 60 + Math.random() * 160;
+                star.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                star.style.setProperty('--ty', Math.sin(angle) * distance - 60 + 'px');
+                star.style.fontSize = (16 + Math.random() * 24) + 'px';
+                star.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+                star.style.animationDelay = (Math.random() * 0.3) + 's';
+                burst.appendChild(star);
+            }
+            setTimeout(() => {
+                if (burst.parentNode) burst.parentNode.removeChild(burst);
+                if (rewardText.parentNode) rewardText.parentNode.removeChild(rewardText);
+            }, 2000);
+        }
+
+        // ============================================================
+        //  UI EVENTS — inline edits
+        // ============================================================
+
+        // --- Name ---
+        $('editNameBtn').addEventListener('click', () => {
+            if (isLocked) return;
+            nameDisplay.style.display = 'none';
+            nameEdit.style.display = 'block';
+            nameInput.value = data.name || '';
+            nameInput.focus();
+            nameInput.select();
+        });
+
+        function saveName() {
+            if (isLocked) return;
+            const val = nameInput.value.trim();
+            if (val) { data.name = val;
+                saveData();
+                renderName();
+                renderPhoto(); } else { alert('Nama tidak boleh kosong!'); return; }
+            nameDisplay.style.display = 'block';
+            nameEdit.style.display = 'none';
+        }
+        $('saveNameBtn').addEventListener('click', saveName);
+        $('cancelNameBtn').addEventListener('click', () => {
+            nameDisplay.style.display = 'block';
+            nameEdit.style.display = 'none';
+        });
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveName();
+            if (e.key === 'Escape') $('cancelNameBtn').click();
+        });
+
+        // --- Bio ---
+        $('editBioBtn').addEventListener('click', () => {
+            if (isLocked) return;
+            bioDisplay.style.display = 'none';
+            bioEdit.style.display = 'block';
+            bioInput.value = data.bio || '';
+            bioInput.focus();
+        });
+
+        function saveBio() {
+            if (isLocked) return;
+            const val = bioInput.value.trim();
+            data.bio = val ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            saveData();
+            renderBio();
+            bioDisplay.style.display = 'flex';
+            bioEdit.style.display = 'none';
+        }
+        $('saveBioBtn').addEventListener('click', saveBio);
+        $('cancelBioBtn').addEventListener('click', () => {
+            bioDisplay.style.display = 'flex';
+            bioEdit.style.display = 'none';
+        });
+        bioInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') $('cancelBioBtn').click();
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveBio();
+        });
+
+        // --- Education ---
+        $('editEduBtn').addEventListener('click', () => {
+            if (isLocked) return;
+            eduDisplay.style.display = 'none';
+            eduEdit.style.display = 'block';
+            eduInput.value = data.education || '';
+            eduInput.focus();
+            eduInput.select();
+        });
+
+        function saveEdu() {
+            if (isLocked) return;
+            const val = eduInput.value.trim();
+            if (val) { data.education = val;
+                saveData();
+                renderEducation(); } else { alert('Pendidikan tidak boleh kosong!'); return; }
+            eduDisplay.style.display = 'flex';
+            eduEdit.style.display = 'none';
+        }
+        $('saveEduBtn').addEventListener('click', saveEdu);
+        $('cancelEduBtn').addEventListener('click', () => {
+            eduDisplay.style.display = 'flex';
+            eduEdit.style.display = 'none';
+        });
+        eduInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveEdu();
+            if (e.key === 'Escape') $('cancelEduBtn').click();
+        });
+
+        // --- Training ---
+        $('editTrainingBtn').addEventListener('click', () => {
+            if (isLocked) return;
+            trainingValue.style.display = 'none';
+            trainingEdit.style.display = 'block';
+            trainingInput.value = data.training || '';
+            trainingInput.focus();
+            trainingInput.select();
+        });
+
+        function saveTraining() {
+            if (isLocked) return;
+            const val = trainingInput.value.trim();
+            if (val) { data.training = val;
+                saveData();
+                renderTraining(); } else { alert('Pelatihan tidak boleh kosong!'); return; }
+            trainingValue.style.display = 'inline';
+            trainingEdit.style.display = 'none';
+        }
+        $('saveTrainingBtn').addEventListener('click', saveTraining);
+        $('cancelTrainingBtn').addEventListener('click', () => {
+            trainingValue.style.display = 'inline';
+            trainingEdit.style.display = 'none';
+        });
+        trainingInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveTraining();
+            if (e.key === 'Escape') $('cancelTrainingBtn').click();
+        });
+
+        // --- Skills ---
+        $('addSkillBtn').addEventListener('click', () => addItem('skills', skillInput, renderSkills, 'skill'));
+        skillInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addItem('skills', skillInput, renderSkills, 'skill'); } });
+
+        // --- Experience ---
+        $('addExpBtn').addEventListener('click', () => addItem('experience', expInput, renderExperience, 'pengalaman'));
+        expInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addItem('experience', expInput, renderExperience, 'pengalaman'); } });
+
+        // --- Daily ---
+        $('addDailyBtn').addEventListener('click', addDaily);
+        dailyNote.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addDaily(); } });
+        dailyAmount.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                dailyNote.focus(); } });
+        dailyDate.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                dailyAmount.focus(); } });
+        dailyDate.value = todayStr();
+
+        // --- Plan ---
+        $('planAddBtn').addEventListener('click', addPlan);
+        planInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addPlan(); } });
+
+        // --- Shortcoming ---
+        $('shortcomingAddBtn').addEventListener('click', addShortcoming);
+        shortcomingInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addShortcoming(); } });
+
+        // --- Habit ---
+        $('habitAddBtn').addEventListener('click', addHabit);
+        habitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addHabit(); } });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        function init() {
+            loadTheme();
+            renderPhoto();
+            renderName();
+            renderBio();
+            renderEducation();
+            renderTraining();
+            renderSkills();
+            renderExperience();
+            renderDaily();
+            renderPlans();
+            renderShortcomings();
+            renderHabits();
+
+            isLocked = false;
+            updateLockUI();
+
+            goToSlide(0);
+            goToSubSlide(0);
+
+            console.log('✅ Profil App siap — Muhamad Maulana');
+            console.log('🔒 Password: 0789');
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
