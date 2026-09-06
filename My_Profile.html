@@ -1226,7 +1226,7 @@
         }
 
         /* ============================================================
-           EXPERIENCE DETAIL
+           EXPERIENCE DETAIL — dengan tombol edit detail
            ============================================================ */
         .exp-detail-item {
             background: rgba(255, 255, 255, 0.3);
@@ -1247,14 +1247,16 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            cursor: pointer;
             padding: 2px 0;
+            flex-wrap: wrap;
         }
         .exp-detail-header .exp-title {
             font-size: 10px;
             font-weight: 600;
             color: #1e1a16;
             flex: 1;
+            cursor: pointer;
+            min-width: 60px;
         }
         [data-theme="dark"] .exp-detail-header .exp-title {
             color: #eae6e0;
@@ -1272,6 +1274,7 @@
             font-size: 10px;
             transition: transform 0.25s;
             flex-shrink: 0;
+            cursor: pointer;
         }
         [data-theme="dark"] .exp-detail-header .exp-toggle {
             color: #888;
@@ -1279,6 +1282,33 @@
         .exp-detail-header .exp-toggle.open {
             transform: rotate(180deg);
         }
+        .exp-detail-header .exp-actions {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .exp-detail-header .exp-actions button {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-actions button {
+            color: #888;
+        }
+        .exp-detail-header .exp-actions .exp-edit-detail:hover {
+            color: #c9a84c;
+        }
+        .exp-detail-header .exp-actions .exp-delete:hover {
+            color: #c97a47;
+        }
+
         .exp-detail-body {
             max-height: 0;
             overflow: hidden;
@@ -1300,6 +1330,9 @@
             padding: 1px 0 1px 12px;
             position: relative;
             line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         [data-theme="dark"] .exp-detail-body ul li {
             color: #bbb;
@@ -1311,10 +1344,143 @@
             color: #c9a84c;
             font-size: 10px;
         }
+        .exp-detail-body ul li .detail-delete {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 7px;
+            padding: 0 2px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .exp-detail-body ul li .detail-delete:hover {
+            color: #c97a47;
+        }
+        .exp-detail-body ul li .detail-edit {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 7px;
+            padding: 0 2px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .exp-detail-body ul li .detail-edit:hover {
+            color: #c9a84c;
+        }
         .exp-empty-details {
             font-size: 9px;
             color: #bbb;
             font-style: italic;
+        }
+        .exp-detail-body .add-detail-form {
+            display: flex;
+            gap: 3px;
+            margin-top: 3px;
+            flex-wrap: wrap;
+        }
+        .exp-detail-body .add-detail-form input {
+            flex: 1;
+            min-width: 50px;
+            padding: 1px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            font-size: 8px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.3);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .exp-detail-body .add-detail-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .exp-detail-body .add-detail-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .exp-detail-body .add-detail-form input::placeholder {
+            color: #888;
+        }
+        .exp-detail-body .add-detail-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .exp-detail-body .add-detail-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 1px 10px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .exp-detail-body .add-detail-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+        .exp-detail-body .detail-edit-input {
+            flex: 1;
+            min-width: 50px;
+            padding: 1px 6px;
+            border: none;
+            border-bottom: 2px solid #c9a84c;
+            font-size: 9px;
+            font-family: inherit;
+            background: transparent;
+            color: #1e1a16;
+            outline: none;
+        }
+        [data-theme="dark"] .exp-detail-body .detail-edit-input {
+            color: #eae6e0;
+        }
+        .exp-detail-body .detail-edit-actions {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+        .exp-detail-body .detail-edit-actions button {
+            background: none;
+            border: none;
+            font-size: 8px;
+            cursor: pointer;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .exp-detail-body .detail-edit-actions .save-detail-edit {
+            background: #c9a84c;
+            color: #fff;
+        }
+        .exp-detail-body .detail-edit-actions .save-detail-edit:hover {
+            background: #b8973a;
+        }
+        .exp-detail-body .detail-edit-actions .cancel-detail-edit {
+            background: rgba(0, 0, 0, 0.04);
+            color: #888;
+        }
+        [data-theme="dark"] .exp-detail-body .detail-edit-actions .cancel-detail-edit {
+            background: rgba(255, 255, 255, 0.04);
+            color: #aaa;
         }
 
         /* ============================================================
@@ -2018,7 +2184,7 @@
             opacity: 1 !important;
             pointer-events: auto !important;
         }
-        .container.locked .exp-detail-header {
+        .container.locked .exp-detail-header .exp-title {
             cursor: default !important;
         }
         .container.locked .exp-detail-body {
@@ -2029,6 +2195,18 @@
             display: none !important;
         }
         .container.locked .photo-wrapper::after {
+            display: none !important;
+        }
+        .container.locked .exp-edit-detail {
+            display: none !important;
+        }
+        .container.locked .exp-detail-body .add-detail-form {
+            display: none !important;
+        }
+        .container.locked .exp-detail-body .detail-delete {
+            display: none !important;
+        }
+        .container.locked .exp-detail-body .detail-edit {
             display: none !important;
         }
 
@@ -2171,6 +2349,96 @@
         }
 
         /* ============================================================
+           MODAL: TAMBAH / EDIT PENGALAMAN (dengan detail)
+           ============================================================ */
+        .modal-overlay.exp-modal .modal-box {
+            max-width: 400px;
+        }
+        .modal-box .exp-detail-list {
+            margin: 6px 0 8px 0;
+            max-height: 140px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            padding: 4px 6px;
+            background: rgba(0, 0, 0, 0.01);
+        }
+        [data-theme="dark"] .modal-box .exp-detail-list {
+            border-color: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .modal-box .exp-detail-item-modal {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        [data-theme="dark"] .modal-box .exp-detail-item-modal {
+            border-bottom-color: rgba(255, 255, 255, 0.03);
+        }
+        .modal-box .exp-detail-item-modal:last-child {
+            border-bottom: none;
+        }
+        .modal-box .exp-detail-item-modal input {
+            flex: 1;
+            padding: 2px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.2s;
+        }
+        [data-theme="dark"] .modal-box .exp-detail-item-modal input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .modal-box .exp-detail-item-modal input:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+        .modal-box .exp-detail-item-modal .remove-detail-modal {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 8px;
+            padding: 0 2px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .modal-box .exp-detail-item-modal .remove-detail-modal:hover {
+            color: #c97a47;
+        }
+        .modal-box .add-detail-modal-btn {
+            background: none;
+            border: 1px dashed rgba(201, 168, 76, 0.3);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 9px;
+            color: #c9a84c;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-top: 2px;
+        }
+        .modal-box .add-detail-modal-btn:hover {
+            background: rgba(201, 168, 76, 0.05);
+            border-color: #c9a84c;
+        }
+        .modal-box .exp-title-input {
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
            VIEW PROFILE MODAL — Like WhatsApp full-screen photo viewer
            ============================================================ */
         .modal-overlay.view-profile-modal {
@@ -2225,7 +2493,6 @@
             max-width: 90%;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
-        /* Tambahan untuk memastikan bio berada di tengah secara horizontal */
         .modal-overlay.view-profile-modal .modal-box .view-profile-info {
             width: 100%;
             display: flex;
@@ -2476,6 +2743,10 @@
             .container.locked .sub-tab-nav {
                 opacity: 1 !important;
             }
+            .modal-overlay.exp-modal .modal-box {
+                max-width: 100%;
+                margin: 8px;
+            }
         }
 
         @media (max-width: 420px) {
@@ -2620,6 +2891,12 @@
                 font-size: 10px;
                 width: 16px;
             }
+            .modal-overlay.exp-modal .modal-box {
+                padding: 10px 8px;
+            }
+            .modal-box .exp-detail-list {
+                max-height: 100px;
+            }
         }
 
         .text-muted {
@@ -2646,7 +2923,6 @@
             }
         }
 
-        /* ---- Loading shimmer for Firebase ---- */
         .syncing-badge {
             font-size: 7px;
             color: #aaa;
@@ -2849,14 +3125,14 @@
                     <div class="card" id="experienceCard" style="flex:1; display:flex; flex-direction:column; min-height:0; margin-bottom:0; overflow:hidden;">
                         <div class="card-header" style="flex-shrink:0;">
                             <h2><i class="fas fa-briefcase"></i> Pengalaman</h2>
+                            <button class="btn-save" id="openAddExpModalBtn" style="font-size:9px;padding:1px 12px;">
+                                <i class="fas fa-plus"></i> Tambah
+                            </button>
                         </div>
                         <div style="flex:1; overflow-y:auto; min-height:0; padding-right:2px;" id="expScrollContainer">
                             <div id="expContainer"></div>
                         </div>
-                        <div class="add-exp-form" id="addExpForm" style="flex-shrink:0; margin-top:3px;">
-                            <input type="text" id="expInput" placeholder="Tambah pengalaman..." maxlength="80" />
-                            <button id="addExpBtn"><i class="fas fa-plus"></i> Tambah</button>
-                        </div>
+                        <!-- form tambah pengalaman sudah diganti dengan tombol modal -->
                     </div>
 
                 </div>
@@ -2993,6 +3269,27 @@
     </div>
 
     <!-- ============================================================
+    MODAL: TAMBAH / EDIT PENGALAMAN (dengan detail)
+    ============================================================ -->
+    <div class="modal-overlay exp-modal" id="expModal">
+        <div class="modal-box">
+            <h3 id="expModalTitle"><i class="fas fa-briefcase"></i> Tambah Pengalaman</h3>
+            <p>Masukkan judul dan daftar detail pekerjaan.</p>
+            <input type="text" class="modal-input exp-title-input" id="expModalTitleInput" placeholder="Judul pengalaman (contoh: PT ABC – Staff (Jan 2023 - Des 2024))" maxlength="120" />
+            <div style="font-size:9px;color:#999;margin-bottom:4px;">
+                <i class="fas fa-list-ul"></i> Detail pekerjaan (minimal 1):
+            </div>
+            <div class="exp-detail-list" id="expDetailList"></div>
+            <button class="add-detail-modal-btn" id="addDetailModalBtn"><i class="fas fa-plus"></i> Tambah Detail</button>
+            <div class="modal-error" id="expModalError">Judul dan minimal 1 detail harus diisi.</div>
+            <div class="modal-actions" style="margin-top:8px;">
+                <button class="btn-modal cancel" id="expModalCancel">Batal</button>
+                <button class="btn-modal primary" id="expModalSave">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
     MODAL: VIEW PROFILE — WhatsApp-style full screen photo viewer
     ============================================================ -->
     <div class="modal-overlay view-profile-modal" id="viewProfileModal">
@@ -3045,7 +3342,6 @@
             onlineLabel.textContent = status ? 'Online' : 'Offline';
             onlineStatusEl.className = 'online-status ' + (status ? 'online' : 'offline');
 
-            // Jika offline, tampilkan indikator pada status lock juga
             const lockStatusEl = document.getElementById('lockStatus');
             if (!status) {
                 lockStatusEl.style.borderColor = 'rgba(229,57,53,0.2)';
@@ -3056,12 +3352,10 @@
             }
         }
 
-        // Firebase connection listener
         const connectedRef = database.ref('.info/connected');
         connectedRef.on('value', (snap) => {
             if (snap.val() === true) {
                 setOnlineStatus(true);
-                // Jika online, sync data dari Firebase
                 syncFromFirebase();
             } else {
                 setOnlineStatus(false);
@@ -3071,32 +3365,9 @@
         // ============================================================
         //  3. DATA LAYER — Firebase + localStorage cache
         // ============================================================
-        const STORAGE_KEY = 'profileAppDataV6';
+        const STORAGE_KEY = 'profileAppDataV7';
         let data = null;
         let isLoading = true;
-        let pendingWrites = 0;
-
-        // Default data (sama seperti sebelumnya)
-        const expDetailsData = {
-            'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': [
-                'Praregist', 'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
-                'Monitor tiket (update done + penambahan) s.d jam shift',
-                'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
-                'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
-                'Share rekap progres tiket selesai jam shift',
-                'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
-                'Regist & allow pemasangan baru', 'On cek laporan tim fastrespon',
-                'Menyiapkan atau pengembalian barang teknisi', 'Penyesuaian jadwal shift',
-                'Pendataan kode sn router', 'Share rekap tiket harian selesai full all teknisi',
-                'Monitor barang (cek stok, input stok dan perapihan)', 'Customer service fastrespon',
-                'Perapihan kodepos pada data pelanggan'
-            ],
-            'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': [
-                'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
-                'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
-                'Arsip berkas'
-            ]
-        };
 
         function getDefaultData() {
             return {
@@ -3108,13 +3379,40 @@
                 skills: ['Microsoft Excel', 'Microsoft Word', 'Fast Typing', 'Coding AI', 'Inventory',
                     'Customer Service / Fastres', 'Monitoring & Rekap'
                 ],
-                experience: [
-                    'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)',
-                    'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)'
-                ],
+                // EXPERIENCE sekarang berupa array objek { id, title, details: [] }
+                experience: [{
+                    id: 'exp1',
+                    title: 'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)',
+                    details: [
+                        'Praregist',
+                        'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                        'Monitor tiket (update done + penambahan) s.d jam shift',
+                        'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                        'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                        'Share rekap progres tiket selesai jam shift',
+                        'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                        'Regist & allow pemasangan baru',
+                        'On cek laporan tim fastrespon',
+                        'Menyiapkan atau pengembalian barang teknisi',
+                        'Penyesuaian jadwal shift',
+                        'Pendataan kode sn router',
+                        'Share rekap tiket harian selesai full all teknisi',
+                        'Monitor barang (cek stok, input stok dan perapihan)',
+                        'Customer service fastrespon',
+                        'Perapihan kodepos pada data pelanggan'
+                    ]
+                }, {
+                    id: 'exp2',
+                    title: 'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)',
+                    details: [
+                        'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                        'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                        'Arsip berkas'
+                    ]
+                }],
                 dailyIncomes: [
-                    { id: '1', date: todayStr(), amount: 150000, note: 'Proyek A' },
-                    { id: '2', date: yesterdayStr(), amount: 200000, note: 'Konsultasi' },
+                    { id: 'd1', date: todayStr(), amount: 150000, note: 'Proyek A' },
+                    { id: 'd2', date: yesterdayStr(), amount: 200000, note: 'Konsultasi' },
                 ],
                 plans: [],
                 planHistory: [],
@@ -3147,6 +3445,47 @@
             return `${parseInt(parts[2])} ${bulan[parseInt(parts[1])-1]} ${parts[0]}`;
         }
 
+        // --- Migrasi data lama (array of strings) ke format baru (array of obj) ---
+        function migrateExperience(oldExp) {
+            if (!oldExp || !Array.isArray(oldExp)) return [];
+            // Jika item pertama adalah string, berarti masih format lama
+            if (oldExp.length > 0 && typeof oldExp[0] === 'string') {
+                // Gunakan hardcoded detail dari expDetailsData
+                const hardcoded = {
+                    'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': [
+                        'Praregist',
+                        'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                        'Monitor tiket (update done + penambahan) s.d jam shift',
+                        'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                        'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                        'Share rekap progres tiket selesai jam shift',
+                        'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                        'Regist & allow pemasangan baru',
+                        'On cek laporan tim fastrespon',
+                        'Menyiapkan atau pengembalian barang teknisi',
+                        'Penyesuaian jadwal shift',
+                        'Pendataan kode sn router',
+                        'Share rekap tiket harian selesai full all teknisi',
+                        'Monitor barang (cek stok, input stok dan perapihan)',
+                        'Customer service fastrespon',
+                        'Perapihan kodepos pada data pelanggan'
+                    ],
+                    'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': [
+                        'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                        'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                        'Arsip berkas'
+                    ]
+                };
+                return oldExp.map((title, idx) => ({
+                    id: 'exp' + Date.now() + idx + Math.random().toString(36).substr(2, 3),
+                    title: title,
+                    details: hardcoded[title] || ['Detail tidak tersedia.']
+                }));
+            }
+            // Sudah format baru
+            return oldExp;
+        }
+
         // --- Load from localStorage ---
         function loadFromLocalStorage() {
             try {
@@ -3154,8 +3493,9 @@
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     const defaults = getDefaultData();
-                    // Merge
                     const merged = { ...defaults, ...parsed };
+                    // Migrasi experience jika perlu
+                    merged.experience = migrateExperience(merged.experience);
                     return merged;
                 }
             } catch (_) { /* ignore */ }
@@ -3174,9 +3514,9 @@
                 database.ref(DATA_PATH).once('value', (snap) => {
                     const val = snap.val();
                     if (val) {
-                        // merge with defaults to ensure all fields exist
                         const defaults = getDefaultData();
                         const merged = { ...defaults, ...val };
+                        merged.experience = migrateExperience(merged.experience);
                         resolve(merged);
                     } else {
                         resolve(null);
@@ -3189,7 +3529,7 @@
             return database.ref(DATA_PATH).set(d);
         }
 
-        // --- Sync: from Firebase to localStorage + UI ---
+        // --- Sync ---
         async function syncFromFirebase() {
             if (!isOnline) return;
             try {
@@ -3200,11 +3540,9 @@
                     renderAll();
                     console.log('✅ Data dimuat dari Firebase');
                 } else {
-                    // Tidak ada data di Firebase, coba pakai localStorage
                     const localData = loadFromLocalStorage();
                     if (localData) {
                         data = localData;
-                        // push ke Firebase
                         await saveToFirebase(data);
                         console.log('📤 Data lokal disinkronkan ke Firebase');
                     } else {
@@ -3229,19 +3567,16 @@
             isLoading = false;
         }
 
-        // --- Save data (digunakan oleh semua operasi write) ---
+        // --- Save data ---
         async function saveDataAndSync() {
             if (!data) return;
-            // selalu simpan ke localStorage
             saveToLocalStorage(data);
-
-            // jika online, simpan ke Firebase
             if (isOnline) {
                 try {
                     await saveToFirebase(data);
                     console.log('💾 Data disimpan ke Firebase');
                 } catch (err) {
-                    console.warn('⚠️ Gagal simpan ke Firebase, data tetap di localStorage:', err);
+                    console.warn('⚠️ Gagal simpan ke Firebase:', err);
                 }
             } else {
                 console.log('💾 Data disimpan ke localStorage (offline)');
@@ -3267,7 +3602,7 @@
         }
 
         // ============================================================
-        //  5. DOM REFS (sama seperti sebelumnya)
+        //  5. DOM REFS
         // ============================================================
         const $ = id => document.getElementById(id);
         const container = $('appContainer');
@@ -3307,7 +3642,6 @@
         const skillsContainer = $('skillsContainer');
         const skillInput = $('skillInput');
         const expContainer = $('expContainer');
-        const expInput = $('expInput');
 
         const dailyList = $('dailyList');
         const dailyDate = $('dailyDate');
@@ -3341,6 +3675,16 @@
         const slides = document.querySelectorAll('.slide');
         const subTabBtns = document.querySelectorAll('.sub-tab-btn');
         const subSlides = document.querySelectorAll('.sub-slide');
+
+        // Modal Exp
+        const expModal = $('expModal');
+        const expModalTitle = $('expModalTitle');
+        const expModalTitleInput = $('expModalTitleInput');
+        const expDetailList = $('expDetailList');
+        const addDetailModalBtn = $('addDetailModalBtn');
+        const expModalError = $('expModalError');
+        const expModalSave = $('expModalSave');
+        const expModalCancel = $('expModalCancel');
 
         // ============================================================
         //  6. DATE & TIME
@@ -3587,7 +3931,7 @@
         });
 
         // ============================================================
-        //  11. VIEW PROFILE MODAL — WhatsApp-style full screen
+        //  11. VIEW PROFILE MODAL
         // ============================================================
         function openViewProfileModal() {
             const imgSrc = data.photo ||
@@ -3609,7 +3953,7 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeViewProfileModal(); });
 
         // ============================================================
-        //  12. RENDER FUNCTIONS (semua menggunakan data + saveDataAndSync)
+        //  12. RENDER FUNCTIONS
         // ============================================================
         function renderPhoto() {
             if (data.photo) { profilePhoto.src = data.photo; } else {
@@ -3670,14 +4014,14 @@
             });
         }
 
+        // --- EXPERIENCE (format baru: array of obj { id, title, details }) ---
         function renderExperience() {
             if (!data.experience || data.experience.length === 0) {
                 expContainer.innerHTML = '<div class="empty-exp">Belum ada pengalaman.</div>';
                 return;
             }
             expContainer.innerHTML = '';
-            data.experience.forEach((expStr, index) => {
-                const details = expDetailsData[expStr] || ['Detail tidak tersedia.'];
+            data.experience.forEach((exp, index) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'exp-detail-item';
                 wrapper.style.animation = 'tagIn 0.3s ease forwards';
@@ -3686,12 +4030,18 @@
 
                 const header = document.createElement('div');
                 header.className = 'exp-detail-header';
-                const title = document.createElement('span');
-                title.className = 'exp-title';
-                const periodMatch = expStr.match(/\(([^)]+)\)/);
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'exp-title';
+                // Extrak period untuk ditampilkan terpisah
+                const periodMatch = exp.title.match(/\(([^)]+)\)/);
                 const period = periodMatch ? periodMatch[1] : '';
-                const mainText = expStr.replace(/\([^)]*\)/, '').trim();
-                title.textContent = mainText;
+                const mainText = exp.title.replace(/\([^)]*\)/, '').trim();
+                titleSpan.textContent = mainText;
+                titleSpan.addEventListener('click', () => {
+                    if (isLocked) return;
+                    toggleExpBody(wrapper);
+                });
 
                 const periodSpan = document.createElement('span');
                 periodSpan.className = 'exp-period';
@@ -3700,40 +4050,29 @@
                 const toggle = document.createElement('span');
                 toggle.className = 'exp-toggle';
                 toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
-
-                header.appendChild(title);
-                header.appendChild(periodSpan);
-                header.appendChild(toggle);
-
-                const body = document.createElement('div');
-                body.className = 'exp-detail-body';
-                const ul = document.createElement('ul');
-                details.forEach(d => {
-                    const li = document.createElement('li');
-                    li.textContent = d;
-                    ul.appendChild(li);
-                });
-                body.appendChild(ul);
-
-                let open = false;
-                header.addEventListener('click', () => {
+                toggle.addEventListener('click', () => {
                     if (isLocked) return;
-                    open = !open;
-                    body.classList.toggle('open', open);
-                    toggle.classList.toggle('open', open);
+                    toggleExpBody(wrapper);
                 });
 
-                if (isLocked) {
-                    body.classList.add('open');
-                    toggle.classList.add('open');
-                }
+                const actions = document.createElement('div');
+                actions.className = 'exp-actions';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'exp-edit-detail';
+                editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+                editBtn.title = 'Edit pengalaman & detail';
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isLocked) return;
+                    openEditExpModal(index);
+                });
 
                 const delBtn = document.createElement('button');
                 delBtn.className = 'exp-delete';
-                delBtn.style.cssText =
-                    'background:none;border:none;color:#bbb;cursor:pointer;font-size:9px;padding:0 4px;flex-shrink:0;';
-                delBtn.innerHTML = '<i class="fas fa-times"></i>';
-                delBtn.addEventListener('click', function(e) {
+                delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                delBtn.title = 'Hapus pengalaman';
+                delBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (isLocked) return;
                     if (!confirm('Hapus pengalaman ini?')) return;
@@ -3741,7 +4080,19 @@
                     saveDataAndSync();
                     renderExperience();
                 });
-                header.appendChild(delBtn);
+
+                actions.appendChild(editBtn);
+                actions.appendChild(delBtn);
+
+                header.appendChild(titleSpan);
+                header.appendChild(periodSpan);
+                header.appendChild(toggle);
+                header.appendChild(actions);
+
+                // Body
+                const body = document.createElement('div');
+                body.className = 'exp-detail-body';
+                renderExpBody(body, exp, index);
 
                 wrapper.appendChild(header);
                 wrapper.appendChild(body);
@@ -3754,6 +4105,218 @@
             });
         }
 
+        function toggleExpBody(wrapper) {
+            const body = wrapper.querySelector('.exp-detail-body');
+            const toggle = wrapper.querySelector('.exp-toggle');
+            if (body) {
+                body.classList.toggle('open');
+                if (toggle) toggle.classList.toggle('open');
+            }
+        }
+
+        function renderExpBody(body, exp, expIndex) {
+            body.innerHTML = '';
+            const ul = document.createElement('ul');
+            if (exp.details && exp.details.length > 0) {
+                exp.details.forEach((detail, detailIndex) => {
+                    const li = document.createElement('li');
+                    li.textContent = detail;
+                    // Tombol edit & delete detail (hanya jika tidak terkunci)
+                    if (!isLocked) {
+                        const editDetailBtn = document.createElement('button');
+                        editDetailBtn.className = 'detail-edit';
+                        editDetailBtn.innerHTML = '<i class="fas fa-pen"></i>';
+                        editDetailBtn.title = 'Edit detail';
+                        editDetailBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (isLocked) return;
+                            startEditDetail(expIndex, detailIndex);
+                        });
+
+                        const delDetailBtn = document.createElement('button');
+                        delDetailBtn.className = 'detail-delete';
+                        delDetailBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        delDetailBtn.title = 'Hapus detail';
+                        delDetailBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (isLocked) return;
+                            if (!confirm('Hapus detail ini?')) return;
+                            data.experience[expIndex].details.splice(detailIndex, 1);
+                            saveDataAndSync();
+                            renderExperience();
+                        });
+                        li.appendChild(editDetailBtn);
+                        li.appendChild(delDetailBtn);
+                    }
+                    ul.appendChild(li);
+                });
+            } else {
+                const emptyLi = document.createElement('li');
+                emptyLi.className = 'exp-empty-details';
+                emptyLi.textContent = 'Belum ada detail.';
+                ul.appendChild(emptyLi);
+            }
+            body.appendChild(ul);
+
+            // Form tambah detail (hanya jika tidak terkunci)
+            if (!isLocked) {
+                const form = document.createElement('div');
+                form.className = 'add-detail-form';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Tambah detail...';
+                input.maxLength = 80;
+                const btn = document.createElement('button');
+                btn.innerHTML = '<i class="fas fa-plus"></i> Tambah';
+                btn.addEventListener('click', () => {
+                    const val = input.value.trim();
+                    if (!val) { alert('Masukkan detail!'); return; }
+                    if (!data.experience[expIndex]) return;
+                    data.experience[expIndex].details.push(val);
+                    saveDataAndSync();
+                    renderExperience();
+                    // Buka kembali body setelah render
+                    const wrapper = body.closest('.exp-detail-item');
+                    if (wrapper) {
+                        const newBody = wrapper.querySelector('.exp-detail-body');
+                        const newToggle = wrapper.querySelector('.exp-toggle');
+                        if (newBody) newBody.classList.add('open');
+                        if (newToggle) newToggle.classList.add('open');
+                    }
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault();
+                        btn.click(); }
+                });
+                form.appendChild(input);
+                form.appendChild(btn);
+                body.appendChild(form);
+            }
+        }
+
+        // --- Edit detail inline ---
+        function startEditDetail(expIndex, detailIndex) {
+            if (isLocked) return;
+            const exp = data.experience[expIndex];
+            if (!exp) return;
+            const wrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+            if (!wrapper) return;
+            const body = wrapper.querySelector('.exp-detail-body');
+            if (!body) return;
+            const ul = body.querySelector('ul');
+            if (!ul) return;
+            const lis = ul.querySelectorAll('li');
+            if (detailIndex >= lis.length) return;
+            const li = lis[detailIndex];
+            const currentText = exp.details[detailIndex];
+
+            // Sembunyikan teks dan tombol
+            const textNodes = [];
+            let child = li.firstChild;
+            while (child) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    textNodes.push(child);
+                }
+                child = child.nextSibling;
+            }
+            // Hapus semua child
+            while (li.firstChild) li.removeChild(li.firstChild);
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'detail-edit-input';
+            input.value = currentText;
+            input.maxLength = 80;
+
+            const actionsDiv = document.createElement('span');
+            actionsDiv.className = 'detail-edit-actions';
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-detail-edit';
+            saveBtn.textContent = 'Simpan';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancel-detail-edit';
+            cancelBtn.textContent = 'Batal';
+
+            actionsDiv.appendChild(saveBtn);
+            actionsDiv.appendChild(cancelBtn);
+
+            li.appendChild(input);
+            li.appendChild(actionsDiv);
+
+            input.focus();
+            input.select();
+
+            const finish = (save) => {
+                if (save) {
+                    const newText = input.value.trim();
+                    if (newText && newText !== currentText) {
+                        data.experience[expIndex].details[detailIndex] = newText;
+                        saveDataAndSync();
+                        renderExperience();
+                        // Buka kembali
+                        const newWrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+                        if (newWrapper) {
+                            const nb = newWrapper.querySelector('.exp-detail-body');
+                            const nt = newWrapper.querySelector('.exp-toggle');
+                            if (nb) nb.classList.add('open');
+                            if (nt) nt.classList.add('open');
+                        }
+                    } else if (!newText) {
+                        // Hapus detail jika kosong
+                        if (confirm('Hapus detail ini?')) {
+                            data.experience[expIndex].details.splice(detailIndex, 1);
+                            saveDataAndSync();
+                            renderExperience();
+                            const newWrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+                            if (newWrapper) {
+                                const nb = newWrapper.querySelector('.exp-detail-body');
+                                const nt = newWrapper.querySelector('.exp-toggle');
+                                if (nb) nb.classList.add('open');
+                                if (nt) nt.classList.add('open');
+                            }
+                        } else {
+                            renderExperience();
+                            const newWrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+                            if (newWrapper) {
+                                const nb = newWrapper.querySelector('.exp-detail-body');
+                                const nt = newWrapper.querySelector('.exp-toggle');
+                                if (nb) nb.classList.add('open');
+                                if (nt) nt.classList.add('open');
+                            }
+                        }
+                    } else {
+                        renderExperience();
+                        const newWrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+                        if (newWrapper) {
+                            const nb = newWrapper.querySelector('.exp-detail-body');
+                            const nt = newWrapper.querySelector('.exp-toggle');
+                            if (nb) nb.classList.add('open');
+                            if (nt) nt.classList.add('open');
+                        }
+                    }
+                } else {
+                    renderExperience();
+                    const newWrapper = document.querySelectorAll('.exp-detail-item')[expIndex];
+                    if (newWrapper) {
+                        const nb = newWrapper.querySelector('.exp-detail-body');
+                        const nt = newWrapper.querySelector('.exp-toggle');
+                        if (nb) nb.classList.add('open');
+                        if (nt) nt.classList.add('open');
+                    }
+                }
+            };
+
+            saveBtn.addEventListener('click', () => finish(true));
+            cancelBtn.addEventListener('click', () => finish(false));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault();
+                    finish(true); }
+                if (e.key === 'Escape') { finish(false); }
+            });
+        }
+
+        // --- Helper edit item (skills) ---
         function startEditItem(index, key, container, inputClass, renderFn) {
             if (isLocked) return;
             const tag = container.children[index];
@@ -3807,6 +4370,138 @@
             inputEl.value = '';
             inputEl.focus();
         }
+
+        // --- MODAL TAMBAH / EDIT PENGALAMAN ---
+        let editingExpIndex = -1; // -1 = tambah baru
+
+        function openAddExpModal() {
+            if (isLocked) return;
+            editingExpIndex = -1;
+            expModalTitle.textContent = 'Tambah Pengalaman';
+            expModalTitleInput.value = '';
+            expDetailList.innerHTML = '';
+            // Tambah 1 detail kosong
+            addDetailRow('');
+            expModalError.classList.remove('show');
+            expModal.classList.add('open');
+            setTimeout(() => expModalTitleInput.focus(), 200);
+        }
+
+        function openEditExpModal(index) {
+            if (isLocked) return;
+            const exp = data.experience[index];
+            if (!exp) return;
+            editingExpIndex = index;
+            expModalTitle.textContent = 'Edit Pengalaman';
+            expModalTitleInput.value = exp.title;
+            expDetailList.innerHTML = '';
+            if (exp.details && exp.details.length > 0) {
+                exp.details.forEach(d => addDetailRow(d));
+            } else {
+                addDetailRow('');
+            }
+            expModalError.classList.remove('show');
+            expModal.classList.add('open');
+            setTimeout(() => expModalTitleInput.focus(), 200);
+        }
+
+        function addDetailRow(value) {
+            const div = document.createElement('div');
+            div.className = 'exp-detail-item-modal';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Detail pekerjaan...';
+            input.maxLength = 80;
+            input.value = value || '';
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-detail-modal';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.title = 'Hapus detail';
+            removeBtn.addEventListener('click', () => {
+                if (expDetailList.children.length <= 1) {
+                    alert('Minimal 1 detail harus diisi.');
+                    return;
+                }
+                div.remove();
+            });
+            div.appendChild(input);
+            div.appendChild(removeBtn);
+            expDetailList.appendChild(div);
+            // Fokus ke input terakhir
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function saveExpFromModal() {
+            const title = expModalTitleInput.value.trim();
+            const detailInputs = expDetailList.querySelectorAll('input');
+            const details = [];
+            detailInputs.forEach(inp => {
+                const val = inp.value.trim();
+                if (val) details.push(val);
+            });
+
+            if (!title) {
+                expModalError.textContent = 'Judul pengalaman harus diisi.';
+                expModalError.classList.add('show');
+                expModalTitleInput.focus();
+                return;
+            }
+            if (details.length === 0) {
+                expModalError.textContent = 'Minimal 1 detail pekerjaan harus diisi.';
+                expModalError.classList.add('show');
+                // fokus ke input detail pertama
+                const firstInput = expDetailList.querySelector('input');
+                if (firstInput) firstInput.focus();
+                return;
+            }
+            expModalError.classList.remove('show');
+
+            if (editingExpIndex === -1) {
+                // Tambah baru
+                const newExp = {
+                    id: 'exp' + Date.now() + Math.random().toString(36).substr(2, 4),
+                    title: title,
+                    details: details
+                };
+                data.experience.push(newExp);
+            } else {
+                // Edit
+                data.experience[editingExpIndex].title = title;
+                data.experience[editingExpIndex].details = details;
+            }
+            saveDataAndSync();
+            renderExperience();
+            closeExpModal();
+        }
+
+        function closeExpModal() {
+            expModal.classList.remove('open');
+            editingExpIndex = -1;
+            expModalError.classList.remove('show');
+        }
+
+        // Event modal exp
+        $('openAddExpModalBtn').addEventListener('click', openAddExpModal);
+        addDetailModalBtn.addEventListener('click', () => addDetailRow(''));
+        expModalSave.addEventListener('click', saveExpFromModal);
+        expModalCancel.addEventListener('click', closeExpModal);
+        expModal.addEventListener('click', (e) => { if (e.target === expModal) closeExpModal(); });
+        expModalTitleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault();
+                const firstInput = expDetailList.querySelector('input');
+                if (firstInput) firstInput.focus(); }
+        });
+        // Enter pada input detail terakhir akan tambah detail baru
+        expDetailList.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const inputs = expDetailList.querySelectorAll('input');
+                const lastInput = inputs[inputs.length - 1];
+                if (e.target === lastInput && lastInput.value.trim()) {
+                    e.preventDefault();
+                    addDetailRow('');
+                }
+            }
+        });
 
         // --- Daily ---
         function renderDaily() {
@@ -4396,11 +5091,6 @@
         skillInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
                 addItem('skills', skillInput, renderSkills, 'skill'); } });
 
-        // --- Experience ---
-        $('addExpBtn').addEventListener('click', () => addItem('experience', expInput, renderExperience, 'pengalaman'));
-        expInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
-                addItem('experience', expInput, renderExperience, 'pengalaman'); } });
-
         // --- Daily ---
         $('addDailyBtn').addEventListener('click', addDaily);
         dailyNote.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
@@ -4447,10 +5137,9 @@
         })();
 
         // ============================================================
-        //  18. INIT — tunggu koneksi atau load dari cache
+        //  18. INIT
         // ============================================================
         async function initApp() {
-            // Coba muat dari localStorage dulu agar UI cepat
             const localData = loadFromLocalStorage();
             if (localData) {
                 data = localData;
@@ -4463,11 +5152,8 @@
                 console.log('📦 Data default dibuat');
             }
 
-            // Jika sudah online, sync dari Firebase (di-trigger oleh listener .info/connected)
-            // Tapi jika listener belum triggered, coba manual setelah 2 detik
             setTimeout(async () => {
                 if (!connectionChecked) {
-                    // Coba cek status
                     try {
                         const snap = await database.ref('.info/connected').once('value');
                         if (snap.val() === true) {
@@ -4482,11 +5168,8 @@
                 }
             }, 2000);
 
-            // Lock state awal
             isLocked = false;
             updateLockUI();
-
-            // Navigasi awal
             goToSlide(0);
             goToSubSlide(0);
 
