@@ -1158,6 +1158,19 @@
             </svg>
         `;
 
+        // --- DeepSeek API Key Logo (kunci + chip) ---
+        const deepseekApiLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="28" stroke="#4d88ff" stroke-width="1.5" opacity="0.2" />
+                <path d="M28 22C28 18.686 30.686 16 34 16C37.314 16 40 18.686 40 22V26H28V22Z" stroke="#4d88ff" stroke-width="2.5" fill="rgba(77,136,255,0.08)" />
+                <rect x="24" y="26" width="16" height="18" rx="3" stroke="#4d88ff" stroke-width="2.5" fill="rgba(77,136,255,0.05)" />
+                <circle cx="32" cy="35" r="3" fill="#4d88ff" opacity="0.8" />
+                <path d="M32 38V44M32 30V32" stroke="#4d88ff" stroke-width="2" stroke-linecap="round" />
+                <path d="M42 28L46 24M22 28L18 24M42 40L46 44M22 40L18 44" stroke="#4d88ff" stroke-width="1.5" opacity="0.3" stroke-linecap="round" />
+                <circle cx="32" cy="32" r="1.5" fill="#4d88ff" opacity="0.2" />
+            </svg>
+        `;
+
         // DATA MENU — semua item kini konsisten: icon/logo di card-icon, nama di card-title, kategori di card-category
         const menuData = [
             { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/",
@@ -1187,7 +1200,7 @@
                 category: "Tools",
                 keywords: "speedtest internet jaringan okt"
             },
-            // MY PROFILE — tambahan baru
+            // MY PROFILE
             {
                 name: "My Profile",
                 icon: "fas fa-user-circle",
@@ -1196,7 +1209,7 @@
                 category: "Profile",
                 keywords: "profile asbah maghrib developer"
             },
-            // ===== FIREBASE — tambahan baru (link dari user) =====
+            // FIREBASE
             {
                 name: "Firebase Docs",
                 icon: "fas fa-fire",
@@ -1204,6 +1217,16 @@
                 url: "https://firebase.google.com/docs?utm_source=google&utm_medium=cpc&utm_campaign=Cloud-SS-DR-Firebase-FY26-global-gsem-1713590&utm_content=text-ad&utm_term=KW_firebase&gclsrc=aw.ds&gad_source=1&gad_campaignid=23417478209&gbraid=0AAAAADpUDOhteJSfTUtXaJMGWt3utfyx5&gclid=Cj0KCQjw--7UBhCpARIsAGJBptg4zUaFqjVDzPHC5MERNXTgq90U0A1wQJGxUITbyph4hTOUy_SwVT8aAj8fEALw_wcB",
                 category: "Developer",
                 keywords: "firebase docs dokumentasi database hosting auth"
+            },
+            // ===== DEEPSEEK API KEY — tambahan baru =====
+            {
+                name: "DeepSeek API Key",
+                logo: deepseekApiLogoSVG,
+                icon: "fas fa-key",
+                color: "#4d88ff",
+                url: "https://platform.deepseek.com/usage",
+                category: "AI · API",
+                keywords: "deepseek api key usage platform dashboard manage"
             }
         ];
 
