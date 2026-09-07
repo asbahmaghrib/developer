@@ -1,0 +1,2877 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Todo Assistant · DeepSeek</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
+    </script>
+
+    <style>
+        /* ----- RESET & VARIABLES ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #242834;
+            --border: #2e3342;
+            --text: #e8edf5;
+            --text-dim: #8892a8;
+            --accent: #6c8cff;
+            --accent-hover: #7f9cff;
+            --accent-glow: rgba(108, 140, 255, 0.25);
+            --green: #4ade80;
+            --red: #f87171;
+            --yellow: #fbbf24;
+            --gold: #f59e0b;
+            --radius: 14px;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --level-bg: linear-gradient(135deg, #1a1d27 0%, #242834 100%);
+        }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ----- APP CONTAINER ----- */
+        .app {
+            width: 1300px;
+            max-width: 100%;
+            height: 90vh;
+            max-height: 820px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        /* ----- HEADER ----- */
+        .header {
+            padding: 12px 20px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header h1 span {
+            background: var(--accent);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+
+        /* ----- LEVEL DISPLAY ----- */
+        .level-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg);
+            padding: 4px 14px 4px 12px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .level-badge {
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            color: #0f1117;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            min-width: 28px;
+            text-align: center;
+        }
+        .level-xp {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .level-xp .xp-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .level-xp .xp-bar .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), #fbbf24);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .level-xp .xp-text {
+            font-size: 10px;
+            color: var(--text-dim);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .header-actions .btn-sm {
+            padding: 5px 12px;
+            font-size: 11px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-actions .btn-sm:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .header-actions .btn-sm.primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .header-actions .btn-sm.primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* ----- USER PROFILE ----- */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            padding: 3px 12px 3px 8px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+        .user-profile:hover {
+            border-color: var(--accent);
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-name {
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .user-profile .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 13px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .user-profile .logout-btn:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.12);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-dim);
+            background: var(--bg);
+            padding: 3px 12px 3px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            transition: background 0.3s;
+        }
+        .status-dot.listening {
+            background: var(--green);
+            box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+        }
+        .status-dot.speaking {
+            background: var(--yellow);
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+        }
+        .status-dot.error {
+            background: var(--red);
+            box-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
+        }
+        .status-dot.idle {
+            background: var(--text-dim);
+            opacity: 0.5;
+        }
+        .status-dot.offline {
+            background: var(--text-dim);
+            opacity: 0.2;
+        }
+
+        /* ----- MAIN LAYOUT ----- */
+        .main {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ----- CHAT AREA ----- */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: 1px solid var(--border);
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .msg {
+            max-width: 78%;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            animation: fadeUp 0.25s ease;
+        }
+        .msg.user {
+            align-self: flex-end;
+            background: var(--accent);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .msg.assistant {
+            align-self: flex-start;
+            background: var(--surface2);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        .msg .msg-label {
+            font-size: 9px;
+            font-weight: 600;
+            opacity: 0.5;
+            margin-bottom: 3px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .msg .msg-text {
+            white-space: pre-wrap;
+        }
+        .msg .msg-text .todo-highlight {
+            color: var(--green);
+            font-weight: 500;
+        }
+        .msg .msg-time {
+            font-size: 9px;
+            opacity: 0.35;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background: var(--surface2);
+            padding: 12px 18px;
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            display: none;
+        }
+        .typing-indicator.active {
+            display: flex;
+        }
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            animation: typing 1.2s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%,
+            80%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.3;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ----- INPUT BAR ----- */
+        .input-bar {
+            padding: 10px 16px 14px;
+            background: var(--surface2);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .input-bar input {
+            flex: 1;
+            min-width: 100px;
+            padding: 9px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-bar input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .input-bar input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--border);
+            color: var(--text);
+            flex-shrink: 0;
+        }
+        .btn:hover {
+            filter: brightness(1.15);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .btn-voice {
+            background: var(--border);
+            color: var(--text);
+            font-size: 17px;
+            padding: 9px 14px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            position: relative;
+            min-width: 66px;
+            justify-content: center;
+        }
+        .btn-voice.active {
+            background: var(--green);
+            color: #0f1117;
+            box-shadow: 0 0 24px rgba(74, 222, 128, 0.4);
+            animation: pulse 1.2s infinite;
+        }
+        .btn-voice.speaking {
+            background: var(--yellow);
+            color: #0f1117;
+            box-shadow: 0 0 24px rgba(251, 191, 36, 0.4);
+        }
+        .btn-voice.muted {
+            background: var(--surface2);
+            color: var(--text-dim);
+            opacity: 0.5;
+        }
+        .btn-voice.interrupted {
+            background: var(--red);
+            color: #fff;
+            animation: flash 0.3s ease;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+            }
+        }
+        @keyframes flash {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.92);
+            }
+        }
+        .voice-indicator {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-left: 2px;
+        }
+        .btn-voice.active .voice-indicator {
+            color: #0f1117;
+        }
+        .btn-voice.speaking .voice-indicator {
+            color: #0f1117;
+        }
+        .voice-wave {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 3px;
+        }
+        .voice-wave span {
+            width: 3px;
+            height: 10px;
+            background: currentColor;
+            border-radius: 2px;
+            animation: wave 0.8s ease-in-out infinite alternate;
+            opacity: 0.5;
+        }
+        .voice-wave span:nth-child(2) {
+            height: 16px;
+            animation-delay: 0.2s;
+        }
+        .voice-wave span:nth-child(3) {
+            height: 12px;
+            animation-delay: 0.4s;
+        }
+        .voice-wave span:nth-child(4) {
+            height: 18px;
+            animation-delay: 0.1s;
+        }
+        .voice-wave span:nth-child(5) {
+            height: 10px;
+            animation-delay: 0.3s;
+        }
+        @keyframes wave {
+            0% {
+                transform: scaleY(0.4);
+            }
+            100% {
+                transform: scaleY(1);
+            }
+        }
+        .mic-muted-badge {
+            font-size: 9px;
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--red);
+            padding: 1px 8px;
+            border-radius: 12px;
+            display: none;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .mic-muted-badge.show {
+            display: inline-block;
+        }
+        .voice-on-badge {
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--green);
+            font-size: 9px;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+            letter-spacing: 0.3px;
+        }
+        .voice-on-badge.show {
+            display: inline-block;
+        }
+
+        /* ----- TODO PANEL ----- */
+        .todo-panel {
+            width: 340px;
+            min-width: 200px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .todo-panel .panel-header {
+            padding: 12px 16px 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .todo-panel .panel-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .todo-panel .panel-header h2 span {
+            background: var(--surface2);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 1px 10px;
+            border-radius: 20px;
+            color: var(--text-dim);
+        }
+        .todo-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px 16px;
+        }
+        .todo-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .todo-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .todo-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            animation: fadeUp 0.25s ease;
+        }
+        .todo-item:hover {
+            border-color: var(--accent);
+        }
+        .todo-item .todo-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: transparent;
+            color: transparent;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .todo-item .todo-check:hover {
+            border-color: var(--accent);
+        }
+        .todo-item .todo-check.done {
+            background: var(--green);
+            border-color: var(--green);
+            color: #0f1117;
+        }
+        .todo-item .todo-text {
+            flex: 1;
+            font-size: 13px;
+            transition: all 0.2s;
+            word-break: break-word;
+        }
+        .todo-item .todo-text.done {
+            text-decoration: line-through;
+            opacity: 0.4;
+        }
+        .todo-item .todo-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .todo-item .todo-delete:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.12);
+        }
+        .todo-empty {
+            color: var(--text-dim);
+            font-size: 13px;
+            text-align: center;
+            padding: 30px 10px;
+            line-height: 1.6;
+        }
+        .todo-empty .icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ----- MODAL / OVERLAY ----- */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            max-width: 460px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fadeUp 0.25s ease;
+        }
+        .modal-box h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box p {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .modal-box label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal-box input,
+        .modal-box textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+            margin-bottom: 12px;
+        }
+        .modal-box input:focus,
+        .modal-box textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .modal-box textarea {
+            border-radius: 12px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .modal-box .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .modal-box .btn-row .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 80px;
+        }
+        .modal-box .btn-row .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        .modal-box .btn-row .btn-secondary:hover {
+            background: var(--surface2);
+        }
+        .modal-box .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+        .modal-box .hint a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .modal-box .hint a:hover {
+            text-decoration: underline;
+        }
+        .modal-box .close-btn {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .modal-box .close-btn:hover {
+            color: var(--text);
+        }
+
+        /* ----- SETTINGS MODAL SPECIFIC ----- */
+        .settings-group {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .settings-group .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .settings-group .label-row .badge {
+            font-size: 9px;
+            background: var(--border);
+            padding: 1px 10px;
+            border-radius: 12px;
+            color: var(--text-dim);
+        }
+
+        /* ----- LOGIN OVERLAY ----- */
+        .login-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.92);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            border-radius: var(--radius);
+            padding: 30px;
+        }
+        .login-overlay.open {
+            display: flex;
+        }
+        .login-overlay .box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-overlay .box h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+        .login-overlay .box p {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .login-overlay .box .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font);
+        }
+        .login-overlay .box .google-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface2);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .login-overlay .box .google-btn img {
+            width: 22px;
+            height: 22px;
+        }
+        .login-overlay .box .hint {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 14px;
+        }
+        .login-overlay .box .hint .key-hint {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .login-overlay .box .hint .key-hint:hover {
+            color: var(--accent-hover);
+        }
+
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 820px) {
+            .app {
+                height: 98vh;
+                max-height: none;
+                border-radius: 12px;
+            }
+            .main {
+                flex-direction: column;
+            }
+            .todo-panel {
+                width: 100%;
+                max-height: 200px;
+                border-top: 1px solid var(--border);
+                border-right: none;
+            }
+            .chat-area {
+                border-right: none;
+            }
+            .messages {
+                padding: 12px 14px;
+            }
+            .msg {
+                max-width: 88%;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+            .level-display {
+                padding: 2px 10px 2px 8px;
+            }
+            .level-badge {
+                font-size: 11px;
+                padding: 1px 8px;
+            }
+            .level-xp .xp-bar {
+                width: 40px;
+            }
+            .header-actions .btn-sm {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+            .modal-box {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .user-name {
+                max-width: 60px;
+                font-size: 11px;
+            }
+            .user-profile {
+                padding: 2px 8px 2px 4px;
+            }
+            .user-avatar {
+                width: 22px;
+                height: 22px;
+                font-size: 11px;
+            }
+        }
+        @media (max-width: 480px) {
+            .app {
+                height: 100vh;
+                border-radius: 0;
+                padding: 0;
+            }
+            .header {
+                padding: 8px 12px;
+            }
+            .header h1 {
+                font-size: 13px;
+            }
+            .input-bar {
+                padding: 8px 10px 12px;
+                gap: 4px;
+            }
+            .input-bar input {
+                font-size: 12px;
+                padding: 7px 12px;
+            }
+            .btn {
+                font-size: 11px;
+                padding: 7px 12px;
+            }
+            .btn-voice {
+                font-size: 15px;
+                padding: 7px 10px;
+                min-width: 52px;
+            }
+            .todo-panel {
+                max-height: 150px;
+            }
+            .todo-panel .panel-header {
+                padding: 8px 12px 6px;
+            }
+            .todo-list {
+                padding: 6px 10px 12px;
+            }
+            .todo-item {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            .level-display {
+                padding: 2px 8px 2px 6px;
+                gap: 6px;
+            }
+            .level-badge {
+                font-size: 10px;
+                padding: 1px 6px;
+                min-width: 22px;
+            }
+            .level-xp .xp-bar {
+                width: 30px;
+            }
+            .level-xp .xp-text {
+                font-size: 9px;
+                min-width: 28px;
+            }
+            .modal-box {
+                padding: 16px;
+            }
+            .header-actions .btn-sm {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .user-name {
+                max-width: 40px;
+                font-size: 10px;
+            }
+            .user-profile {
+                padding: 2px 6px 2px 3px;
+            }
+            .user-avatar {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+        }
+
+        /* ----- UTILITIES ----- */
+        .hidden {
+            display: none !important;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        /* API Key overlay (initial) */
+        .key-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.92);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: var(--radius);
+            padding: 30px;
+        }
+        .key-overlay.open {
+            display: flex;
+        }
+        .key-overlay .box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px 36px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        .key-overlay .box h2 {
+            font-size: 19px;
+            margin-bottom: 4px;
+        }
+        .key-overlay .box p {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .key-overlay .box input {
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+        .key-overlay .box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .key-overlay .box .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 11px;
+            font-size: 13px;
+        }
+        .key-overlay .box .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 10px;
+        }
+        .key-overlay .box .hint a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .key-overlay .box .hint a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 13px;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            max-width: 90%;
+        }
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .toast.success {
+            border-color: var(--green);
+        }
+        .toast.error {
+            border-color: var(--red);
+        }
+        .toast.info {
+            border-color: var(--accent);
+        }
+
+        /* Fire icon for level up */
+        .level-up-flash {
+            animation: levelUpPulse 0.6s ease;
+        }
+        @keyframes levelUpPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+                color: var(--gold);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Login button in header when not logged in */
+        .login-btn-header {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font);
+        }
+        .login-btn-header:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app">
+        <!-- TOAST -->
+        <div class="toast" id="toast"></div>
+
+        <!-- LOGIN OVERLAY -->
+        <div class="login-overlay open" id="loginOverlay">
+            <div class="box">
+                <h2>🔐 Masuk dengan Google</h2>
+                <p>Login untuk menyimpan semua data <strong>todos, riwayat chat, level</strong> ke akun Anda.</p>
+                <button class="google-btn" id="googleLoginBtn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                    Login dengan Google
+                </button>
+                <div class="hint">
+                    Data tersimpan aman di Firebase per akun Anda.
+                    <br />
+                    <span class="key-hint" id="keyHintBtn">Atau gunakan API Key langsung (tanpa login)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- API KEY OVERLAY (fallback) -->
+        <div class="key-overlay" id="keyOverlay">
+            <div class="box">
+                <h2>🔑 Masukkan API Key</h2>
+                <p>AI Assistant membutuhkan <strong>DeepSeek API Key</strong> untuk bekerja.</p>
+                <input type="password" id="apiKeyInput" placeholder="sk-..." autofocus />
+                <button class="btn btn-primary" id="saveKeyBtn">✅ Simpan & Mulai</button>
+                <div class="hint">
+                    Belum punya? <a href="https://platform.deepseek.com/api_keys" target="_blank">Dapatkan di sini</a>
+                    <br />
+                    <span style="cursor:pointer;color:var(--accent);" id="backToLoginBtn">← Kembali ke Login</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS MODAL -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal-box">
+                <button class="close-btn" id="settingsCloseBtn">✕</button>
+                <h2>⚙️ Pengaturan</h2>
+                <p>Kelola API Key, riwayat chat, dan data.</p>
+
+                <div class="settings-group">
+                    <div class="label-row">
+                        <label>🔑 DeepSeek API Key</label>
+                        <span class="badge" id="apiKeyStatus">✅ tersimpan</span>
+                    </div>
+                    <input type="password" id="settingsApiKey" placeholder="sk-..." />
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="settingsSaveKeyBtn">Simpan API Key</button>
+                        <button class="btn btn-secondary" id="settingsRemoveKeyBtn">Hapus</button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label>💾 Riwayat Chat</label>
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="exportChatBtn">📥 Download JSON</button>
+                        <button class="btn btn-secondary" id="importChatBtn">📤 Upload JSON</button>
+                    </div>
+                    <input type="file" id="importFileInput" accept=".json" style="display:none;" />
+                    <div class="hint">Download semua pesan sebagai JSON, atau upload untuk memulihkan.</div>
+                </div>
+
+                <div class="settings-group">
+                    <label>📋 Data Tugas</label>
+                    <div class="btn-row">
+                        <button class="btn btn-secondary" id="exportTodosBtn">📥 Download Todos JSON</button>
+                        <button class="btn btn-secondary" id="importTodosBtn">📤 Upload Todos JSON</button>
+                    </div>
+                    <input type="file" id="importTodosInput" accept=".json" style="display:none;" />
+                    <div class="hint">Ekspor atau impor daftar tugas.</div>
+                </div>
+
+                <div class="settings-group" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
+                    <label>🗑️ Tindakan</label>
+                    <div class="btn-row">
+                        <button class="btn" id="resetAllDataBtn" style="background:var(--red);color:#fff;">Reset Semua Data</button>
+                    </div>
+                    <div class="hint" style="color:var(--red);">Menghapus semua data di Firebase (todos, chat, level, API key).</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <h1>
+                    🤖 AI Todo
+                    <span>DeepSeek</span>
+                </h1>
+                <!-- LEVEL DISPLAY -->
+                <div class="level-display" id="levelDisplay">
+                    <span class="level-badge" id="levelBadge">Lv.1</span>
+                    <div class="level-xp">
+                        <div class="xp-bar">
+                            <div class="xp-fill" id="xpFill" style="width:0%;"></div>
+                        </div>
+                        <span class="xp-text" id="xpText">0/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <!-- User Profile -->
+                <div class="user-profile" id="userProfile" style="display:none;">
+                    <div class="user-avatar" id="userAvatar">👤</div>
+                    <span class="user-name" id="userName">User</span>
+                    <button class="logout-btn" id="logoutBtn" title="Logout">✕</button>
+                </div>
+                <button class="login-btn-header" id="loginHeaderBtn" style="display:none;">🔐 Login</button>
+
+                <div class="status-badge">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusLabel">Menunggu</span>
+                    <span class="mic-muted-badge" id="micMutedBadge">🔇 Muted</span>
+                    <span class="voice-on-badge" id="voiceOnBadge">🎤 Aktif</span>
+                </div>
+                <button class="btn-sm" id="settingsBtn" title="Pengaturan">⚙️</button>
+                <button class="btn-sm primary" id="exportAllBtn" title="Download semua data (chat + todos + level)">📥 Backup</button>
+                <button class="btn-sm" id="importAllBtn" title="Upload backup JSON">📤 Restore</button>
+                <input type="file" id="importAllInput" accept=".json" style="display:none;" />
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <div class="main">
+            <!-- CHAT -->
+            <section class="chat-area">
+                <div class="messages" id="messagesContainer">
+                    <div class="msg assistant">
+                        <div class="msg-label">Asisten</div>
+                        <div class="msg-text">
+                            Halo! Saya asisten to-do list dengan <strong>sistem level</strong>! 🏆<br />
+                            Selesaikan tugas untuk naik level.<br />
+                            Coba katakan: <em>"Tambah beli susu"</em> atau <em>"Tampilkan daftar"</em>.<br />
+                            🎤 <strong>Voice aktif</strong> — saya selalu mendengar.
+                            <br /><br />
+                            🔐 <strong>Login dengan Google</strong> untuk menyimpan data Anda.
+                        </div>
+                        <div class="msg-time">—</div>
+                    </div>
+                    <div class="typing-indicator" id="typingIndicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <!-- INPUT -->
+                <div class="input-bar">
+                    <input type="text" id="userInput" placeholder="Ketik pesan..." />
+                    <button class="btn-voice active" id="voiceBtn" title="Toggle voice (Ctrl+Shift+V)">
+                        🎤
+                        <span class="voice-indicator" id="voiceIndicator">ON</span>
+                        <span class="voice-wave" id="voiceWave">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </span>
+                    </button>
+                    <button class="btn btn-primary" id="sendBtn">Kirim</button>
+                </div>
+            </section>
+
+            <!-- TODO PANEL -->
+            <aside class="todo-panel">
+                <div class="panel-header">
+                    <h2>📋 Tugas <span id="todoCount">0</span></h2>
+                    <button class="btn" id="clearTodosBtn" style="padding:3px 10px;font-size:11px;background:transparent;color:var(--text-dim);border:1px solid var(--border);">
+                        Kosongkan
+                    </button>
+                </div>
+                <div class="todo-list" id="todoList">
+                    <div class="todo-empty">
+                        <span class="icon">📭</span>
+                        Belum ada tugas.<br />Tambahkan melalui chat!
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  FIREBASE CONFIG & INIT
+        // ================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzCRYUkm0Chodsnlk8IRRU7iKru_cnc5I",
+            authDomain: "to-do-list-ai-developer.firebaseapp.com",
+            databaseURL: "https://to-do-list-ai-developer-default-rtdb.firebaseio.com",
+            projectId: "to-do-list-ai-developer",
+            storageBucket: "to-do-list-ai-developer.firebasestorage.app",
+            messagingSenderId: "1069245925183",
+            appId: "1:1069245925183:web:f861a9521fe67ea9a4358a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // ================================================================
+        //  DOM REFS
+        // ================================================================
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        const messagesEl = $('#messagesContainer');
+        const userInput = $('#userInput');
+        const sendBtn = $('#sendBtn');
+        const voiceBtn = $('#voiceBtn');
+        const voiceIndicator = $('#voiceIndicator');
+        const voiceWave = $('#voiceWave');
+        const todoListEl = $('#todoList');
+        const todoCountEl = $('#todoCount');
+        const typingIndicator = $('#typingIndicator');
+        const statusDot = $('#statusDot');
+        const statusLabel = $('#statusLabel');
+        const micMutedBadge = $('#micMutedBadge');
+        const voiceOnBadge = $('#voiceOnBadge');
+        const keyOverlay = $('#keyOverlay');
+        const apiKeyInput = $('#apiKeyInput');
+        const saveKeyBtn = $('#saveKeyBtn');
+        const settingsBtn = $('#settingsBtn');
+        const settingsModal = $('#settingsModal');
+        const settingsCloseBtn = $('#settingsCloseBtn');
+        const settingsApiKey = $('#settingsApiKey');
+        const settingsSaveKeyBtn = $('#settingsSaveKeyBtn');
+        const settingsRemoveKeyBtn = $('#settingsRemoveKeyBtn');
+        const apiKeyStatus = $('#apiKeyStatus');
+        const clearTodosBtn = $('#clearTodosBtn');
+        const exportChatBtn = $('#exportChatBtn');
+        const importChatBtn = $('#importChatBtn');
+        const importFileInput = $('#importFileInput');
+        const exportTodosBtn = $('#exportTodosBtn');
+        const importTodosBtn = $('#importTodosBtn');
+        const importTodosInput = $('#importTodosInput');
+        const exportAllBtn = $('#exportAllBtn');
+        const importAllBtn = $('#importAllBtn');
+        const importAllInput = $('#importAllInput');
+        const resetAllDataBtn = $('#resetAllDataBtn');
+        const toast = $('#toast');
+
+        // Login elements
+        const loginOverlay = $('#loginOverlay');
+        const googleLoginBtn = $('#googleLoginBtn');
+        const loginHeaderBtn = $('#loginHeaderBtn');
+        const userProfile = $('#userProfile');
+        const userAvatar = $('#userAvatar');
+        const userName = $('#userName');
+        const logoutBtn = $('#logoutBtn');
+        const keyHintBtn = $('#keyHintBtn');
+        const backToLoginBtn = $('#backToLoginBtn');
+
+        // Level elements
+        const levelBadge = $('#levelBadge');
+        const xpFill = $('#xpFill');
+        const xpText = $('#xpText');
+
+        // ================================================================
+        //  STATE
+        // ================================================================
+        let todos = [];
+        let messages = [];
+        let apiKey = '';
+        let isListening = false;
+        let isSpeaking = false;
+        let isProcessing = false;
+        let recognition = null;
+        let synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let todoIdCounter = 0;
+        let voiceModeEnabled = true;
+        let aiSpeechText = '';
+        let isInterrupting = false;
+        let isFirebaseReady = false;
+        let userLevel = 1;
+        let userXp = 0;
+        let totalCompleted = 0;
+        let currentUser = null; // Firebase user object
+        let userId = 'anonymous';
+
+        const XP_PER_TASK = 10;
+        const XP_BASE = 100;
+
+        // ================================================================
+        //  AUTH - GOOGLE LOGIN
+        // ================================================================
+
+        // Check auth state
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User logged in
+                currentUser = user;
+                userId = user.uid;
+                loginOverlay.classList.remove('open');
+                loginOverlay.style.display = 'none';
+                userProfile.style.display = 'flex';
+                loginHeaderBtn.style.display = 'none';
+
+                // Set avatar and name
+                if (user.photoURL) {
+                    userAvatar.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
+                } else {
+                    userAvatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
+                }
+                userName.textContent = user.displayName || 'User';
+
+                // Load user data from Firebase
+                await loadUserData(user.uid);
+                // Check if API key exists for this user
+                await loadApiKey(user.uid);
+
+                if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
+                    keyOverlay.classList.remove('open');
+                    keyOverlay.style.display = 'none';
+                    startListening();
+                    updateStatus('listening', 'Mendengar...');
+                    updateVoiceUI(true);
+                    voiceOnBadge.classList.add('show');
+                    userInput.placeholder = '🎤 Mendengar...';
+                } else {
+                    keyOverlay.classList.add('open');
+                    keyOverlay.style.display = 'flex';
+                    apiKeyInput.focus();
+                    updateStatus('idle', 'Tunggu API Key');
+                    voiceOnBadge.classList.remove('show');
+                }
+
+                renderTodos();
+                updateLevelUI();
+                renderMessages();
+
+                showToast(`👋 Selamat datang, ${user.displayName || 'User'}!`, 'success', 2500);
+
+            } else {
+                // User logged out
+                currentUser = null;
+                userId = 'anonymous';
+                userProfile.style.display = 'none';
+                loginHeaderBtn.style.display = 'inline-block';
+                loginOverlay.classList.add('open');
+                loginOverlay.style.display = 'flex';
+                keyOverlay.classList.remove('open');
+                keyOverlay.style.display = 'none';
+
+                // Reset state
+                todos = [];
+                messages = [];
+                userLevel = 1;
+                userXp = 0;
+                totalCompleted = 0;
+                apiKey = '';
+                renderTodos();
+                updateLevelUI();
+                renderMessages();
+                stopListening();
+                updateStatus('idle', 'Belum Login');
+                updateVoiceUI(false);
+                voiceOnBadge.classList.remove('show');
+                userInput.placeholder = 'Login dulu...';
+                showToast('🔐 Silakan login dengan Google.', 'info', 3000);
+            }
+        });
+
+        // Google Login
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                await auth.signInWithPopup(provider);
+            } catch (err) {
+                console.error('Login error:', err);
+                if (err.code === 'auth/popup-closed-by-user') {
+                    showToast('Login dibatalkan.', 'info');
+                } else {
+                    showToast('Gagal login: ' + err.message, 'error');
+                }
+            }
+        });
+
+        // Login header button
+        loginHeaderBtn.addEventListener('click', () => {
+            loginOverlay.classList.add('open');
+            loginOverlay.style.display = 'flex';
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', async () => {
+            if (confirm('Yakin ingin logout?')) {
+                try {
+                    await auth.signOut();
+                    showToast('👋 Logout berhasil.', 'info');
+                } catch (err) {
+                    showToast('Gagal logout: ' + err.message, 'error');
+                }
+            }
+        });
+
+        // Key hint: go to API key overlay
+        keyHintBtn.addEventListener('click', () => {
+            loginOverlay.classList.remove('open');
+            loginOverlay.style.display = 'none';
+            keyOverlay.classList.add('open');
+            keyOverlay.style.display = 'flex';
+            apiKeyInput.focus();
+        });
+
+        backToLoginBtn.addEventListener('click', () => {
+            keyOverlay.classList.remove('open');
+            keyOverlay.style.display = 'none';
+            loginOverlay.classList.add('open');
+            loginOverlay.style.display = 'flex';
+        });
+
+        // ================================================================
+        //  FIREBASE DATA LAYER (per user)
+        // ================================================================
+        function getUserDbPath() {
+            return userId === 'anonymous' ? 'anonymous' : `users/${userId}`;
+        }
+
+        function getDbRef(path) {
+            return db.ref(getUserDbPath() + '/' + path);
+        }
+
+        async function loadUserData(uid) {
+            try {
+                const snap = await db.ref(`users/${uid}`).once('value');
+                const data = snap.val() || {};
+
+                // Todos
+                if (data.todos) {
+                    const t = Object.values(data.todos);
+                    todos = t.map(item => ({
+                        id: item.id || ++todoIdCounter,
+                        text: item.text || 'tugas',
+                        completed: !!item.completed
+                    }));
+                    let maxId = 0;
+                    todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
+                    todoIdCounter = maxId;
+                } else {
+                    todos = [];
+                    todoIdCounter = 0;
+                }
+
+                // Messages
+                if (data.messages && Array.isArray(data.messages)) {
+                    messages = data.messages;
+                } else {
+                    messages = [];
+                }
+
+                // User level
+                if (data.user) {
+                    userLevel = data.user.level || 1;
+                    userXp = data.user.xp || 0;
+                    totalCompleted = data.user.totalCompleted || 0;
+                } else {
+                    userLevel = 1;
+                    userXp = 0;
+                    totalCompleted = 0;
+                }
+
+                isFirebaseReady = true;
+                return data;
+            } catch (err) {
+                console.error('Load user data error:', err);
+                isFirebaseReady = true;
+                return {};
+            }
+        }
+
+        async function loadApiKey(uid) {
+            try {
+                const snap = await db.ref(`users/${uid}/apiKey`).once('value');
+                apiKey = snap.val() || '';
+            } catch (err) {
+                console.error('Load API key error:', err);
+                apiKey = '';
+            }
+        }
+
+        function saveTodosToFirebase() {
+            if (!isFirebaseReady || userId === 'anonymous') return;
+            const obj = {};
+            todos.forEach(t => { obj[t.id] = { id: t.id, text: t.text, completed: t.completed }; });
+            getDbRef('todos').set(obj).catch(err => console.error('Save todos error:', err));
+        }
+
+        function saveMessagesToFirebase() {
+            if (!isFirebaseReady || userId === 'anonymous') return;
+            getDbRef('messages').set(messages).catch(err => console.error('Save messages error:', err));
+        }
+
+        function saveUserToFirebase() {
+            if (!isFirebaseReady || userId === 'anonymous') return;
+            getDbRef('user').set({
+                level: userLevel,
+                xp: userXp,
+                totalCompleted: totalCompleted
+            }).catch(err => console.error('Save user error:', err));
+        }
+
+        function saveApiKeyToFirebase(key) {
+            if (!isFirebaseReady || userId === 'anonymous') return;
+            getDbRef('apiKey').set(key).catch(err => console.error('Save API key error:', err));
+        }
+
+        function resetAllFirebaseData() {
+            if (userId === 'anonymous') return Promise.resolve();
+            return db.ref(`users/${userId}`).set(null);
+        }
+
+        // ================================================================
+        //  LEVEL SYSTEM
+        // ================================================================
+        function getXpForLevel(level) {
+            return level * XP_BASE;
+        }
+
+        function getLevelProgress(level, xp) {
+            const needed = getXpForLevel(level);
+            const prev = getXpForLevel(level - 1);
+            const current = xp - prev;
+            const required = needed - prev;
+            return Math.min(1, Math.max(0, current / required));
+        }
+
+        function getXpDisplay(level, xp) {
+            const needed = getXpForLevel(level);
+            const prev = getXpForLevel(level - 1);
+            const current = xp - prev;
+            const required = needed - prev;
+            return `${Math.min(current, required)}/${required}`;
+        }
+
+        function addXp(amount) {
+            userXp += amount;
+            let leveledUp = false;
+            while (userXp >= getXpForLevel(userLevel)) {
+                userXp -= getXpForLevel(userLevel);
+                userLevel++;
+                leveledUp = true;
+                showToast(`🎉 LEVEL UP! Anda sekarang Level ${userLevel}!`, 'success', 4000);
+                levelBadge.classList.remove('level-up-flash');
+                void levelBadge.offsetWidth;
+                levelBadge.classList.add('level-up-flash');
+            }
+            updateLevelUI();
+            saveUserToFirebase();
+            return leveledUp;
+        }
+
+        function updateLevelUI() {
+            levelBadge.textContent = `Lv.${userLevel}`;
+            const progress = getLevelProgress(userLevel, userXp);
+            xpFill.style.width = (progress * 100) + '%';
+            xpText.textContent = getXpDisplay(userLevel, userXp);
+        }
+
+        // ================================================================
+        //  INIT APP (after auth)
+        // ================================================================
+        async function initApp() {
+            // If user already logged in, data loaded via onAuthStateChanged
+            if (currentUser) {
+                await loadUserData(currentUser.uid);
+                await loadApiKey(currentUser.uid);
+            }
+
+            renderTodos();
+            updateLevelUI();
+            renderMessages();
+
+            initSpeech();
+
+            if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
+                if (currentUser) {
+                    keyOverlay.classList.remove('open');
+                    keyOverlay.style.display = 'none';
+                    startListening();
+                    updateStatus('listening', 'Mendengar...');
+                    updateVoiceUI(true);
+                    voiceOnBadge.classList.add('show');
+                    userInput.placeholder = '🎤 Mendengar...';
+                }
+            } else if (currentUser) {
+                keyOverlay.classList.add('open');
+                keyOverlay.style.display = 'flex';
+                apiKeyInput.focus();
+                updateStatus('idle', 'Tunggu API Key');
+                voiceOnBadge.classList.remove('show');
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', handleSend);
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
+            voiceBtn.addEventListener('click', toggleVoice);
+            clearTodosBtn.addEventListener('click', clearAllTodos);
+            settingsBtn.addEventListener('click', openSettings);
+            settingsCloseBtn.addEventListener('click', closeSettings);
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) closeSettings();
+            });
+
+            settingsSaveKeyBtn.addEventListener('click', () => {
+                const key = settingsApiKey.value.trim();
+                if (key.startsWith('sk-') && key.length > 10) {
+                    apiKey = key;
+                    saveApiKeyToFirebase(key);
+                    settingsApiKey.value = '';
+                    apiKeyStatus.textContent = '✅ tersimpan';
+                    showToast('API Key berhasil disimpan!', 'success');
+                    if (keyOverlay.classList.contains('open')) {
+                        keyOverlay.classList.remove('open');
+                        keyOverlay.style.display = 'none';
+                        startListening();
+                        updateStatus('listening', 'Mendengar...');
+                        updateVoiceUI(true);
+                        voiceOnBadge.classList.add('show');
+                        userInput.placeholder = '🎤 Mendengar...';
+                    }
+                } else {
+                    showToast('API Key tidak valid. Harus diawali "sk-"', 'error');
+                }
+            });
+
+            settingsRemoveKeyBtn.addEventListener('click', () => {
+                if (confirm('Hapus API Key yang tersimpan?')) {
+                    apiKey = '';
+                    saveApiKeyToFirebase('');
+                    apiKeyStatus.textContent = '❌ belum diisi';
+                    showToast('API Key dihapus.', 'info');
+                    keyOverlay.classList.add('open');
+                    keyOverlay.style.display = 'flex';
+                    apiKeyInput.focus();
+                    stopListening();
+                    updateStatus('idle', 'Tunggu API Key');
+                    updateVoiceUI(false);
+                    voiceOnBadge.classList.remove('show');
+                }
+            });
+
+            exportChatBtn.addEventListener('click', exportChatHistory);
+            importChatBtn.addEventListener('click', () => importFileInput.click());
+            importFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) importChatHistory(e.target.files[0]);
+                e.target.value = '';
+            });
+
+            exportTodosBtn.addEventListener('click', exportTodos);
+            importTodosBtn.addEventListener('click', () => importTodosInput.click());
+            importTodosInput.addEventListener('change', (e) => {
+                if (e.target.files.length) importTodos(e.target.files[0]);
+                e.target.value = '';
+            });
+
+            exportAllBtn.addEventListener('click', exportAllData);
+            importAllBtn.addEventListener('click', () => importAllInput.click());
+            importAllInput.addEventListener('change', (e) => {
+                if (e.target.files.length) importAllData(e.target.files[0]);
+                e.target.value = '';
+            });
+
+            resetAllDataBtn.addEventListener('click', resetAllData);
+
+            saveKeyBtn.addEventListener('click', () => {
+                const key = apiKeyInput.value.trim();
+                if (key.startsWith('sk-') && key.length > 10) {
+                    apiKey = key;
+                    saveApiKeyToFirebase(key);
+                    keyOverlay.classList.remove('open');
+                    keyOverlay.style.display = 'none';
+                    showToast('API Key tersimpan!', 'success');
+                    startListening();
+                    updateStatus('listening', 'Mendengar...');
+                    updateVoiceUI(true);
+                    voiceOnBadge.classList.add('show');
+                    userInput.placeholder = '🎤 Mendengar...';
+                } else {
+                    apiKeyInput.style.borderColor = 'var(--red)';
+                    setTimeout(() => apiKeyInput.style.borderColor = '', 1200);
+                    showToast('API Key tidak valid. Harus diawali "sk-"', 'error');
+                }
+            });
+
+            apiKeyInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveKeyBtn.click();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'v' || e.key === 'V')) {
+                    e.preventDefault();
+                    toggleVoice();
+                }
+            });
+
+            window.addEventListener('beforeunload', () => {
+                if (isListening) { try { recognition.stop(); } catch (_) {} }
+                if (synth) synth.cancel();
+            });
+
+            console.log('🤖 AI Todo Assistant with Firebase Auth & Level System ready!');
+            console.log(`👤 User: ${userId} | 🏆 Level ${userLevel} | XP ${userXp} | ${todos.length} todos | ${messages.length} messages`);
+        }
+
+        // ================================================================
+        //  RENDER MESSAGES
+        // ================================================================
+        function renderMessages() {
+            const children = messagesEl.children;
+            const toRemove = [];
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i];
+                if (el.id === 'typingIndicator') continue;
+                if (messages.length === 0 && el.classList.contains('msg') && el.classList.contains('assistant') && i === 0) {
+                    const textEl = el.querySelector('.msg-text');
+                    if (textEl && textEl.textContent.includes('Halo! Saya asisten to-do list')) {
+                        continue;
+                    }
+                }
+                toRemove.push(el);
+            }
+            toRemove.forEach(el => el.remove());
+
+            messages.forEach((msg) => {
+                const div = document.createElement('div');
+                div.className = `msg ${msg.role}`;
+                const label = msg.role === 'user' ? 'Anda' : 'Asisten';
+                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : '—';
+                div.innerHTML = `
+              <div class="msg-label">${label}</div>
+              <div class="msg-text">${escapeHtml(msg.content)}</div>
+              <div class="msg-time">${time}</div>
+            `;
+                messagesEl.insertBefore(div, typingIndicator);
+            });
+
+            if (messages.length === 0) {
+                const welcome = document.createElement('div');
+                welcome.className = 'msg assistant';
+                welcome.innerHTML = `
+              <div class="msg-label">Asisten</div>
+              <div class="msg-text">
+                Halo! Saya asisten to-do list dengan <strong>sistem level</strong>! 🏆<br />
+                Selesaikan tugas untuk naik level.<br />
+                Coba katakan: <em>"Tambah beli susu"</em> atau <em>"Tampilkan daftar"</em>.<br />
+                🎤 <strong>Voice aktif</strong> — saya selalu mendengar.
+                <br /><br />
+                🔐 <strong>Login dengan Google</strong> untuk menyimpan data Anda.
+              </div>
+              <div class="msg-time">—</div>
+            `;
+                messagesEl.insertBefore(welcome, typingIndicator);
+            }
+
+            scrollToBottom();
+        }
+
+        // ================================================================
+        //  SPEECH RECOGNITION
+        // ================================================================
+        function initSpeech() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                voiceBtn.style.opacity = '0.4';
+                voiceBtn.title = 'Voice tidak didukung browser ini';
+                voiceModeEnabled = false;
+                updateVoiceUI(false);
+                voiceOnBadge.classList.remove('show');
+                return;
+            }
+            recognition = new SR();
+            recognition.lang = 'id-ID';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                if (isProcessing || isInterrupting) return;
+                let final = '';
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) final += transcript;
+                    else interim += transcript;
+                }
+                const text = (final || interim).trim();
+                if (!text) return;
+
+                if (isSpeaking && aiSpeechText) {
+                    const similarity = textSimilarity(text, aiSpeechText);
+                    if (similarity > 0.45) {
+                        console.log('[Voice] Ignoring AI voice:', text);
+                        return;
+                    }
+                    console.log('[Voice] User interrupted!', text);
+                    handleUserInterrupt(text);
+                    return;
+                }
+
+                if (final) {
+                    userInput.value = text;
+                    if (voiceModeEnabled && !isProcessing && !isSpeaking) {
+                        setTimeout(() => {
+                            if (userInput.value.trim() && !isProcessing && !isSpeaking) {
+                                handleSend();
+                            }
+                        }, 400);
+                    }
+                } else {
+                    userInput.value = text;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.warn('Speech error:', event.error);
+                if (event.error === 'not-allowed') {
+                    updateStatus('error', 'Izin mic ditolak');
+                    voiceModeEnabled = false;
+                    updateVoiceUI(false);
+                    voiceOnBadge.classList.remove('show');
+                } else if (event.error === 'no-speech') {
+                    // ignore
+                } else if (event.error === 'audio-capture') {
+                    if (voiceModeEnabled) {
+                        setTimeout(() => { try { recognition.start(); } catch (_) {} }, 500);
+                    }
+                } else {
+                    if (voiceModeEnabled) {
+                        setTimeout(() => { try { recognition.start(); } catch (_) {} }, 300);
+                    }
+                }
+            };
+
+            recognition.onend = () => {
+                if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting) {
+                    try { recognition.start(); } catch (_) {
+                        setTimeout(() => {
+                            if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting) {
+                                try { recognition.start(); } catch (_) {}
+                            }
+                        }, 500);
+                    }
+                } else if (!voiceModeEnabled) {
+                    updateVoiceUI(false);
+                }
+            };
+        }
+
+        function textSimilarity(a, b) {
+            if (!a || !b) return 0;
+            const wordsA = new Set(a.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            const wordsB = new Set(b.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            if (wordsA.size === 0 || wordsB.size === 0) return 0;
+            const intersection = new Set([...wordsA].filter(w => wordsB.has(w)));
+            const union = new Set([...wordsA, ...wordsB]);
+            return intersection.size / union.size;
+        }
+
+        function handleUserInterrupt(text) {
+            if (isInterrupting) return;
+            isInterrupting = true;
+            stopSpeaking();
+            voiceBtn.classList.add('interrupted');
+            setTimeout(() => voiceBtn.classList.remove('interrupted'), 600);
+            addMessage('user', '🔊 (interupsi) ' + text);
+            userInput.value = text;
+            setTimeout(() => {
+                if (userInput.value.trim() && !isProcessing) {
+                    handleSend();
+                }
+                isInterrupting = false;
+            }, 500);
+        }
+
+        function startListening() {
+            if (!recognition) return;
+            try {
+                recognition.start();
+                isListening = true;
+                voiceModeEnabled = true;
+                updateVoiceUI(true);
+                updateStatus('listening', 'Mendengar...');
+                voiceOnBadge.classList.add('show');
+                userInput.placeholder = '🎤 Mendengar...';
+                micMutedBadge.classList.remove('show');
+            } catch (e) {
+                console.warn('Start listening failed:', e);
+                setTimeout(() => {
+                    if (voiceModeEnabled) {
+                        try { recognition.start();
+                            isListening = true; } catch (_) {}
+                    }
+                }, 300);
+            }
+        }
+
+        function stopListening() {
+            if (!recognition) return;
+            try { recognition.stop(); } catch (_) {}
+            isListening = false;
+            updateVoiceUI(false);
+            updateStatus('idle', 'Siap');
+            voiceOnBadge.classList.remove('show');
+            userInput.placeholder = 'Ketik pesan...';
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                alert('Voice recognition tidak didukung di browser ini.');
+                return;
+            }
+            if (isSpeaking) {
+                stopSpeaking();
+                setTimeout(() => toggleVoiceInternal(), 200);
+                return;
+            }
+            toggleVoiceInternal();
+        }
+
+        function toggleVoiceInternal() {
+            voiceModeEnabled = !voiceModeEnabled;
+            if (voiceModeEnabled) {
+                startListening();
+            } else {
+                stopListening();
+                micMutedBadge.classList.remove('show');
+                voiceBtn.classList.remove('muted');
+                updateVoiceUI(false);
+                updateStatus('idle', 'Siap');
+                userInput.placeholder = 'Ketik pesan...';
+                voiceOnBadge.classList.remove('show');
+            }
+        }
+
+        function updateVoiceUI(on) {
+            if (on) {
+                voiceBtn.classList.add('active');
+                voiceBtn.classList.remove('speaking', 'muted', 'interrupted');
+                voiceIndicator.textContent = 'ON';
+                voiceWave.style.display = 'inline-flex';
+                voiceBtn.title = 'Klik untuk mute';
+                voiceOnBadge.classList.add('show');
+                micMutedBadge.classList.remove('show');
+            } else {
+                voiceBtn.classList.remove('active', 'speaking', 'muted', 'interrupted');
+                voiceIndicator.textContent = 'OFF';
+                voiceWave.style.display = 'none';
+                voiceBtn.title = 'Klik untuk aktifkan voice';
+                voiceOnBadge.classList.remove('show');
+                micMutedBadge.classList.remove('show');
+            }
+        }
+
+        // ================================================================
+        //  SPEECH SYNTHESIS
+        // ================================================================
+        function speakText(text) {
+            if (!synth) return;
+            stopSpeaking();
+            const spokenText = stripTodoList(text);
+            if (!spokenText.trim()) {
+                resumeAfterSpeech();
+                return;
+            }
+            const utterance = new SpeechSynthesisUtterance(spokenText);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            utterance.volume = 1;
+            aiSpeechText = spokenText;
+            const wasVoiceOn = voiceModeEnabled;
+
+            if (wasVoiceOn && isListening) {
+                try { recognition.stop(); } catch (_) {}
+                isListening = false;
+                micMutedBadge.classList.add('show');
+                voiceBtn.classList.add('muted');
+                voiceBtn.classList.remove('active');
+                voiceIndicator.textContent = '🔇';
+                voiceWave.style.display = 'none';
+                updateStatus('speaking', 'Berbicara...');
+                userInput.placeholder = '🔇 AI berbicara...';
+            } else {
+                if (!isSpeaking) updateStatus('speaking', 'Berbicara...');
+            }
+
+            isSpeaking = true;
+            voiceBtn.classList.add('speaking');
+            voiceBtn.classList.remove('active');
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                updateStatus('speaking', 'Berbicara...');
+            };
+            utterance.onend = () => {
+                isSpeaking = false;
+                voiceBtn.classList.remove('speaking');
+                micMutedBadge.classList.remove('show');
+                aiSpeechText = '';
+                resumeAfterSpeech(wasVoiceOn);
+                voiceBtn.dataset.wasListening = wasVoiceOn ? 'true' : 'false';
+            };
+            utterance.onerror = () => {
+                isSpeaking = false;
+                voiceBtn.classList.remove('speaking', 'muted');
+                micMutedBadge.classList.remove('show');
+                aiSpeechText = '';
+                resumeAfterSpeech(wasVoiceOn);
+            };
+            currentUtterance = utterance;
+            synth.speak(utterance);
+        }
+
+        function stripTodoList(text) {
+            if (!text) return '';
+            const patterns = [
+                /DAFTAR\s+TUGAS\s+BARU\s*:[\s\S]*/i,
+                /DAFTAR\s+TUGAS\s*:[\s\S]*/i,
+                /TUGAS\s+BARU\s*:[\s\S]*/i,
+                /LIST\s+TUGAS\s*:[\s\S]*/i,
+                /TODO\s*:[\s\S]*/i
+            ];
+            let cleaned = text;
+            for (const pattern of patterns) {
+                const match = cleaned.match(pattern);
+                if (match) {
+                    cleaned = cleaned.replace(match[0], '').trim();
+                    break;
+                }
+            }
+            const lines = cleaned.split('\n');
+            const filteredLines = lines.filter(line => {
+                const trimmed = line.trim();
+                if (/^[•\-*]\s/.test(trimmed)) return false;
+                if (/^[✅❌⬜]\s/.test(trimmed)) return false;
+                if (/—\s*(selesai|belum|done|pending)/i.test(trimmed)) return false;
+                return true;
+            });
+            let result = filteredLines.join('\n').trim();
+            result = result.replace(/[,:\-\s]+$/, '').trim();
+            if (!result && text.trim()) {
+                const beforeList = text.split(/DAFTAR\s+TUGAS/i)[0];
+                if (beforeList && beforeList.trim()) result = beforeList.trim();
+                else result = '✅ Daftar tugas telah diperbarui.';
+            }
+            return result || '✅ Daftar tugas diperbarui.';
+        }
+
+        function resumeAfterSpeech(wasVoiceOn) {
+            if (wasVoiceOn && !isProcessing && !isInterrupting) {
+                voiceModeEnabled = true;
+                try {
+                    recognition.start();
+                    isListening = true;
+                    updateVoiceUI(true);
+                    updateStatus('listening', 'Mendengar...');
+                    userInput.placeholder = '🎤 Mendengar...';
+                    voiceBtn.classList.remove('muted');
+                    micMutedBadge.classList.remove('show');
+                    voiceOnBadge.classList.add('show');
+                } catch (_) {
+                    setTimeout(() => {
+                        if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting) {
+                            try {
+                                recognition.start();
+                                isListening = true;
+                                updateVoiceUI(true);
+                                updateStatus('listening', 'Mendengar...');
+                                userInput.placeholder = '🎤 Mendengar...';
+                                voiceBtn.classList.remove('muted');
+                                micMutedBadge.classList.remove('show');
+                                voiceOnBadge.classList.add('show');
+                            } catch (__) {}
+                        }
+                    }, 400);
+                }
+            } else if (!wasVoiceOn && !isProcessing) {
+                updateStatus('idle', 'Siap');
+                userInput.placeholder = 'Ketik pesan...';
+                voiceBtn.classList.remove('muted');
+                if (!voiceModeEnabled) {
+                    updateVoiceUI(false);
+                    voiceOnBadge.classList.remove('show');
+                }
+            } else {
+                if (!isProcessing && !voiceModeEnabled) {
+                    updateStatus('idle', 'Siap');
+                    userInput.placeholder = 'Ketik pesan...';
+                }
+            }
+        }
+
+        function stopSpeaking() {
+            if (synth && synth.speaking) synth.cancel();
+            isSpeaking = false;
+            voiceBtn.classList.remove('speaking');
+            micMutedBadge.classList.remove('show');
+            aiSpeechText = '';
+            if (currentUtterance) currentUtterance = null;
+        }
+
+        // ================================================================
+        //  STATUS
+        // ================================================================
+        function updateStatus(mode, label) {
+            statusDot.className = 'status-dot';
+            if (mode === 'listening') statusDot.classList.add('listening');
+            else if (mode === 'speaking') statusDot.classList.add('speaking');
+            else if (mode === 'error') statusDot.classList.add('error');
+            else if (mode === 'idle') statusDot.classList.add('idle');
+            else statusDot.className = 'status-dot';
+            statusLabel.textContent = label;
+        }
+
+        // ================================================================
+        //  TOAST
+        // ================================================================
+        let toastTimer = null;
+
+        function showToast(msg, type = 'info', duration = 3000) {
+            toast.textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // ================================================================
+        //  HANDLE SEND
+        // ================================================================
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            if (isProcessing) return;
+            if (!apiKey) {
+                keyOverlay.classList.add('open');
+                keyOverlay.style.display = 'flex';
+                showToast('Masukkan API Key terlebih dahulu.', 'error');
+                return;
+            }
+            if (!currentUser) {
+                showToast('🔐 Silakan login terlebih dahulu.', 'error');
+                loginOverlay.classList.add('open');
+                loginOverlay.style.display = 'flex';
+                return;
+            }
+
+            const wasVoiceOn = voiceModeEnabled;
+            if (wasVoiceOn && isListening) {
+                try { recognition.stop(); } catch (_) {}
+                isListening = false;
+                voiceBtn.classList.remove('active');
+                voiceBtn.classList.add('muted');
+                voiceIndicator.textContent = '🔇';
+                voiceWave.style.display = 'none';
+                micMutedBadge.classList.add('show');
+                updateStatus('idle', 'Memproses...');
+                userInput.placeholder = '⏳ Memproses...';
+                voiceOnBadge.classList.remove('show');
+            }
+
+            userInput.value = '';
+            isProcessing = true;
+            typingIndicator.classList.add('active');
+
+            addMessage('user', text);
+
+            try {
+                const response = await callDeepSeek(text);
+                const assistantReply = response.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa merespons.';
+
+                const extracted = extractTodosFromText(assistantReply);
+                if (extracted) {
+                    const prevTodos = new Map(todos.map(t => [t.id, t]));
+                    let completedCount = 0;
+                    extracted.forEach(newTodo => {
+                        const old = prevTodos.get(newTodo.id);
+                        if (old && !old.completed && newTodo.completed) completedCount++;
+                    });
+                    extracted.forEach(newTodo => {
+                        if (newTodo.completed && !prevTodos.has(newTodo.id)) completedCount++;
+                    });
+
+                    todos = extracted;
+                    renderTodos();
+                    saveTodosToFirebase();
+
+                    if (completedCount > 0) {
+                        const xpGain = completedCount * XP_PER_TASK;
+                        totalCompleted += completedCount;
+                        addXp(xpGain);
+                        showToast(`🏆 +${xpGain} XP untuk ${completedCount} tugas selesai!`, 'success', 2500);
+                    }
+                }
+
+                let cleanReply = assistantReply;
+                const jsonMatch = cleanReply.match(/\[[\s\S]*?\]/);
+                if (jsonMatch) {
+                    cleanReply = cleanReply.replace(/\[[\s\S]*?\]/, '').trim();
+                    cleanReply = cleanReply.replace(/[,-\s]+$/, '');
+                }
+                if (!cleanReply) cleanReply = '✅ Daftar tugas telah diperbarui.';
+
+                addMessage('assistant', cleanReply);
+                speakText(cleanReply);
+
+            } catch (err) {
+                console.error(err);
+                const errMsg = '⚠️ ' + (err.message || 'Terjadi kesalahan, coba lagi.');
+                addMessage('assistant', errMsg);
+                updateStatus('error', 'Error');
+                setTimeout(() => {
+                    if (!isSpeaking && !voiceModeEnabled) {
+                        updateStatus('idle', 'Siap');
+                        userInput.placeholder = 'Ketik pesan...';
+                    }
+                }, 1500);
+            } finally {
+                isProcessing = false;
+                typingIndicator.classList.remove('active');
+                voiceBtn.classList.remove('muted');
+
+                if (wasVoiceOn && !isSpeaking && !isInterrupting) {
+                    voiceModeEnabled = true;
+                    try {
+                        recognition.start();
+                        isListening = true;
+                        updateVoiceUI(true);
+                        updateStatus('listening', 'Mendengar...');
+                        userInput.placeholder = '🎤 Mendengar...';
+                        micMutedBadge.classList.remove('show');
+                        voiceOnBadge.classList.add('show');
+                    } catch (_) {
+                        voiceModeEnabled = false;
+                        updateVoiceUI(false);
+                        updateStatus('idle', 'Siap');
+                        userInput.placeholder = 'Ketik pesan...';
+                        voiceOnBadge.classList.remove('show');
+                    }
+                } else if (!wasVoiceOn && !isSpeaking) {
+                    updateStatus('idle', 'Siap');
+                    userInput.placeholder = 'Ketik pesan...';
+                    if (!voiceModeEnabled) {
+                        updateVoiceUI(false);
+                        voiceOnBadge.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // ================================================================
+        //  DEEPSEEK API
+        // ================================================================
+        async function callDeepSeek(userText) {
+            const systemPrompt = buildSystemPrompt();
+            const msgs = [
+                { role: 'system', content: systemPrompt },
+                ...messages.slice(-20)
+            ];
+            const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + apiKey
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: msgs,
+                    temperature: 0.6,
+                    max_tokens: 600,
+                    stream: false
+                })
+            });
+            if (!resp.ok) {
+                const errData = await resp.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `HTTP ${resp.status}`);
+            }
+            return await resp.json();
+        }
+
+        function buildSystemPrompt() {
+            const todoText = todos.length ?
+                todos.map((t, i) => `${i+1}. ${t.text} ${t.completed ? '✅' : '⬜'}`).join('\n') :
+                '(kosong)';
+
+            return `Anda adalah asisten AI untuk to-do list dengan sistem level. Berikan jawaban SINGKAT dan PADAT.
+
+        ATURAN PENTING:
+        1. Jika pengguna meminta untuk MENGHAPUS tugas (misal: "hapus beli susu", "delete tugas 1", "remove semua", "kosongkan daftar"), maka HAPUS tugas tersebut dari daftar.
+        2. Jika pengguna meminta untuk MENAMBAH tugas, tambahkan ke daftar.
+        3. Jika pengguna meminta untuk TANDAI SELESAI, tandai tugas tersebut selesai.
+        4. Jika pengguna meminta TAMPILKAN daftar, tampilkan daftar tugas saat ini.
+        5. Selalu SERTAKAN daftar tugas terbaru di akhir respons dalam format JSON: [{"text":"...","completed":true/false}, ...]
+        6. Jawaban harus 1-2 kalimat saja, tidak bertele-tele.
+        7. Gunakan format daftar yang rapi dengan bullet points.
+        8. Bahasa Indonesia yang sopan dan alami.
+
+        DAFTAR TUGAS SAAT INI:
+        ${todoText}
+
+        Contoh:
+        - User: "hapus beli susu"
+        Jawaban: "Baik, saya hapus 'beli susu' dari daftar. DAFTAR TUGAS BARU:
+        • Shalat Dzuhur — selesai ✅
+        [{"text":"Shalat Dzuhur","completed":true}]"
+
+        - User: "tambah kerjakan PR"
+        Jawaban: "Saya tambahkan 'kerjakan PR'. DAFTAR TUGAS BARU:
+        • Shalat Dzuhur — selesai ✅
+        • Kerjakan PR — belum ❌
+        [{"text":"Shalat Dzuhur","completed":true},{"text":"Kerjakan PR","completed":false}]"
+
+        Pastikan JSON valid di akhir dan mencerminkan daftar tugas terbaru.`;
+        }
+
+        function extractTodosFromText(text) {
+            const jsonMatch = text.match(/\[[\s\S]*?\]/);
+            if (!jsonMatch) return null;
+            try {
+                const parsed = JSON.parse(jsonMatch[0]);
+                if (Array.isArray(parsed) && parsed.every(item => typeof item === 'object' && 'text' in item)) {
+                    return parsed.map((item, idx) => ({
+                        id: ++todoIdCounter,
+                        text: String(item.text).trim(),
+                        completed: !!item.completed
+                    }));
+                }
+                return null;
+            } catch (_) { return null; }
+        }
+
+        // ================================================================
+        //  MESSAGES
+        // ================================================================
+        function addMessage(role, content) {
+            const timestamp = Date.now();
+            messages.push({ role, content, timestamp });
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+            const label = role === 'user' ? 'Anda' : 'Asisten';
+            const time = new Date(timestamp).toLocaleTimeString();
+            div.innerHTML = `
+            <div class="msg-label">${label}</div>
+            <div class="msg-text">${escapeHtml(content)}</div>
+            <div class="msg-time">${time}</div>
+          `;
+            messagesEl.insertBefore(div, typingIndicator);
+            scrollToBottom();
+            saveMessagesToFirebase();
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function scrollToBottom() {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        // ================================================================
+        //  TODOS
+        // ================================================================
+        function renderTodos() {
+            if (!todos.length) {
+                todoListEl.innerHTML = `
+              <div class="todo-empty">
+                <span class="icon">📭</span>
+                Belum ada tugas.<br />Tambahkan melalui chat!
+              </div>
+            `;
+                todoCountEl.textContent = '0';
+                return;
+            }
+            let html = '';
+            todos.forEach(todo => {
+                html += `
+              <div class="todo-item" data-id="${todo.id}">
+                <button class="todo-check ${todo.completed ? 'done' : ''}" data-id="${todo.id}">
+                  ${todo.completed ? '✓' : ''}
+                </button>
+                <span class="todo-text ${todo.completed ? 'done' : ''}">${escapeHtml(todo.text)}</span>
+                <button class="todo-delete" data-id="${todo.id}">✕</button>
+              </div>
+            `;
+            });
+            todoListEl.innerHTML = html;
+            todoCountEl.textContent = todos.length;
+
+            todoListEl.querySelectorAll('.todo-check').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    toggleTodo(id);
+                });
+            });
+            todoListEl.querySelectorAll('.todo-delete').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    deleteTodo(id);
+                });
+            });
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (!todo) return;
+            const wasCompleted = todo.completed;
+            todo.completed = !todo.completed;
+            renderTodos();
+            saveTodosToFirebase();
+            if (todo.completed && !wasCompleted) {
+                totalCompleted++;
+                addXp(XP_PER_TASK);
+                showToast(`🏆 +${XP_PER_TASK} XP untuk "${todo.text}"!`, 'success', 2000);
+            }
+            const status = todo.completed ? 'selesai ✅' : 'dibatalkan ❌';
+            const msg = `✅ "${todo.text}" ${status}`;
+            addMessage('assistant', msg);
+            speakText(`Tugas "${todo.text}" ${status}.`);
+        }
+
+        function deleteTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (!todo) return;
+            todos = todos.filter(t => t.id !== id);
+            renderTodos();
+            saveTodosToFirebase();
+            const msg = `🗑️ "${todo.text}" dihapus.`;
+            addMessage('assistant', msg);
+            speakText(msg);
+        }
+
+        function clearAllTodos() {
+            if (!todos.length) return;
+            if (!confirm('Hapus semua tugas?')) return;
+            todos = [];
+            renderTodos();
+            saveTodosToFirebase();
+            const msg = '🧹 Semua tugas dikosongkan.';
+            addMessage('assistant', msg);
+            speakText(msg);
+        }
+
+        // ================================================================
+        //  SETTINGS
+        // ================================================================
+        function openSettings() {
+            settingsModal.classList.add('open');
+            settingsApiKey.value = '';
+            apiKeyStatus.textContent = apiKey ? '✅ tersimpan' : '❌ belum diisi';
+        }
+
+        function closeSettings() {
+            settingsModal.classList.remove('open');
+        }
+
+        // ================================================================
+        //  EXPORT / IMPORT
+        // ================================================================
+
+        function exportChatHistory() {
+            const data = JSON.stringify(messages, null, 2);
+            downloadFile(data, 'chat_history.json', 'application/json');
+            showToast('📥 Riwayat chat diunduh.', 'success');
+        }
+
+        function importChatHistory(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        messages = data;
+                        renderMessages();
+                        saveMessagesToFirebase();
+                        showToast(`📤 ${messages.length} pesan dipulihkan.`, 'success');
+                    } else {
+                        showToast('Format JSON tidak valid (harus array).', 'error');
+                    }
+                } catch (err) {
+                    showToast('Gagal membaca file: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportTodos() {
+            const data = JSON.stringify(todos, null, 2);
+            downloadFile(data, 'todos.json', 'application/json');
+            showToast('📥 Daftar tugas diunduh.', 'success');
+        }
+
+        function importTodos(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        todos = data.map(item => ({
+                            id: item.id || ++todoIdCounter,
+                            text: item.text || 'tugas',
+                            completed: !!item.completed
+                        }));
+                        let maxId = 0;
+                        todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
+                        todoIdCounter = maxId;
+                        renderTodos();
+                        saveTodosToFirebase();
+                        showToast(`📤 ${todos.length} tugas dipulihkan.`, 'success');
+                    } else {
+                        showToast('Format JSON tidak valid (harus array).', 'error');
+                    }
+                } catch (err) {
+                    showToast('Gagal membaca file: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportAllData() {
+            const data = {
+                todos: todos,
+                messages: messages,
+                user: {
+                    level: userLevel,
+                    xp: userXp,
+                    totalCompleted: totalCompleted
+                },
+                apiKey: apiKey ? '[tersimpan]' : '',
+                exportedAt: new Date().toISOString()
+            };
+            const json = JSON.stringify(data, null, 2);
+            downloadFile(json, 'ai_todo_backup.json', 'application/json');
+            showToast('📥 Backup semua data diunduh.', 'success');
+        }
+
+        function importAllData(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.todos && Array.isArray(data.todos)) {
+                        todos = data.todos.map(item => ({
+                            id: item.id || ++todoIdCounter,
+                            text: item.text || 'tugas',
+                            completed: !!item.completed
+                        }));
+                        let maxId = 0;
+                        todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
+                        todoIdCounter = maxId;
+                    }
+                    if (data.messages && Array.isArray(data.messages)) {
+                        messages = data.messages;
+                    }
+                    if (data.user) {
+                        userLevel = data.user.level || 1;
+                        userXp = data.user.xp || 0;
+                        totalCompleted = data.user.totalCompleted || 0;
+                    }
+                    renderTodos();
+                    renderMessages();
+                    updateLevelUI();
+                    saveTodosToFirebase();
+                    saveMessagesToFirebase();
+                    saveUserToFirebase();
+                    showToast('📤 Backup dipulihkan!', 'success');
+                } catch (err) {
+                    showToast('Gagal membaca file: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetAllData() {
+            if (!confirm('⚠️ Yakin ingin menghapus SEMUA data di Firebase? (todos, chat, level, API key)')) return;
+            if (!confirm('⚠️ Konfirmasi kedua: ini tidak bisa dibatalkan!')) return;
+            resetAllFirebaseData().then(() => {
+                todos = [];
+                messages = [];
+                userLevel = 1;
+                userXp = 0;
+                totalCompleted = 0;
+                apiKey = '';
+                todoIdCounter = 0;
+                renderTodos();
+                renderMessages();
+                updateLevelUI();
+                showToast('🗑️ Semua data telah direset.', 'info');
+                keyOverlay.classList.add('open');
+                keyOverlay.style.display = 'flex';
+                apiKeyInput.focus();
+                stopListening();
+                updateStatus('idle', 'Tunggu API Key');
+                updateVoiceUI(false);
+                voiceOnBadge.classList.remove('show');
+            }).catch(err => {
+                showToast('Gagal reset: ' + err.message, 'error');
+            });
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        // ================================================================
+        //  START
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show login overlay initially
+            loginOverlay.classList.add('open');
+            loginOverlay.style.display = 'flex';
+            // Auth listener will handle the rest
+            initApp();
+        });
+    </script>
+
+</body>
+</html>
