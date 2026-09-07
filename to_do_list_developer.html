@@ -402,11 +402,77 @@
             display: inline-block;
         }
 
+        /* Speaking notification overlay */
+        .speaking-notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 17, 23, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--yellow);
+            border-radius: var(--radius);
+            padding: 16px 32px;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 0 60px rgba(251, 191, 36, 0.15);
+            pointer-events: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .speaking-notification.show {
+            display: flex;
+        }
+        .speaking-notification .speak-icon {
+            font-size: 28px;
+            animation: pulse 1s infinite;
+        }
+        .speaking-notification .speak-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        .speaking-notification .speak-sub {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .speaking-notification .speak-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            margin-left: 4px;
+        }
+        .speaking-notification .speak-wave span {
+            width: 4px;
+            height: 14px;
+            background: var(--yellow);
+            border-radius: 2px;
+            animation: wave 0.8s ease-in-out infinite alternate;
+        }
+        .speaking-notification .speak-wave span:nth-child(2) {
+            height: 22px;
+            animation-delay: 0.2s;
+        }
+        .speaking-notification .speak-wave span:nth-child(3) {
+            height: 16px;
+            animation-delay: 0.4s;
+        }
+        .speaking-notification .speak-wave span:nth-child(4) {
+            height: 24px;
+            animation-delay: 0.1s;
+        }
+        .speaking-notification .speak-wave span:nth-child(5) {
+            height: 14px;
+            animation-delay: 0.3s;
+        }
+
         /* ----- MAIN LAYOUT ----- */
         .main {
             display: flex;
             flex: 1;
             min-height: 0;
+            position: relative;
         }
 
         /* ----- CHAT AREA ----- */
@@ -416,6 +482,7 @@
             flex-direction: column;
             min-width: 0;
             border-right: 1px solid var(--border);
+            position: relative;
         }
         .messages {
             flex: 1;
@@ -468,6 +535,8 @@
         }
         .msg .msg-text {
             white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
         }
         .msg .msg-time {
             font-size: 9px;
@@ -526,6 +595,17 @@
                 transform: translateY(0);
             }
         }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 0.7;
+            }
+        }
 
         /* ----- INPUT BAR ----- */
         .input-bar {
@@ -534,28 +614,55 @@
             border-top: 1px solid var(--border);
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: flex-end;
             flex-shrink: 0;
             flex-wrap: wrap;
         }
-        .input-bar input {
+        .input-bar .input-wrap {
             flex: 1;
             min-width: 100px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-bar textarea {
+            width: 100%;
             padding: 9px 14px;
-            border-radius: 30px;
+            border-radius: 16px;
             border: 1px solid var(--border);
             background: var(--bg);
             color: var(--text);
             font-size: 13px;
             outline: none;
             transition: border 0.2s;
+            font-family: inherit;
+            resize: none;
+            min-height: 40px;
+            max-height: 120px;
+            line-height: 1.5;
         }
-        .input-bar input:focus {
+        .input-bar textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
-        .input-bar input::placeholder {
+        .input-bar textarea::placeholder {
             color: var(--text-dim);
+        }
+        .input-bar .char-counter {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-align: right;
+            padding: 2px 6px 0;
+            opacity: 0.6;
+            transition: color 0.2s;
+        }
+        .input-bar .char-counter.warning {
+            color: var(--yellow);
+            opacity: 1;
+        }
+        .input-bar .char-counter.danger {
+            color: var(--red);
+            opacity: 1;
         }
 
         .btn {
@@ -573,6 +680,7 @@
             color: var(--text);
             flex-shrink: 0;
             font-family: inherit;
+            height: 40px;
         }
         .btn:hover {
             filter: brightness(1.15);
@@ -595,6 +703,7 @@
             position: relative;
             min-width: 66px;
             justify-content: center;
+            height: 40px;
         }
         .btn-voice.active {
             background: var(--green);
@@ -690,7 +799,7 @@
 
         /* ----- TODO PANEL ----- */
         .todo-panel {
-            width: 340px;
+            width: 380px;
             min-width: 200px;
             background: var(--surface);
             display: flex;
@@ -733,6 +842,11 @@
         .todo-panel .panel-header .tabs .tab-btn:hover:not(.active) {
             color: var(--text);
         }
+        .todo-panel .panel-header .header-actions-panel {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
         .todo-panel .panel-header .badge-count {
             background: var(--surface2);
             font-size: 10px;
@@ -740,6 +854,21 @@
             padding: 1px 10px;
             border-radius: 20px;
             color: var(--text-dim);
+        }
+        .todo-panel .panel-header .btn-clear-tasks {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .todo-panel .panel-header .btn-clear-tasks:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.12);
         }
         .todo-list {
             flex: 1;
@@ -765,6 +894,7 @@
             display: flex;
         }
 
+        /* Nomor urut pada tugas */
         .todo-item {
             display: flex;
             align-items: center;
@@ -774,10 +904,18 @@
             background: var(--surface2);
             border: 1px solid var(--border);
             transition: all 0.2s;
-            animation: fadeUp 0.25s ease;
+            animation: fadeUp 0.15s ease;
         }
         .todo-item:hover {
             border-color: var(--accent);
+        }
+        .todo-item .todo-number {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dim);
+            min-width: 28px;
+            text-align: right;
+            flex-shrink: 0;
         }
         .todo-item .todo-check {
             width: 18px;
@@ -828,6 +966,25 @@
             color: var(--red);
             background: rgba(248, 113, 113, 0.12);
         }
+        .todo-item .xp-reward-badge {
+            font-size: 9px;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold);
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .todo-limit-warning {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
 
         /* History item */
         .history-item {
@@ -869,6 +1026,29 @@
             color: var(--red);
             background: rgba(248, 113, 113, 0.12);
         }
+        .history-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .history-header-actions .btn-clear-history {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+            border: 1px solid var(--border);
+        }
+        .history-header-actions .btn-clear-history:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.12);
+            border-color: var(--red);
+        }
 
         .todo-empty {
             color: var(--text-dim);
@@ -881,76 +1061,6 @@
             font-size: 28px;
             display: block;
             margin-bottom: 6px;
-        }
-
-        /* ----- API KEY OVERLAY (only shown if no key) ----- */
-        .key-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 17, 23, 0.92);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            border-radius: var(--radius);
-            padding: 30px;
-        }
-        .key-overlay.open {
-            display: flex;
-        }
-        .key-overlay .box {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 32px 36px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-        }
-        .key-overlay .box h2 {
-            font-size: 19px;
-            margin-bottom: 4px;
-        }
-        .key-overlay .box p {
-            color: var(--text-dim);
-            font-size: 13px;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-        .key-overlay .box input {
-            width: 100%;
-            padding: 11px 16px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 13px;
-            outline: none;
-            margin-bottom: 12px;
-            transition: border 0.2s;
-        }
-        .key-overlay .box input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .key-overlay .box .btn {
-            width: 100%;
-            justify-content: center;
-            padding: 11px;
-            font-size: 13px;
-        }
-        .key-overlay .box .hint {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 10px;
-        }
-        .key-overlay .box .hint a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .key-overlay .box .hint a:hover {
-            text-decoration: underline;
         }
 
         /* ----- SETTINGS MODAL ----- */
@@ -1153,6 +1263,11 @@
         .toast.info {
             border-color: var(--accent);
         }
+        .toast.xp-toast {
+            border-color: var(--gold);
+            background: var(--surface2);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+        }
 
         /* ----- LEVEL UP FLASH ----- */
         .level-up-flash {
@@ -1228,6 +1343,15 @@
                 font-size: 10px;
                 padding: 3px 10px;
             }
+            .todo-panel {
+                width: 100%;
+            }
+            .speaking-notification {
+                padding: 12px 20px;
+            }
+            .speaking-notification .speak-text {
+                font-size: 14px;
+            }
         }
         @media (max-width: 480px) {
             .app {
@@ -1245,18 +1369,22 @@
                 padding: 8px 10px 12px;
                 gap: 4px;
             }
-            .input-bar input {
+            .input-bar textarea {
                 font-size: 12px;
                 padding: 7px 12px;
+                min-height: 34px;
+                max-height: 80px;
             }
             .btn {
                 font-size: 11px;
                 padding: 7px 12px;
+                height: 36px;
             }
             .btn-voice {
                 font-size: 15px;
                 padding: 7px 10px;
                 min-width: 52px;
+                height: 36px;
             }
             .todo-panel {
                 max-height: 150px;
@@ -1309,6 +1437,19 @@
                 font-size: 9px;
                 padding: 2px 8px;
             }
+            .todo-item .todo-number {
+                min-width: 20px;
+                font-size: 10px;
+            }
+            .speaking-notification {
+                padding: 10px 16px;
+            }
+            .speaking-notification .speak-text {
+                font-size: 13px;
+            }
+            .speaking-notification .speak-icon {
+                font-size: 22px;
+            }
         }
 
         /* ----- UTILITIES ----- */
@@ -1326,6 +1467,28 @@
             background: var(--border);
             border-radius: 4px;
         }
+
+        /* XP FLOATING ANIMATION */
+        .xp-float {
+            position: fixed;
+            pointer-events: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+            z-index: 999;
+            animation: xpFloatUp 1.2s ease-out forwards;
+        }
+        @keyframes xpFloatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(1.3);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1333,6 +1496,18 @@
     <div class="app" id="app">
         <!-- TOAST -->
         <div class="toast" id="toast"></div>
+
+        <!-- SPEAKING NOTIFICATION -->
+        <div class="speaking-notification" id="speakingNotification">
+            <span class="speak-icon">🗣️</span>
+            <div>
+                <div class="speak-text">AI sedang berbicara...</div>
+                <div class="speak-sub">Mic dimatikan sementara</div>
+            </div>
+            <div class="speak-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
 
         <!-- LOGIN OVERLAY (Google Auth) -->
         <div class="login-overlay open" id="loginOverlay">
@@ -1349,19 +1524,6 @@
                     Login dengan Google
                 </button>
                 <div class="hint">Data Anda aman dan hanya tersimpan untuk akun Anda.</div>
-            </div>
-        </div>
-
-        <!-- API KEY OVERLAY (only if no key stored) -->
-        <div class="key-overlay" id="keyOverlay">
-            <div class="box">
-                <h2>🔑 Masukkan API Key</h2>
-                <p>AI Assistant membutuhkan <strong>DeepSeek API Key</strong> untuk bekerja.</p>
-                <input type="password" id="apiKeyInput" placeholder="sk-..." autofocus />
-                <button class="btn btn-primary" id="saveKeyBtn">✅ Simpan & Mulai</button>
-                <div class="hint">
-                    Belum punya? <a href="https://platform.deepseek.com/api_keys" target="_blank">Dapatkan di sini</a>
-                </div>
             </div>
         </div>
 
@@ -1407,8 +1569,8 @@
                     <div class="hint">Data chat tersimpan di akun Google Anda. Riwayat akan muncul kembali saat login.</div>
                 </div>
 
-                <!-- API Key (optional update) -->
-                <div class="settings-group">
+                <!-- API Key (hidden, auto-filled) -->
+                <div class="settings-group" style="display:none;">
                     <label>🔑 DeepSeek API Key</label>
                     <input type="password" id="settingsApiKey" placeholder="sk-... (kosongkan jika tidak diubah)" />
                     <div class="btn-row">
@@ -1498,7 +1660,10 @@
 
                 <!-- INPUT -->
                 <div class="input-bar">
-                    <input type="text" id="userInput" placeholder="Ketik pesan..." />
+                    <div class="input-wrap">
+                        <textarea id="userInput" placeholder="Ketik pesan... (Shift+Enter untuk newline)" maxlength="10000" rows="1"></textarea>
+                        <div class="char-counter" id="charCounter">0 / 10000</div>
+                    </div>
                     <button class="btn-voice active" id="voiceBtn" title="Toggle voice (Ctrl+Shift+V)">
                         🎤
                         <span class="voice-indicator" id="voiceIndicator">ON</span>
@@ -1517,7 +1682,10 @@
                         <button class="tab-btn active" data-tab="todos">📋 Tugas</button>
                         <button class="tab-btn" data-tab="history">📜 Riwayat</button>
                     </div>
-                    <span class="badge-count" id="todoCount">0</span>
+                    <div class="header-actions-panel">
+                        <span class="badge-count" id="todoCount">0</span>
+                        <button class="btn-clear-tasks" id="clearAllTasksBtn" title="Kosongkan semua tugas">🧹</button>
+                    </div>
                 </div>
                 <div class="todo-list" id="todoList">
                     <!-- Tab: Tugas -->
@@ -1559,6 +1727,7 @@
 
         const messagesEl = $('#messagesContainer');
         const userInput = $('#userInput');
+        const charCounter = $('#charCounter');
         const sendBtn = $('#sendBtn');
         const voiceBtn = $('#voiceBtn');
         const voiceIndicator = $('#voiceIndicator');
@@ -1570,9 +1739,7 @@
         const statusLabel = $('#statusLabel');
         const micMutedBadge = $('#micMutedBadge');
         const voiceOnBadge = $('#voiceOnBadge');
-        const keyOverlay = $('#keyOverlay');
-        const apiKeyInput = $('#apiKeyInput');
-        const saveKeyBtn = $('#saveKeyBtn');
+        const speakingNotification = $('#speakingNotification');
         const settingsModal = $('#settingsModal');
         const settingsCloseBtn = $('#settingsCloseBtn');
         const settingsApiKey = $('#settingsApiKey');
@@ -1598,6 +1765,7 @@
         const dropSettings = $('#dropSettings');
         const dropLogout = $('#dropLogout');
         const settingsLogoutBtn = $('#settingsLogoutBtn');
+        const clearAllTasksBtn = $('#clearAllTasksBtn');
 
         // Level elements
         const levelBadge = $('#levelBadge');
@@ -1614,8 +1782,8 @@
         // ================================================================
         let todos = [];
         let messages = [];
-        let completedHistory = []; // { id, text, completedAt }
-        let apiKey = '';
+        let completedHistory = [];
+        let apiKey = 'sk-663851c18780434bb76f1710b5afa3d5';
         let isListening = false;
         let isSpeaking = false;
         let isProcessing = false;
@@ -1635,7 +1803,83 @@
         let historyIdCounter = 0;
 
         const XP_PER_TASK = 10;
-        const XP_BASE = 100;
+        const MAX_TODOS = 300;
+        const MAX_CHARS = 10000;
+
+        // ================================================================
+        //  PROGRESSIVE XP SYSTEM
+        // ================================================================
+        function getXpForLevel(level) {
+            if (level >= 1 && level <= 10) return 100;
+            if (level >= 11 && level <= 20) return 300;
+            if (level >= 21 && level <= 40) return 500;
+            if (level >= 41 && level <= 70) return 800;
+            if (level >= 71 && level <= 100) return 1000;
+            if (level >= 101 && level <= 999) return 2001;
+            return 0;
+        }
+
+        function getLevelProgress(level, xp) {
+            const needed = getXpForLevel(level);
+            if (needed === 0) return 1;
+            return Math.min(1, Math.max(0, xp / needed));
+        }
+
+        function getXpDisplay(level, xp) {
+            const needed = getXpForLevel(level);
+            if (needed === 0) return 'MAX';
+            return `${Math.min(xp, needed)}/${needed}`;
+        }
+
+        function addXp(amount, taskText = '') {
+            userXp += amount;
+            let leveledUp = false;
+            while (userXp >= getXpForLevel(userLevel)) {
+                const needed = getXpForLevel(userLevel);
+                if (needed === 0) {
+                    userXp = 0;
+                    break;
+                }
+                userXp -= needed;
+                userLevel++;
+                leveledUp = true;
+                showToast(`🎉 LEVEL UP! Anda sekarang Level ${userLevel}! 🎉`, 'success', 4000);
+                levelBadge.classList.remove('level-up-flash');
+                void levelBadge.offsetWidth;
+                levelBadge.classList.add('level-up-flash');
+                if (userLevel >= 1000) {
+                    userLevel = 1000;
+                    userXp = 0;
+                    showToast('🏆 Maksimum Level 1000 tercapai!', 'success', 3000);
+                    break;
+                }
+            }
+            updateLevelUI();
+            saveUserToFirebase();
+
+            if (amount > 0 && taskText) {
+                showXpFloat(amount, taskText);
+            }
+            return leveledUp;
+        }
+
+        function showXpFloat(amount, taskText) {
+            const el = document.createElement('div');
+            el.className = 'xp-float';
+            const snippet = taskText.length > 25 ? taskText.substring(0, 25) + '…' : taskText;
+            el.textContent = `+${amount} XP ✨ ${snippet}`;
+            el.style.left = (window.innerWidth / 2 - 140) + 'px';
+            el.style.top = (window.innerHeight / 2 - 40) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1400);
+        }
+
+        function updateLevelUI() {
+            levelBadge.textContent = `Lv.${userLevel}`;
+            const progress = getLevelProgress(userLevel, userXp);
+            xpFill.style.width = (progress * 100) + '%';
+            xpText.textContent = getXpDisplay(userLevel, userXp);
+        }
 
         // ================================================================
         //  TOAST
@@ -1668,7 +1912,6 @@
                 db.ref('users/' + currentUid + '/appData').once('value').then(snap => {
                     const data = snap.val() || {};
 
-                    // Todos
                     if (data.todos) {
                         const t = Object.values(data.todos);
                         todos = t.map(item => ({
@@ -1679,19 +1922,20 @@
                         let maxId = 0;
                         todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
                         todoIdCounter = maxId;
+                        if (todos.length > MAX_TODOS) {
+                            todos = todos.slice(0, MAX_TODOS);
+                        }
                     } else {
                         todos = [];
                         todoIdCounter = 0;
                     }
 
-                    // Messages
                     if (data.messages && Array.isArray(data.messages)) {
                         messages = data.messages;
                     } else {
                         messages = [];
                     }
 
-                    // Completed history
                     if (data.completedHistory && Array.isArray(data.completedHistory)) {
                         completedHistory = data.completedHistory;
                         let maxHId = 0;
@@ -1702,22 +1946,16 @@
                         historyIdCounter = 0;
                     }
 
-                    // User level
                     if (data.user) {
                         userLevel = data.user.level || 1;
                         userXp = data.user.xp || 0;
                         totalCompleted = data.user.totalCompleted || 0;
+                        if (userLevel > 1000) userLevel = 1000;
+                        if (userLevel < 1) userLevel = 1;
                     } else {
                         userLevel = 1;
                         userXp = 0;
                         totalCompleted = 0;
-                    }
-
-                    // API Key
-                    if (data.apiKey) {
-                        apiKey = data.apiKey;
-                    } else {
-                        apiKey = '';
                     }
 
                     isFirebaseReady = true;
@@ -1755,15 +1993,42 @@
             }).catch(err => console.error('Save user error:', err));
         }
 
-        function saveApiKeyToFirebase(key) {
-            if (!isFirebaseReady || !currentUid) return;
-            getUserDbRef('apiKey').set(key).catch(err => console.error('Save API key error:', err));
-        }
-
         function deleteAllChatsFromFirebase() {
             if (!currentUid) return Promise.reject(new Error('No user'));
             messages = [];
             return getUserDbRef('messages').set(null);
+        }
+
+        function clearAllTasks() {
+            if (todos.length === 0) {
+                showToast('📭 Tidak ada tugas untuk dihapus.', 'info');
+                return;
+            }
+            if (confirm(`🧹 Yakin ingin menghapus SEMUA ${todos.length} tugas?`)) {
+                const count = todos.length;
+                todos = [];
+                renderTodos();
+                saveTodosToFirebase();
+                showToast(`🧹 ${count} tugas telah dihapus.`, 'success');
+                addMessage('assistant', `🧹 ${count} tugas telah dihapus.`);
+                speakText(`${count} tugas dihapus.`);
+            }
+        }
+
+        function clearHistory() {
+            if (completedHistory.length === 0) {
+                showToast('📭 Tidak ada riwayat untuk dihapus.', 'info');
+                return;
+            }
+            if (confirm(`🗑️ Yakin ingin menghapus SEMUA ${completedHistory.length} riwayat tugas selesai?`)) {
+                const count = completedHistory.length;
+                completedHistory = [];
+                renderHistory();
+                saveHistoryToFirebase();
+                showToast(`🗑️ ${count} riwayat telah dihapus.`, 'success');
+                addMessage('assistant', `🗑️ ${count} riwayat telah dihapus.`);
+                speakText(`${count} riwayat dihapus.`);
+            }
         }
 
         // ================================================================
@@ -1792,22 +2057,12 @@
                     renderMessages();
                     updateSettingsUI();
 
-                    // Check API key
-                    if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
-                        keyOverlay.classList.remove('open');
-                        keyOverlay.style.display = 'none';
-                        startListening();
-                        updateStatus('listening', 'Mendengar...');
-                        updateVoiceUI(true);
-                        voiceOnBadge.classList.add('show');
-                        userInput.placeholder = '🎤 Mendengar...';
-                    } else {
-                        keyOverlay.classList.add('open');
-                        keyOverlay.style.display = 'flex';
-                        apiKeyInput.focus();
-                        updateStatus('idle', 'Tunggu API Key');
-                        voiceOnBadge.classList.remove('show');
-                    }
+                    startListening();
+                    updateStatus('listening', 'Mendengar...');
+                    updateVoiceUI(true);
+                    voiceOnBadge.classList.add('show');
+                    userInput.placeholder = '🎤 Mendengar...';
+
                     showToast('👋 Selamat datang, ' + (user.displayName || user.email) + '!', 'success', 2500);
                 }).catch(err => {
                     console.warn('Load data error:', err);
@@ -1817,18 +2072,17 @@
                     userLevel = 1;
                     userXp = 0;
                     totalCompleted = 0;
-                    apiKey = '';
                     isFirebaseReady = true;
                     renderTodos();
                     renderHistory();
                     updateLevelUI();
                     renderMessages();
                     updateSettingsUI();
-                    keyOverlay.classList.add('open');
-                    keyOverlay.style.display = 'flex';
-                    apiKeyInput.focus();
-                    updateStatus('idle', 'Tunggu API Key');
-                    voiceOnBadge.classList.remove('show');
+                    startListening();
+                    updateStatus('listening', 'Mendengar...');
+                    updateVoiceUI(true);
+                    voiceOnBadge.classList.add('show');
+                    userInput.placeholder = '🎤 Mendengar...';
                 });
                 initSpeech();
             } else {
@@ -1837,8 +2091,6 @@
                 isFirebaseReady = false;
                 loginOverlay.classList.add('open');
                 loginOverlay.style.display = 'flex';
-                keyOverlay.classList.remove('open');
-                keyOverlay.style.display = 'none';
                 settingsModal.classList.remove('open');
                 avatarDropdown.classList.remove('open');
 
@@ -1866,54 +2118,8 @@
                 updateLevelUI();
                 renderMessages();
                 updateSettingsUI();
+                speakingNotification.classList.remove('show');
             }
-        }
-
-        // ================================================================
-        //  LEVEL SYSTEM
-        // ================================================================
-        function getXpForLevel(level) {
-            return level * XP_BASE;
-        }
-
-        function getLevelProgress(level, xp) {
-            const needed = getXpForLevel(level);
-            const prev = getXpForLevel(level - 1);
-            const current = xp - prev;
-            const required = needed - prev;
-            return Math.min(1, Math.max(0, current / required));
-        }
-
-        function getXpDisplay(level, xp) {
-            const needed = getXpForLevel(level);
-            const prev = getXpForLevel(level - 1);
-            const current = xp - prev;
-            const required = needed - prev;
-            return `${Math.min(current, required)}/${required}`;
-        }
-
-        function addXp(amount) {
-            userXp += amount;
-            let leveledUp = false;
-            while (userXp >= getXpForLevel(userLevel)) {
-                userXp -= getXpForLevel(userLevel);
-                userLevel++;
-                leveledUp = true;
-                showToast(`🎉 LEVEL UP! Anda sekarang Level ${userLevel}!`, 'success', 4000);
-                levelBadge.classList.remove('level-up-flash');
-                void levelBadge.offsetWidth;
-                levelBadge.classList.add('level-up-flash');
-            }
-            updateLevelUI();
-            saveUserToFirebase();
-            return leveledUp;
-        }
-
-        function updateLevelUI() {
-            levelBadge.textContent = `Lv.${userLevel}`;
-            const progress = getLevelProgress(userLevel, userXp);
-            xpFill.style.width = (progress * 100) + '%';
-            xpText.textContent = getXpDisplay(userLevel, userXp);
         }
 
         // ================================================================
@@ -1931,7 +2137,6 @@
                 });
             });
 
-            // Avatar dropdown toggle
             userAvatar.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (!currentUser) {
@@ -1980,19 +2185,36 @@
             });
 
             sendBtn.addEventListener('click', handleSend);
+
+            // Textarea handling
+            userInput.addEventListener('input', () => {
+                const len = userInput.value.length;
+                charCounter.textContent = `${len} / ${MAX_CHARS}`;
+                charCounter.className = 'char-counter' + (len > MAX_CHARS * 0.85 ? ' warning' : '') + (len >= MAX_CHARS ?
+                    ' danger' : '');
+                autoResize();
+            });
+
             userInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    handleSend();
+                    if (userInput.value.trim()) {
+                        handleSend();
+                    }
                 }
             });
+
+            function autoResize() {
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            }
+
             voiceBtn.addEventListener('click', toggleVoice);
             settingsCloseBtn.addEventListener('click', closeSettings);
             settingsModal.addEventListener('click', (e) => {
                 if (e.target === settingsModal) closeSettings();
             });
 
-            // Settings: API Key
             settingsSaveKeyBtn.addEventListener('click', () => {
                 const key = settingsApiKey.value.trim();
                 if (!key) {
@@ -2001,20 +2223,10 @@
                 }
                 if (key.startsWith('sk-') && key.length > 10) {
                     apiKey = key;
-                    saveApiKeyToFirebase(key);
+                    showToast('API Key berhasil diperbarui!', 'success');
                     settingsApiKey.value = '';
                     apiKeyStatus.textContent = '✅ tersimpan';
                     apiKeyStatus.style.color = 'var(--green)';
-                    showToast('API Key berhasil diperbarui!', 'success');
-                    if (keyOverlay.classList.contains('open')) {
-                        keyOverlay.classList.remove('open');
-                        keyOverlay.style.display = 'none';
-                        startListening();
-                        updateStatus('listening', 'Mendengar...');
-                        updateVoiceUI(true);
-                        voiceOnBadge.classList.add('show');
-                        userInput.placeholder = '🎤 Mendengar...';
-                    }
                 } else {
                     showToast('API Key tidak valid. Harus diawali "sk-"', 'error');
                 }
@@ -2023,13 +2235,9 @@
             settingsRemoveKeyBtn.addEventListener('click', () => {
                 if (confirm('Hapus API Key yang tersimpan?')) {
                     apiKey = '';
-                    saveApiKeyToFirebase('');
                     apiKeyStatus.textContent = '❌ belum diisi';
                     apiKeyStatus.style.color = 'var(--red)';
                     showToast('API Key dihapus.', 'info');
-                    keyOverlay.classList.add('open');
-                    keyOverlay.style.display = 'flex';
-                    apiKeyInput.focus();
                     stopListening();
                     updateStatus('idle', 'Tunggu API Key');
                     updateVoiceUI(false);
@@ -2037,7 +2245,6 @@
                 }
             });
 
-            // Settings: Delete all chats
             deleteAllChatsBtn.addEventListener('click', () => {
                 if (!currentUser) { showToast('Login dulu.', 'info'); return; }
                 if (messages.length === 0) {
@@ -2055,31 +2262,8 @@
                 });
             });
 
-            // API Key overlay
-            saveKeyBtn.addEventListener('click', () => {
-                const key = apiKeyInput.value.trim();
-                if (key.startsWith('sk-') && key.length > 10) {
-                    apiKey = key;
-                    saveApiKeyToFirebase(key);
-                    keyOverlay.classList.remove('open');
-                    keyOverlay.style.display = 'none';
-                    showToast('API Key tersimpan!', 'success');
-                    startListening();
-                    updateStatus('listening', 'Mendengar...');
-                    updateVoiceUI(true);
-                    voiceOnBadge.classList.add('show');
-                    userInput.placeholder = '🎤 Mendengar...';
-                } else {
-                    apiKeyInput.style.borderColor = 'var(--red)';
-                    setTimeout(() => apiKeyInput.style.borderColor = '', 1200);
-                    showToast('API Key tidak valid. Harus diawali "sk-"', 'error');
-                }
-            });
-            apiKeyInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') saveKeyBtn.click();
-            });
+            clearAllTasksBtn.addEventListener('click', clearAllTasks);
 
-            // Keyboard shortcut: Ctrl+Shift+V
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'v' || e.key === 'V')) {
                     e.preventDefault();
@@ -2087,7 +2271,6 @@
                 }
             });
 
-            // Tab switching
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     tabBtns.forEach(b => b.classList.remove('active'));
@@ -2172,7 +2355,7 @@
         }
 
         // ================================================================
-        //  SPEECH RECOGNITION
+        //  SPEECH RECOGNITION - with echo cancellation
         // ================================================================
         function initSpeech() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2188,7 +2371,7 @@
             recognition.lang = 'id-ID';
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
+            recognition.maxAlternatives = 3;
 
             recognition.onresult = (event) => {
                 if (isProcessing || isInterrupting) return;
@@ -2204,19 +2387,31 @@
 
                 if (isSpeaking && aiSpeechText) {
                     const similarity = textSimilarity(text, aiSpeechText);
-                    if (similarity > 0.45) {
-                        console.log('[Voice] Ignoring AI voice:', text);
+                    const aiPhrases = ['daftar tugas', 'tugas baru', 'selesai', 'ditambahkan', 'dihapus', 'level',
+                        'xp', 'berhasil'
+                    ];
+                    let aiScore = 0;
+                    const lowerText = text.toLowerCase();
+                    aiPhrases.forEach(phrase => {
+                        if (lowerText.includes(phrase)) aiScore += 0.1;
+                    });
+                    if (similarity > 0.3 || aiScore > 0.4) {
+                        console.log('[Voice] Echo suppressed:', text, 'sim:', similarity, 'aiScore:', aiScore);
                         return;
                     }
-                    console.log('[Voice] User interrupted!', text);
-                    handleUserInterrupt(text);
+                }
+
+                if (userInput.value && userInput.value.trim().toLowerCase() === text.toLowerCase()) {
+                    console.log('[Voice] Duplicate input ignored:', text);
                     return;
                 }
 
                 if (final) {
                     userInput.value = text;
+                    userInput.dispatchEvent(new Event('input'));
                     if (voiceModeEnabled && !isProcessing && !isSpeaking) {
-                        setTimeout(() => {
+                        clearTimeout(window.voiceSendTimer);
+                        window.voiceSendTimer = setTimeout(() => {
                             if (userInput.value.trim() && !isProcessing && !isSpeaking) {
                                 handleSend();
                             }
@@ -2224,6 +2419,7 @@
                     }
                 } else {
                     userInput.value = text;
+                    userInput.dispatchEvent(new Event('input'));
                 }
             };
 
@@ -2270,22 +2466,6 @@
             const intersection = new Set([...wordsA].filter(w => wordsB.has(w)));
             const union = new Set([...wordsA, ...wordsB]);
             return intersection.size / union.size;
-        }
-
-        function handleUserInterrupt(text) {
-            if (isInterrupting) return;
-            isInterrupting = true;
-            stopSpeaking();
-            voiceBtn.classList.add('interrupted');
-            setTimeout(() => voiceBtn.classList.remove('interrupted'), 600);
-            addMessage('user', '🔊 (interupsi) ' + text);
-            userInput.value = text;
-            setTimeout(() => {
-                if (userInput.value.trim() && !isProcessing) {
-                    handleSend();
-                }
-                isInterrupting = false;
-            }, 500);
         }
 
         function startListening() {
@@ -2390,6 +2570,9 @@
             aiSpeechText = spokenText;
             const wasVoiceOn = voiceModeEnabled;
 
+            // Show speaking notification
+            speakingNotification.classList.add('show');
+
             if (wasVoiceOn && isListening) {
                 try { recognition.stop(); } catch (_) {}
                 isListening = false;
@@ -2417,6 +2600,7 @@
                 voiceBtn.classList.remove('speaking');
                 micMutedBadge.classList.remove('show');
                 aiSpeechText = '';
+                speakingNotification.classList.remove('show');
                 resumeAfterSpeech(wasVoiceOn);
                 voiceBtn.dataset.wasListening = wasVoiceOn ? 'true' : 'false';
             };
@@ -2425,6 +2609,7 @@
                 voiceBtn.classList.remove('speaking', 'muted');
                 micMutedBadge.classList.remove('show');
                 aiSpeechText = '';
+                speakingNotification.classList.remove('show');
                 resumeAfterSpeech(wasVoiceOn);
             };
             currentUtterance = utterance;
@@ -2517,6 +2702,7 @@
             voiceBtn.classList.remove('speaking');
             micMutedBadge.classList.remove('show');
             aiSpeechText = '';
+            speakingNotification.classList.remove('show');
             if (currentUtterance) currentUtterance = null;
         }
 
@@ -2534,23 +2720,45 @@
         }
 
         // ================================================================
+        //  BULK TASK PARSER - detect multi-line task lists
+        // ================================================================
+        function parseBulkTasks(text) {
+            const lines = text.split(/\n|[,，、;；]/).map(s => s.trim()).filter(s => s.length > 1);
+            const taskLines = lines.filter(line => {
+                const lower = line.toLowerCase();
+                const skipPhrases = ['tugas', 'daftar', 'list', 'todo', 'tolong', 'buatkan', 'buat', 'bantu',
+                    'saya', 'aku', 'mohon', 'please', 'help', 'terima kasih', 'makasih', 'thanks'
+                ];
+                for (const phrase of skipPhrases) {
+                    if (lower.includes(phrase) && line.length < 15) return false;
+                }
+                return true;
+            });
+            if (taskLines.length >= 3) {
+                return taskLines;
+            }
+            return null;
+        }
+
+        // ================================================================
         //  CLIENT-SIDE COMMAND HANDLING
         // ================================================================
         function handleClientCommand(text) {
             const lower = text.toLowerCase().trim();
 
-            // Hapus semua / hapus list / clear
-            if (/^(hapus\s*(semua|list|daftar)|clear\s*all|kosongkan\s*daftar)/i.test(lower)) {
+            // --- HAPUS SEMUA ---
+            if (/^(hapus\s*(semua|list|daftar)|clear\s*all|kosongkan\s*daftar|reset\s*tugas)/i.test(lower)) {
                 if (todos.length === 0) {
                     addMessage('assistant', '📭 Daftar tugas sudah kosong.');
                     speakText('Daftar tugas sudah kosong.');
                     return true;
                 }
                 if (confirm('Hapus semua tugas?')) {
+                    const count = todos.length;
                     todos = [];
                     renderTodos();
                     saveTodosToFirebase();
-                    const msg = '🧹 Semua tugas telah dihapus.';
+                    const msg = `🧹 ${count} tugas telah dihapus.`;
                     addMessage('assistant', msg);
                     speakText('Semua tugas telah dihapus.');
                 } else {
@@ -2560,8 +2768,8 @@
                 return true;
             }
 
-            // Hapus [tugas]
-            const deleteMatch = lower.match(/^(hapus|delete|remove)\s+(.+)/i);
+            // --- HAPUS [tugas] ---
+            const deleteMatch = lower.match(/^(hapus|delete|remove|buang)\s+(.+)/i);
             if (deleteMatch) {
                 const query = deleteMatch[2].trim();
                 const found = todos.filter(t =>
@@ -2603,8 +2811,8 @@
                 return true;
             }
 
-            // Selesai / tandai [tugas]
-            const completeMatch = lower.match(/^(selesai|tandai|complete|done)\s+(.+)/i);
+            // --- SELESAI / TANDAI [tugas] ---
+            const completeMatch = lower.match(/^(selesai|tandai|complete|done|cek|centang)\s+(.+)/i);
             if (completeMatch) {
                 const query = completeMatch[2].trim();
                 const found = todos.filter(t =>
@@ -2628,25 +2836,35 @@
                     completeTodo(todo);
                     return true;
                 }
-                // Banyak
                 const ids = new Set(found.map(t => t.id));
-                todos.forEach(t => { if (ids.has(t.id)) completeTodo(t); });
+                let completedCount = 0;
+                todos.forEach(t => {
+                    if (ids.has(t.id) && !t.completed) {
+                        completeTodo(t);
+                        completedCount++;
+                    }
+                });
                 renderTodos();
                 saveTodosToFirebase();
-                const count = found.length;
-                const msg = `✅ ${count} tugas selesai! +${count * XP_PER_TASK} XP`;
+                const count = completedCount || found.length;
+                const msg = `✅ ${count} tugas selesai! +${count * XP_PER_TASK} XP 🏆`;
                 addMessage('assistant', msg);
                 speakText(`${count} tugas selesai.`);
                 return true;
             }
 
-            // Tambah [tugas]
-            const addMatch = lower.match(/^(tambah|add|buat|new)\s+(.+)/i);
+            // --- TAMBAH [tugas] ---
+            const addMatch = lower.match(/^(tambah|add|buat|new|create)\s+(.+)/i);
             if (addMatch) {
                 const taskText = addMatch[2].trim();
                 if (taskText.length < 2) {
                     addMessage('assistant', '⚠️ Nama tugas terlalu pendek.');
                     speakText('Nama tugas terlalu pendek.');
+                    return true;
+                }
+                if (todos.length >= MAX_TODOS) {
+                    addMessage('assistant', `⚠️ Maksimum ${MAX_TODOS} tugas! Hapus beberapa tugas terlebih dahulu.`);
+                    speakText(`Maksimum ${MAX_TODOS} tugas.`);
                     return true;
                 }
                 const newTodo = {
@@ -2663,8 +2881,41 @@
                 return true;
             }
 
-            // Tampilkan / lihat daftar
-            if (/^(tampilkan|lihat|show|list|daftar)/i.test(lower)) {
+            // --- TAMBAH BANYAK (bulk) ---
+            const bulkMatch = lower.match(/^(tambah|add|buat)\s+(banyak|beberapa|semua)\s+(.+)/i);
+            if (bulkMatch) {
+                const tasksRaw = bulkMatch[3].trim();
+                const tasks = tasksRaw.split(/[,，、\n]+/).map(s => s.trim()).filter(s => s.length > 1);
+                if (tasks.length === 0) {
+                    addMessage('assistant', '⚠️ Tidak ada tugas yang valid.');
+                    speakText('Tidak ada tugas yang valid.');
+                    return true;
+                }
+                let added = 0;
+                const maxAdd = MAX_TODOS - todos.length;
+                if (maxAdd <= 0) {
+                    addMessage('assistant', `⚠️ Maksimum ${MAX_TODOS} tugas! Hapus beberapa tugas terlebih dahulu.`);
+                    speakText(`Maksimum ${MAX_TODOS} tugas.`);
+                    return true;
+                }
+                const toAdd = tasks.slice(0, maxAdd);
+                toAdd.forEach(task => {
+                    if (task.length >= 2) {
+                        todos.push({ id: ++todoIdCounter, text: task, completed: false });
+                        added++;
+                    }
+                });
+                renderTodos();
+                saveTodosToFirebase();
+                const msg =
+                    `✅ ${added} tugas berhasil ditambahkan!${toAdd.length < tasks.length ? ` (${tasks.length - toAdd.length} tugas tidak ditambahkan karena batas ${MAX_TODOS})` : ''}`;
+                addMessage('assistant', msg);
+                speakText(`${added} tugas ditambahkan.`);
+                return true;
+            }
+
+            // --- TAMPILKAN / LIHAT DAFTAR ---
+            if (/^(tampilkan|lihat|show|list|daftar|tugas|todo|todolist)/i.test(lower)) {
                 if (todos.length === 0) {
                     addMessage('assistant', '📭 Belum ada tugas.');
                     speakText('Belum ada tugas.');
@@ -2672,12 +2923,34 @@
                 }
                 let list = '📋 **Daftar Tugas:**\n';
                 todos.forEach((t, i) => {
-                    list += `${i+1}. ${t.text} ${t.completed ? '✅' : '⬜'}\n`;
+                    const status = t.completed ? '✅' : '⬜';
+                    list += `${i+1}. ${t.text} ${status}\n`;
                 });
                 addMessage('assistant', list);
-                const spoken = `Ada ${todos.length} tugas. ` +
-                    todos.filter(t => !t.completed).map(t => t.text).join(', ');
+                const pending = todos.filter(t => !t.completed);
+                const done = todos.filter(t => t.completed);
+                let spoken = `Ada ${todos.length} tugas. `;
+                if (pending.length > 0) {
+                    const pendingNames = pending.slice(0, 10).map(t => t.text).join(', ');
+                    spoken += `Belum selesai: ${pendingNames}${pending.length > 10 ? ` dan ${pending.length - 10} lainnya` : ''}. `;
+                }
+                if (done.length > 0) {
+                    const doneNames = done.slice(0, 10).map(t => t.text).join(', ');
+                    spoken += `Selesai: ${doneNames}${done.length > 10 ? ` dan ${done.length - 10} lainnya` : ''}.`;
+                }
                 speakText(spoken || 'Semua tugas selesai!');
+                return true;
+            }
+
+            // --- KOSONGKAN RIWAYAT ---
+            if (/^(kosongkan|hapus)\s*(riwayat|history)/i.test(lower)) {
+                clearHistory();
+                return true;
+            }
+
+            // --- KOSONGKAN TUGAS ---
+            if (/^(kosongkan|hapus)\s*(tugas|daftar|list|todo)/i.test(lower) && !/semua/i.test(lower)) {
+                clearAllTasks();
                 return true;
             }
 
@@ -2688,7 +2961,6 @@
             if (todo.completed) return;
             todo.completed = true;
 
-            // Add to history
             const historyEntry = {
                 id: ++historyIdCounter,
                 text: todo.text,
@@ -2702,14 +2974,16 @@
             saveHistoryToFirebase();
 
             totalCompleted++;
-            addXp(XP_PER_TASK);
-            const msg = `✅ "${todo.text}" selesai! +${XP_PER_TASK} XP`;
+            const xpGain = XP_PER_TASK;
+            addXp(xpGain, todo.text);
+
+            const msg = `✅ "${todo.text}" selesai! +${xpGain} XP 🏆`;
             addMessage('assistant', msg);
             speakText(`Tugas ${todo.text} selesai.`);
         }
 
         // ================================================================
-        //  HANDLE SEND
+        //  HANDLE SEND - with bulk detection
         // ================================================================
         async function handleSend() {
             const text = userInput.value.trim();
@@ -2717,12 +2991,6 @@
             if (isProcessing) return;
             if (!currentUser) {
                 showToast('Login dulu untuk menggunakan chat.', 'info');
-                return;
-            }
-            if (!apiKey) {
-                keyOverlay.classList.add('open');
-                keyOverlay.style.display = 'flex';
-                showToast('Masukkan API Key terlebih dahulu.', 'error');
                 return;
             }
 
@@ -2741,42 +3009,59 @@
             }
 
             userInput.value = '';
+            userInput.dispatchEvent(new Event('input'));
             isProcessing = true;
             typingIndicator.classList.add('active');
 
+            // === DETECT BULK TASKS from multi-line text ===
+            const bulkTasks = parseBulkTasks(text);
+            if (bulkTasks && bulkTasks.length > 0) {
+                const lower = text.toLowerCase();
+                const isAddCommand = /(tambah|add|buat|new|create|list|daftar|tolong|bantu)/i.test(lower);
+
+                if (isAddCommand || bulkTasks.length >= 3) {
+                    let added = 0;
+                    const maxAdd = MAX_TODOS - todos.length;
+                    if (maxAdd <= 0) {
+                        addMessage('assistant', `⚠️ Maksimum ${MAX_TODOS} tugas! Hapus beberapa tugas terlebih dahulu.`);
+                        speakText(`Maksimum ${MAX_TODOS} tugas.`);
+                        isProcessing = false;
+                        typingIndicator.classList.remove('active');
+                        resumeAfterSpeech(wasVoiceOn);
+                        return;
+                    }
+                    const toAdd = bulkTasks.slice(0, maxAdd);
+                    toAdd.forEach(task => {
+                        if (task.length >= 2) {
+                            todos.push({ id: ++todoIdCounter, text: task, completed: false });
+                            added++;
+                        }
+                    });
+                    renderTodos();
+                    saveTodosToFirebase();
+                    const msg =
+                        `✅ ${added} tugas berhasil ditambahkan!${toAdd.length < bulkTasks.length ? ` (${bulkTasks.length - toAdd.length} tugas tidak ditambahkan karena batas ${MAX_TODOS})` : ''}`;
+                    addMessage('assistant', msg);
+                    addMessage('user', text);
+                    speakText(`${added} tugas ditambahkan.`);
+                    isProcessing = false;
+                    typingIndicator.classList.remove('active');
+                    resumeAfterSpeech(wasVoiceOn);
+                    return;
+                }
+            }
+
+            // Check client command first
             const handled = handleClientCommand(text);
             if (handled) {
                 isProcessing = false;
                 typingIndicator.classList.remove('active');
                 voiceBtn.classList.remove('muted');
-                if (wasVoiceOn && !isSpeaking && !isInterrupting) {
-                    voiceModeEnabled = true;
-                    try {
-                        recognition.start();
-                        isListening = true;
-                        updateVoiceUI(true);
-                        updateStatus('listening', 'Mendengar...');
-                        userInput.placeholder = '🎤 Mendengar...';
-                        micMutedBadge.classList.remove('show');
-                        voiceOnBadge.classList.add('show');
-                    } catch (_) {
-                        voiceModeEnabled = false;
-                        updateVoiceUI(false);
-                        updateStatus('idle', 'Siap');
-                        userInput.placeholder = 'Ketik pesan...';
-                        voiceOnBadge.classList.remove('show');
-                    }
-                } else if (!wasVoiceOn && !isSpeaking) {
-                    updateStatus('idle', 'Siap');
-                    userInput.placeholder = 'Ketik pesan...';
-                    if (!voiceModeEnabled) {
-                        updateVoiceUI(false);
-                        voiceOnBadge.classList.remove('show');
-                    }
-                }
+                resumeAfterSpeech(wasVoiceOn);
                 return;
             }
 
+            // Not a client command, send to AI
             addMessage('user', text);
 
             try {
@@ -2785,30 +3070,53 @@
 
                 const extracted = extractTodosFromText(assistantReply);
                 if (extracted) {
-                    const prevTodos = new Map(todos.map(t => [t.id, t]));
                     let completedCount = 0;
-                    extracted.forEach(newTodo => {
-                        const old = prevTodos.get(newTodo.id);
-                        if (old && !old.completed && newTodo.completed) completedCount++;
-                    });
-                    extracted.forEach(newTodo => {
-                        if (newTodo.completed && !prevTodos.has(newTodo.id)) completedCount++;
-                    });
-
-                    // Apply changes, track newly completed ones for history
                     const newlyCompleted = [];
+
+                    const newTodos = [];
                     extracted.forEach(newTodo => {
-                        const old = prevTodos.get(newTodo.id);
-                        if (newTodo.completed && (!old || !old.completed)) {
-                            newlyCompleted.push(newTodo.text);
+                        const existing = todos.find(t => t.text.toLowerCase() === newTodo.text.toLowerCase());
+                        if (existing) {
+                            if (!existing.completed && newTodo.completed) {
+                                completedCount++;
+                                newlyCompleted.push(existing.text);
+                            }
+                            existing.completed = newTodo.completed;
+                            newTodos.push(existing);
+                        } else {
+                            if (todos.length >= MAX_TODOS) {
+                                return;
+                            }
+                            const fresh = {
+                                id: ++todoIdCounter,
+                                text: newTodo.text,
+                                completed: newTodo.completed
+                            };
+                            if (newTodo.completed) {
+                                completedCount++;
+                                newlyCompleted.push(fresh.text);
+                            }
+                            newTodos.push(fresh);
                         }
                     });
 
-                    todos = extracted;
-                    renderTodos();
-                    saveTodosToFirebase();
+                    const responseTexts = new Set(extracted.map(t => t.text.toLowerCase()));
+                    const keptTodos = todos.filter(t => !responseTexts.has(t.text.toLowerCase()));
+                    newTodos.push(...keptTodos);
 
-                    // Add to history for newly completed tasks
+                    const seenIds = new Set();
+                    const uniqueTodos = newTodos.filter(t => {
+                        if (seenIds.has(t.id)) return false;
+                        seenIds.add(t.id);
+                        return true;
+                    });
+
+                    if (uniqueTodos.length > MAX_TODOS) {
+                        todos = uniqueTodos.slice(0, MAX_TODOS);
+                    } else {
+                        todos = uniqueTodos;
+                    }
+
                     if (newlyCompleted.length > 0) {
                         newlyCompleted.forEach(taskText => {
                             const entry = {
@@ -2817,16 +3125,19 @@
                                 completedAt: Date.now()
                             };
                             completedHistory.push(entry);
+                            totalCompleted++;
+                            addXp(XP_PER_TASK, taskText);
                         });
                         renderHistory();
                         saveHistoryToFirebase();
                     }
 
+                    renderTodos();
+                    saveTodosToFirebase();
+
                     if (completedCount > 0) {
-                        const xpGain = completedCount * XP_PER_TASK;
-                        totalCompleted += completedCount;
-                        addXp(xpGain);
-                        showToast(`🏆 +${xpGain} XP untuk ${completedCount} tugas selesai!`, 'success', 2500);
+                        showToast(`🏆 +${completedCount * XP_PER_TASK} XP untuk ${completedCount} tugas selesai!`,
+                            'success', 3000);
                     }
                 }
 
@@ -2856,32 +3167,7 @@
                 isProcessing = false;
                 typingIndicator.classList.remove('active');
                 voiceBtn.classList.remove('muted');
-
-                if (wasVoiceOn && !isSpeaking && !isInterrupting) {
-                    voiceModeEnabled = true;
-                    try {
-                        recognition.start();
-                        isListening = true;
-                        updateVoiceUI(true);
-                        updateStatus('listening', 'Mendengar...');
-                        userInput.placeholder = '🎤 Mendengar...';
-                        micMutedBadge.classList.remove('show');
-                        voiceOnBadge.classList.add('show');
-                    } catch (_) {
-                        voiceModeEnabled = false;
-                        updateVoiceUI(false);
-                        updateStatus('idle', 'Siap');
-                        userInput.placeholder = 'Ketik pesan...';
-                        voiceOnBadge.classList.remove('show');
-                    }
-                } else if (!wasVoiceOn && !isSpeaking) {
-                    updateStatus('idle', 'Siap');
-                    userInput.placeholder = 'Ketik pesan...';
-                    if (!voiceModeEnabled) {
-                        updateVoiceUI(false);
-                        voiceOnBadge.classList.remove('show');
-                    }
-                }
+                resumeAfterSpeech(wasVoiceOn);
             }
         }
 
@@ -2903,8 +3189,8 @@
                 body: JSON.stringify({
                     model: 'deepseek-chat',
                     messages: msgs,
-                    temperature: 0.6,
-                    max_tokens: 600,
+                    temperature: 0.5,
+                    max_tokens: 700,
                     stream: false
                 })
             });
@@ -2932,6 +3218,7 @@
            • Beli susu — belum ❌
            • Shalat Dzuhur — selesai ✅
         7. Bahasa Indonesia yang sopan dan alami.
+        8. Maksimum tugas adalah ${MAX_TODOS}. Jika sudah mencapai batas, beri tahu user.
 
         DAFTAR TUGAS SAAT INI:
         ${todoText}
@@ -2957,7 +3244,6 @@
                 const parsed = JSON.parse(jsonMatch[0]);
                 if (Array.isArray(parsed) && parsed.every(item => typeof item === 'object' && 'text' in item)) {
                     return parsed.map((item) => ({
-                        id: ++todoIdCounter,
                         text: String(item.text).trim(),
                         completed: !!item.completed
                     }));
@@ -3004,33 +3290,46 @@
         }
 
         // ================================================================
-        //  TODOS
+        //  TODOS - with 300 limit and numbering
         // ================================================================
         function renderTodos() {
+            let html = '';
+            if (todos.length >= MAX_TODOS) {
+                html += `<div class="todo-limit-warning">⚠️ Maksimum ${MAX_TODOS} tugas tercapai!</div>`;
+            }
             if (!todos.length) {
-                tabTodos.innerHTML = `
+                html += `
               <div class="todo-empty">
                 <span class="icon">📭</span>
                 Belum ada tugas.<br />Tambahkan melalui chat!
               </div>
             `;
+                tabTodos.innerHTML = html;
                 todoCountEl.textContent = '0';
                 return;
             }
-            let html = '';
-            todos.forEach(todo => {
+
+            const sorted = [...todos].sort((a, b) => {
+                if (a.completed === b.completed) return a.text.localeCompare(b.text);
+                return a.completed ? 1 : -1;
+            });
+
+            sorted.forEach((todo, index) => {
+                const num = index + 1;
                 html += `
               <div class="todo-item" data-id="${todo.id}">
+                <span class="todo-number">#${num}</span>
                 <button class="todo-check ${todo.completed ? 'done' : ''}" data-id="${todo.id}">
                   ${todo.completed ? '✓' : ''}
                 </button>
                 <span class="todo-text ${todo.completed ? 'done' : ''}">${escapeHtml(todo.text)}</span>
+                ${todo.completed ? '<span class="xp-reward-badge">+10 XP</span>' : ''}
                 <button class="todo-delete" data-id="${todo.id}">✕</button>
               </div>
             `;
             });
             tabTodos.innerHTML = html;
-            todoCountEl.textContent = todos.length;
+            todoCountEl.textContent = todos.length + (todos.length >= MAX_TODOS ? ' 🔴' : '');
 
             tabTodos.querySelectorAll('.todo-check').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -3039,7 +3338,7 @@
                     if (todo && !todo.completed) {
                         completeTodo(todo);
                     } else if (todo && todo.completed) {
-                        showToast('Tugas sudah selesai.', 'info');
+                        showToast('Tugas sudah selesai ✅', 'info');
                     }
                 });
             });
@@ -3063,22 +3362,31 @@
         }
 
         // ================================================================
-        //  HISTORY (Riwayat Tugas Selesai)
+        //  HISTORY
         // ================================================================
         function renderHistory() {
+            let html = '';
+            html += `
+            <div class="history-header-actions">
+              <button class="btn-clear-history" id="clearHistoryBtn">🗑️ Kosongkan Riwayat</button>
+            </div>
+          `;
+
             if (!completedHistory.length) {
-                tabHistory.innerHTML = `
+                html += `
               <div class="todo-empty">
                 <span class="icon">📜</span>
                 Belum ada riwayat tugas selesai.
               </div>
             `;
+                tabHistory.innerHTML = html;
+                const clearBtn = tabHistory.querySelector('#clearHistoryBtn');
+                if (clearBtn) clearBtn.addEventListener('click', clearHistory);
                 return;
             }
-            // Sort newest first
+
             const sorted = [...completedHistory].sort((a, b) => b.completedAt - a.completedAt);
-            let html = '';
-            sorted.forEach(item => {
+            sorted.forEach((item) => {
                 const date = new Date(item.completedAt);
                 const formatted = date.toLocaleString('id-ID', {
                     day: '2-digit',
@@ -3107,6 +3415,9 @@
                     showToast('🗑️ Riwayat dihapus.', 'info');
                 });
             });
+
+            const clearBtn = tabHistory.querySelector('#clearHistoryBtn');
+            if (clearBtn) clearBtn.addEventListener('click', clearHistory);
         }
 
         // ================================================================
@@ -3115,19 +3426,14 @@
         function updateSettingsUI() {
             const count = messages.length;
             chatCount.textContent = count;
-
-            // Calculate size
             const json = JSON.stringify(messages);
             const bytes = new Blob([json]).size;
             const kb = (bytes / 1024).toFixed(1);
             chatSize.textContent = kb + ' KB';
-
-            // Storage bar (max 1MB = 1024KB)
             const maxKB = 1024;
             const pct = Math.min(100, (parseFloat(kb) / maxKB) * 100);
             storageBar.style.width = pct + '%';
 
-            // API key status
             if (apiKey && apiKey.startsWith('sk-')) {
                 apiKeyStatus.textContent = '✅ tersimpan';
                 apiKeyStatus.style.color = 'var(--green)';
@@ -3145,7 +3451,6 @@
             settingsModal.classList.add('open');
             settingsApiKey.value = '';
             updateSettingsUI();
-            // Refresh profile
             if (currentUser) {
                 profileName.textContent = currentUser.displayName || currentUser.email || '—';
                 profileEmail.textContent = currentUser.email || '—';
