@@ -1171,6 +1171,19 @@
             </svg>
         `;
 
+        // --- Open Coding Custom Logo (kode + gear) ---
+        const openCodingLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="12" width="48" height="40" rx="8" stroke="#00e5b0" stroke-width="2" fill="rgba(0,229,176,0.05)" />
+                <path d="M20 28L28 36L20 44" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M44 44L36 36L44 28" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="32" cy="36" r="4" stroke="#00e5b0" stroke-width="2" fill="rgba(0,229,176,0.1)" />
+                <path d="M32 28V32M32 40V44" stroke="#00e5b0" stroke-width="2" stroke-linecap="round" />
+                <path d="M24 36L28 36M36 36L40 36" stroke="#00e5b0" stroke-width="2" stroke-linecap="round" />
+                <circle cx="32" cy="32" r="1.5" fill="#00e5b0" opacity="0.5" />
+            </svg>
+        `;
+
         // DATA MENU — semua item kini konsisten: icon/logo di card-icon, nama di card-title, kategori di card-category
         const menuData = [
             { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/",
@@ -1218,7 +1231,7 @@
                 category: "Developer",
                 keywords: "firebase docs dokumentasi database hosting auth"
             },
-            // ===== DEEPSEEK API KEY — tambahan baru =====
+            // DEEPSEEK API KEY
             {
                 name: "DeepSeek API Key",
                 logo: deepseekApiLogoSVG,
@@ -1228,7 +1241,7 @@
                 category: "AI · API",
                 keywords: "deepseek api key usage platform dashboard manage"
             },
-            // ===== INSTAGRAM — TAMBAHAN BARU =====
+            // INSTAGRAM
             {
                 name: "Instagram",
                 icon: "fab fa-instagram",
@@ -1237,7 +1250,7 @@
                 category: "Sosial",
                 keywords: "instagram sosial media foto video story"
             },
-            // ===== FACEBOOK — TAMBAHAN BARU =====
+            // FACEBOOK
             {
                 name: "Facebook",
                 icon: "fab fa-facebook",
@@ -1246,7 +1259,7 @@
                 category: "Sosial",
                 keywords: "facebook sosial media teman grup"
             },
-            // ===== GMAIL — TAMBAHAN BARU =====
+            // GMAIL
             {
                 name: "Gmail",
                 icon: "fas fa-envelope",
@@ -1254,6 +1267,16 @@
                 url: "https://mail.google.com/mail/u/0/#inbox",
                 category: "Komunikasi",
                 keywords: "gmail email surat google mail"
+            },
+            // OPEN CODING CUSTOM — TAMBAHAN BARU
+            {
+                name: "Open Coding Custom",
+                logo: openCodingLogoSVG,
+                icon: "fas fa-code",
+                color: "#00e5b0",
+                url: "https://asbahmaghrib.github.io/developer/open_coding_custom",
+                category: "Developer · Tools",
+                keywords: "open coding custom editor developer tools asbah maghrib"
             }
         ];
 
