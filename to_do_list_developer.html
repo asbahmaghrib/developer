@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Todo Assistant · DeepSeek</title>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
@@ -37,7 +37,8 @@
             --radius: 14px;
             --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --level-bg: linear-gradient(135deg, #1a1d27 0%, #242834 100%);
+            --google-btn-bg: #4285f4;
+            --google-btn-hover: #357ae8;
         }
         body {
             font-family: var(--font);
@@ -66,9 +67,81 @@
             position: relative;
         }
 
+        /* ----- LOGIN OVERLAY ----- */
+        .login-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.94);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            border-radius: var(--radius);
+            padding: 30px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .login-overlay.open {
+            display: flex;
+        }
+        .login-overlay .login-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-overlay .login-box h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .login-overlay .login-box p {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .login-overlay .login-box .btn-google {
+            background: var(--google-btn-bg);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        .login-overlay .login-box .btn-google:hover {
+            background: var(--google-btn-hover);
+            box-shadow: 0 0 30px rgba(66, 133, 244, 0.3);
+            transform: scale(1.02);
+        }
+        .login-overlay .login-box .btn-google svg {
+            width: 20px;
+            height: 20px;
+        }
+        .login-overlay .login-box .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 12px;
+        }
+
         /* ----- HEADER ----- */
         .header {
-            padding: 12px 20px;
+            padding: 10px 20px;
             background: var(--surface2);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -151,96 +224,121 @@
             text-align: right;
         }
 
+        /* ----- USER AVATAR (with dropdown) ----- */
+        .user-avatar-wrap {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .user-avatar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 8px 2px 4px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            transition: border 0.2s;
+        }
+        .user-avatar:hover {
+            border-color: var(--accent);
+        }
+        .user-avatar img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+        }
+        .user-avatar .uname {
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .user-avatar .udrop {
+            font-size: 10px;
+            color: var(--text-dim);
+            transition: transform 0.2s;
+        }
+        .user-avatar-wrap.open .udrop {
+            transform: rotate(180deg);
+        }
+
+        /* Avatar dropdown */
+        .avatar-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 220px;
+            padding: 8px 0;
+            box-shadow: var(--shadow);
+            z-index: 400;
+            display: none;
+            overflow: hidden;
+        }
+        .avatar-dropdown.open {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+        .avatar-dropdown .dropdown-item {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+        .avatar-dropdown .dropdown-item:hover {
+            background: var(--border);
+        }
+        .avatar-dropdown .dropdown-item .icon {
+            font-size: 16px;
+            width: 24px;
+            text-align: center;
+        }
+        .avatar-dropdown .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 12px;
+        }
+        .avatar-dropdown .dropdown-profile {
+            padding: 10px 16px 6px;
+            pointer-events: none;
+        }
+        .avatar-dropdown .dropdown-profile .pname {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .avatar-dropdown .dropdown-profile .pemail {
+            font-size: 12px;
+            color: var(--text-dim);
+            word-break: break-all;
+        }
+        .avatar-dropdown .dropdown-item.danger {
+            color: var(--red);
+        }
+        .avatar-dropdown .dropdown-item.danger:hover {
+            background: rgba(248, 113, 113, 0.12);
+        }
+
         .header-actions {
             display: flex;
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
-        }
-        .header-actions .btn-sm {
-            padding: 5px 12px;
-            font-size: 11px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .header-actions .btn-sm:hover {
-            border-color: var(--accent);
-            color: var(--text);
-        }
-        .header-actions .btn-sm.primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-        .header-actions .btn-sm.primary:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        /* ----- USER PROFILE ----- */
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg);
-            padding: 3px 12px 3px 8px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: border 0.2s;
-        }
-        .user-profile:hover {
-            border-color: var(--accent);
-        }
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .user-name {
-            font-size: 12px;
-            font-weight: 500;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .user-profile .logout-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 13px;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            line-height: 1;
-        }
-        .user-profile .logout-btn:hover {
-            color: var(--red);
-            background: rgba(248, 113, 113, 0.12);
         }
 
         .status-badge {
@@ -277,9 +375,31 @@
             background: var(--text-dim);
             opacity: 0.5;
         }
-        .status-dot.offline {
-            background: var(--text-dim);
-            opacity: 0.2;
+        .mic-muted-badge {
+            font-size: 9px;
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--red);
+            padding: 1px 8px;
+            border-radius: 12px;
+            display: none;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .mic-muted-badge.show {
+            display: inline-block;
+        }
+        .voice-on-badge {
+            background: rgba(74, 222, 128, 0.12);
+            color: var(--green);
+            font-size: 9px;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+            letter-spacing: 0.3px;
+        }
+        .voice-on-badge.show {
+            display: inline-block;
         }
 
         /* ----- MAIN LAYOUT ----- */
@@ -348,10 +468,6 @@
         }
         .msg .msg-text {
             white-space: pre-wrap;
-        }
-        .msg .msg-text .todo-highlight {
-            color: var(--green);
-            font-weight: 500;
         }
         .msg .msg-time {
             font-size: 9px;
@@ -456,6 +572,7 @@
             background: var(--border);
             color: var(--text);
             flex-shrink: 0;
+            font-family: inherit;
         }
         .btn:hover {
             filter: brightness(1.15);
@@ -570,32 +687,6 @@
                 transform: scaleY(1);
             }
         }
-        .mic-muted-badge {
-            font-size: 9px;
-            background: rgba(248, 113, 113, 0.15);
-            color: var(--red);
-            padding: 1px 8px;
-            border-radius: 12px;
-            display: none;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-        .mic-muted-badge.show {
-            display: inline-block;
-        }
-        .voice-on-badge {
-            background: rgba(74, 222, 128, 0.12);
-            color: var(--green);
-            font-size: 9px;
-            padding: 1px 8px;
-            border-radius: 12px;
-            font-weight: 500;
-            display: none;
-            letter-spacing: 0.3px;
-        }
-        .voice-on-badge.show {
-            display: inline-block;
-        }
 
         /* ----- TODO PANEL ----- */
         .todo-panel {
@@ -608,7 +699,7 @@
             overflow: hidden;
         }
         .todo-panel .panel-header {
-            padding: 12px 16px 10px;
+            padding: 10px 16px 8px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
@@ -616,14 +707,33 @@
             flex-wrap: wrap;
             gap: 4px;
         }
-        .todo-panel .panel-header h2 {
-            font-size: 14px;
-            font-weight: 600;
+        .todo-panel .panel-header .tabs {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 4px;
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 2px;
         }
-        .todo-panel .panel-header h2 span {
+        .todo-panel .panel-header .tabs .tab-btn {
+            padding: 4px 14px;
+            border: none;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-dim);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .todo-panel .panel-header .tabs .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .todo-panel .panel-header .tabs .tab-btn:hover:not(.active) {
+            color: var(--text);
+        }
+        .todo-panel .panel-header .badge-count {
             background: var(--surface2);
             font-size: 10px;
             font-weight: 500;
@@ -646,13 +756,20 @@
             background: var(--border);
             border-radius: 4px;
         }
+        .todo-list .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .todo-list .tab-content.active {
+            display: flex;
+        }
 
         .todo-item {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 8px 12px;
-            margin-bottom: 5px;
             border-radius: 10px;
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -711,6 +828,48 @@
             color: var(--red);
             background: rgba(248, 113, 113, 0.12);
         }
+
+        /* History item */
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            opacity: 0.7;
+            animation: fadeUp 0.25s ease;
+        }
+        .history-item .h-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .history-item .h-text {
+            flex: 1;
+            font-size: 13px;
+        }
+        .history-item .h-time {
+            font-size: 10px;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+        .history-item .h-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .history-item .h-delete:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.12);
+        }
+
         .todo-empty {
             color: var(--text-dim);
             font-size: 13px;
@@ -724,384 +883,7 @@
             margin-bottom: 6px;
         }
 
-        /* ----- MODAL / OVERLAY ----- */
-        .modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 17, 23, 0.88);
-            backdrop-filter: blur(6px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            border-radius: var(--radius);
-            padding: 24px;
-        }
-        .modal-overlay.open {
-            display: flex;
-        }
-        .modal-box {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px 32px;
-            max-width: 460px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: fadeUp 0.25s ease;
-        }
-        .modal-box h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .modal-box p {
-            color: var(--text-dim);
-            font-size: 13px;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-        .modal-box label {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-dim);
-            display: block;
-            margin-bottom: 4px;
-        }
-        .modal-box input,
-        .modal-box textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 13px;
-            outline: none;
-            transition: border 0.2s;
-            margin-bottom: 12px;
-        }
-        .modal-box input:focus,
-        .modal-box textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-        .modal-box textarea {
-            border-radius: 12px;
-            resize: vertical;
-            min-height: 60px;
-        }
-        .modal-box .btn-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-        .modal-box .btn-row .btn {
-            flex: 1;
-            justify-content: center;
-            min-width: 80px;
-        }
-        .modal-box .btn-row .btn-secondary {
-            background: var(--border);
-            color: var(--text);
-        }
-        .modal-box .btn-row .btn-secondary:hover {
-            background: var(--surface2);
-        }
-        .modal-box .hint {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 8px;
-        }
-        .modal-box .hint a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .modal-box .hint a:hover {
-            text-decoration: underline;
-        }
-        .modal-box .close-btn {
-            position: sticky;
-            top: 0;
-            float: right;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0 4px;
-            line-height: 1;
-        }
-        .modal-box .close-btn:hover {
-            color: var(--text);
-        }
-
-        /* ----- SETTINGS MODAL SPECIFIC ----- */
-        .settings-group {
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        .settings-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .settings-group .label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .settings-group .label-row .badge {
-            font-size: 9px;
-            background: var(--border);
-            padding: 1px 10px;
-            border-radius: 12px;
-            color: var(--text-dim);
-        }
-
-        /* ----- LOGIN OVERLAY ----- */
-        .login-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 17, 23, 0.92);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 150;
-            border-radius: var(--radius);
-            padding: 30px;
-        }
-        .login-overlay.open {
-            display: flex;
-        }
-        .login-overlay .box {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 36px 40px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-        }
-        .login-overlay .box h2 {
-            font-size: 22px;
-            margin-bottom: 6px;
-        }
-        .login-overlay .box p {
-            color: var(--text-dim);
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .login-overlay .box .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font);
-        }
-        .login-overlay .box .google-btn:hover {
-            border-color: var(--accent);
-            background: var(--surface2);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-        .login-overlay .box .google-btn img {
-            width: 22px;
-            height: 22px;
-        }
-        .login-overlay .box .hint {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 14px;
-        }
-        .login-overlay .box .hint .key-hint {
-            color: var(--accent);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .login-overlay .box .hint .key-hint:hover {
-            color: var(--accent-hover);
-        }
-
-        /* ----- RESPONSIVE ----- */
-        @media (max-width: 820px) {
-            .app {
-                height: 98vh;
-                max-height: none;
-                border-radius: 12px;
-            }
-            .main {
-                flex-direction: column;
-            }
-            .todo-panel {
-                width: 100%;
-                max-height: 200px;
-                border-top: 1px solid var(--border);
-                border-right: none;
-            }
-            .chat-area {
-                border-right: none;
-            }
-            .messages {
-                padding: 12px 14px;
-            }
-            .msg {
-                max-width: 88%;
-            }
-            .header h1 {
-                font-size: 14px;
-            }
-            .level-display {
-                padding: 2px 10px 2px 8px;
-            }
-            .level-badge {
-                font-size: 11px;
-                padding: 1px 8px;
-            }
-            .level-xp .xp-bar {
-                width: 40px;
-            }
-            .header-actions .btn-sm {
-                font-size: 10px;
-                padding: 3px 8px;
-            }
-            .modal-box {
-                padding: 20px;
-                max-width: 100%;
-            }
-            .user-name {
-                max-width: 60px;
-                font-size: 11px;
-            }
-            .user-profile {
-                padding: 2px 8px 2px 4px;
-            }
-            .user-avatar {
-                width: 22px;
-                height: 22px;
-                font-size: 11px;
-            }
-        }
-        @media (max-width: 480px) {
-            .app {
-                height: 100vh;
-                border-radius: 0;
-                padding: 0;
-            }
-            .header {
-                padding: 8px 12px;
-            }
-            .header h1 {
-                font-size: 13px;
-            }
-            .input-bar {
-                padding: 8px 10px 12px;
-                gap: 4px;
-            }
-            .input-bar input {
-                font-size: 12px;
-                padding: 7px 12px;
-            }
-            .btn {
-                font-size: 11px;
-                padding: 7px 12px;
-            }
-            .btn-voice {
-                font-size: 15px;
-                padding: 7px 10px;
-                min-width: 52px;
-            }
-            .todo-panel {
-                max-height: 150px;
-            }
-            .todo-panel .panel-header {
-                padding: 8px 12px 6px;
-            }
-            .todo-list {
-                padding: 6px 10px 12px;
-            }
-            .todo-item {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-            .level-display {
-                padding: 2px 8px 2px 6px;
-                gap: 6px;
-            }
-            .level-badge {
-                font-size: 10px;
-                padding: 1px 6px;
-                min-width: 22px;
-            }
-            .level-xp .xp-bar {
-                width: 30px;
-            }
-            .level-xp .xp-text {
-                font-size: 9px;
-                min-width: 28px;
-            }
-            .modal-box {
-                padding: 16px;
-            }
-            .header-actions .btn-sm {
-                font-size: 9px;
-                padding: 2px 6px;
-            }
-            .user-name {
-                max-width: 40px;
-                font-size: 10px;
-            }
-            .user-profile {
-                padding: 2px 6px 2px 3px;
-            }
-            .user-avatar {
-                width: 20px;
-                height: 20px;
-                font-size: 10px;
-            }
-        }
-
-        /* ----- UTILITIES ----- */
-        .hidden {
-            display: none !important;
-        }
-        .flex-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gap-8 {
-            gap: 8px;
-        }
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        /* API Key overlay (initial) */
+        /* ----- API KEY OVERLAY (only shown if no key) ----- */
         .key-overlay {
             position: absolute;
             inset: 0;
@@ -1171,7 +953,175 @@
             text-decoration: underline;
         }
 
-        /* Toast notification */
+        /* ----- SETTINGS MODAL ----- */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fadeUp 0.25s ease;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        .modal-box h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box .sub {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .modal-box .close-btn {
+            float: right;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .modal-box .close-btn:hover {
+            color: var(--text);
+        }
+        .modal-box .settings-group {
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-box .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .modal-box .settings-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal-box .settings-group .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .modal-box .settings-group .info-row .label {
+            color: var(--text-dim);
+            min-width: 70px;
+        }
+        .modal-box .settings-group .info-row .value {
+            color: var(--text);
+            word-break: break-all;
+        }
+        .modal-box .settings-group .info-row .value.accent {
+            color: var(--accent);
+        }
+        .modal-box .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .modal-box .btn-row .btn {
+            flex: 1;
+            justify-content: center;
+            min-width: 80px;
+        }
+        .modal-box .btn-row .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        .modal-box .btn-row .btn-secondary:hover {
+            background: var(--surface2);
+        }
+        .modal-box .btn-row .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+        .modal-box .btn-row .btn-danger:hover {
+            filter: brightness(1.15);
+        }
+        .modal-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+            margin-bottom: 8px;
+        }
+        .modal-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .modal-box .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+        .modal-box .hint a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .modal-box .hint a:hover {
+            text-decoration: underline;
+        }
+        .modal-box .storage-bar-wrap {
+            margin-top: 6px;
+        }
+        .modal-box .storage-bar-wrap .bar-bg {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .modal-box .storage-bar-wrap .bar-bg .bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        /* ----- TOAST ----- */
         .toast {
             position: absolute;
             bottom: 80px;
@@ -1204,7 +1154,7 @@
             border-color: var(--accent);
         }
 
-        /* Fire icon for level up */
+        /* ----- LEVEL UP FLASH ----- */
         .level-up-flash {
             animation: levelUpPulse 0.6s ease;
         }
@@ -1221,22 +1171,160 @@
             }
         }
 
-        /* Login button in header when not logged in */
-        .login-btn-header {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font);
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 820px) {
+            .app {
+                height: 98vh;
+                max-height: none;
+                border-radius: 12px;
+            }
+            .main {
+                flex-direction: column;
+            }
+            .todo-panel {
+                width: 100%;
+                max-height: 200px;
+                border-top: 1px solid var(--border);
+                border-right: none;
+            }
+            .chat-area {
+                border-right: none;
+            }
+            .messages {
+                padding: 12px 14px;
+            }
+            .msg {
+                max-width: 88%;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+            .level-display {
+                padding: 2px 10px 2px 8px;
+            }
+            .level-badge {
+                font-size: 11px;
+                padding: 1px 8px;
+            }
+            .level-xp .xp-bar {
+                width: 40px;
+            }
+            .modal-box {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .login-overlay .login-box {
+                padding: 24px 20px;
+            }
+            .user-avatar .uname {
+                max-width: 50px;
+                font-size: 11px;
+            }
+            .avatar-dropdown {
+                right: -10px;
+                min-width: 180px;
+            }
+            .todo-panel .panel-header .tabs .tab-btn {
+                font-size: 10px;
+                padding: 3px 10px;
+            }
         }
-        .login-btn-header:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow);
+        @media (max-width: 480px) {
+            .app {
+                height: 100vh;
+                border-radius: 0;
+                padding: 0;
+            }
+            .header {
+                padding: 8px 12px;
+            }
+            .header h1 {
+                font-size: 13px;
+            }
+            .input-bar {
+                padding: 8px 10px 12px;
+                gap: 4px;
+            }
+            .input-bar input {
+                font-size: 12px;
+                padding: 7px 12px;
+            }
+            .btn {
+                font-size: 11px;
+                padding: 7px 12px;
+            }
+            .btn-voice {
+                font-size: 15px;
+                padding: 7px 10px;
+                min-width: 52px;
+            }
+            .todo-panel {
+                max-height: 150px;
+            }
+            .todo-panel .panel-header {
+                padding: 6px 10px 4px;
+            }
+            .todo-list {
+                padding: 6px 10px 12px;
+            }
+            .todo-item {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            .level-display {
+                padding: 2px 8px 2px 6px;
+                gap: 6px;
+            }
+            .level-badge {
+                font-size: 10px;
+                padding: 1px 6px;
+                min-width: 22px;
+            }
+            .level-xp .xp-bar {
+                width: 30px;
+            }
+            .level-xp .xp-text {
+                font-size: 9px;
+                min-width: 28px;
+            }
+            .modal-box {
+                padding: 16px;
+            }
+            .login-overlay .login-box {
+                padding: 20px 16px;
+            }
+            .user-avatar .uname {
+                max-width: 40px;
+                font-size: 10px;
+            }
+            .avatar-dropdown {
+                right: -6px;
+                min-width: 160px;
+            }
+            .avatar-dropdown .dropdown-item {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            .todo-panel .panel-header .tabs .tab-btn {
+                font-size: 9px;
+                padding: 2px 8px;
+            }
+        }
+
+        /* ----- UTILITIES ----- */
+        .hidden {
+            display: none !important;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -1246,24 +1334,25 @@
         <!-- TOAST -->
         <div class="toast" id="toast"></div>
 
-        <!-- LOGIN OVERLAY -->
+        <!-- LOGIN OVERLAY (Google Auth) -->
         <div class="login-overlay open" id="loginOverlay">
-            <div class="box">
-                <h2>🔐 Masuk dengan Google</h2>
-                <p>Login untuk menyimpan semua data <strong>todos, riwayat chat, level</strong> ke akun Anda.</p>
-                <button class="google-btn" id="googleLoginBtn">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+            <div class="login-box">
+                <h2>🔐 Masuk</h2>
+                <p>Gunakan akun Google untuk menyimpan data dan riwayat chat Anda.</p>
+                <button class="btn-google" id="googleLoginBtn">
+                    <svg viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
                     Login dengan Google
                 </button>
-                <div class="hint">
-                    Data tersimpan aman di Firebase per akun Anda.
-                    <br />
-                    <span class="key-hint" id="keyHintBtn">Atau gunakan API Key langsung (tanpa login)</span>
-                </div>
+                <div class="hint">Data Anda aman dan hanya tersimpan untuk akun Anda.</div>
             </div>
         </div>
 
-        <!-- API KEY OVERLAY (fallback) -->
+        <!-- API KEY OVERLAY (only if no key stored) -->
         <div class="key-overlay" id="keyOverlay">
             <div class="box">
                 <h2>🔑 Masukkan API Key</h2>
@@ -1272,8 +1361,6 @@
                 <button class="btn btn-primary" id="saveKeyBtn">✅ Simpan & Mulai</button>
                 <div class="hint">
                     Belum punya? <a href="https://platform.deepseek.com/api_keys" target="_blank">Dapatkan di sini</a>
-                    <br />
-                    <span style="cursor:pointer;color:var(--accent);" id="backToLoginBtn">← Kembali ke Login</span>
                 </div>
             </div>
         </div>
@@ -1283,46 +1370,59 @@
             <div class="modal-box">
                 <button class="close-btn" id="settingsCloseBtn">✕</button>
                 <h2>⚙️ Pengaturan</h2>
-                <p>Kelola API Key, riwayat chat, dan data.</p>
+                <div class="sub">Kelola akun dan data Anda.</div>
 
+                <!-- Profile -->
                 <div class="settings-group">
-                    <div class="label-row">
-                        <label>🔑 DeepSeek API Key</label>
-                        <span class="badge" id="apiKeyStatus">✅ tersimpan</span>
+                    <label>👤 Profil</label>
+                    <div class="info-row">
+                        <span class="label">Nama</span>
+                        <span class="value" id="profileName">—</span>
                     </div>
-                    <input type="password" id="settingsApiKey" placeholder="sk-..." />
+                    <div class="info-row">
+                        <span class="label">Email</span>
+                        <span class="value" id="profileEmail">—</span>
+                    </div>
+                </div>
+
+                <!-- Data -->
+                <div class="settings-group">
+                    <label>💾 Data</label>
+                    <div class="info-row">
+                        <span class="label">Pesan tersimpan</span>
+                        <span class="value" id="chatCount">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Ukuran chat</span>
+                        <span class="value" id="chatSize">0 KB</span>
+                    </div>
+                    <div class="storage-bar-wrap">
+                        <div class="bar-bg">
+                            <div class="bar-fill" id="storageBar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                    <div class="btn-row" style="margin-top:10px;">
+                        <button class="btn btn-danger" id="deleteAllChatsBtn">🗑️ Hapus Semua Chat</button>
+                    </div>
+                    <div class="hint">Data chat tersimpan di akun Google Anda. Riwayat akan muncul kembali saat login.</div>
+                </div>
+
+                <!-- API Key (optional update) -->
+                <div class="settings-group">
+                    <label>🔑 DeepSeek API Key</label>
+                    <input type="password" id="settingsApiKey" placeholder="sk-... (kosongkan jika tidak diubah)" />
                     <div class="btn-row">
-                        <button class="btn btn-primary" id="settingsSaveKeyBtn">Simpan API Key</button>
+                        <button class="btn btn-primary" id="settingsSaveKeyBtn">Update API Key</button>
                         <button class="btn btn-secondary" id="settingsRemoveKeyBtn">Hapus</button>
                     </div>
+                    <div class="hint" id="apiKeyStatus">✅ tersimpan</div>
                 </div>
 
-                <div class="settings-group">
-                    <label>💾 Riwayat Chat</label>
-                    <div class="btn-row">
-                        <button class="btn btn-primary" id="exportChatBtn">📥 Download JSON</button>
-                        <button class="btn btn-secondary" id="importChatBtn">📤 Upload JSON</button>
-                    </div>
-                    <input type="file" id="importFileInput" accept=".json" style="display:none;" />
-                    <div class="hint">Download semua pesan sebagai JSON, atau upload untuk memulihkan.</div>
-                </div>
-
-                <div class="settings-group">
-                    <label>📋 Data Tugas</label>
-                    <div class="btn-row">
-                        <button class="btn btn-secondary" id="exportTodosBtn">📥 Download Todos JSON</button>
-                        <button class="btn btn-secondary" id="importTodosBtn">📤 Upload Todos JSON</button>
-                    </div>
-                    <input type="file" id="importTodosInput" accept=".json" style="display:none;" />
-                    <div class="hint">Ekspor atau impor daftar tugas.</div>
-                </div>
-
+                <!-- Logout -->
                 <div class="settings-group" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
-                    <label>🗑️ Tindakan</label>
                     <div class="btn-row">
-                        <button class="btn" id="resetAllDataBtn" style="background:var(--red);color:#fff;">Reset Semua Data</button>
+                        <button class="btn btn-danger" id="settingsLogoutBtn" style="flex:1;">🚪 Logout</button>
                     </div>
-                    <div class="hint" style="color:var(--red);">Menghapus semua data di Firebase (todos, chat, level, API key).</div>
                 </div>
             </div>
         </div>
@@ -1346,24 +1446,33 @@
                 </div>
             </div>
             <div class="header-actions">
-                <!-- User Profile -->
-                <div class="user-profile" id="userProfile" style="display:none;">
-                    <div class="user-avatar" id="userAvatar">👤</div>
-                    <span class="user-name" id="userName">User</span>
-                    <button class="logout-btn" id="logoutBtn" title="Logout">✕</button>
-                </div>
-                <button class="login-btn-header" id="loginHeaderBtn" style="display:none;">🔐 Login</button>
-
                 <div class="status-badge">
                     <span class="status-dot" id="statusDot"></span>
                     <span id="statusLabel">Menunggu</span>
                     <span class="mic-muted-badge" id="micMutedBadge">🔇 Muted</span>
                     <span class="voice-on-badge" id="voiceOnBadge">🎤 Aktif</span>
                 </div>
-                <button class="btn-sm" id="settingsBtn" title="Pengaturan">⚙️</button>
-                <button class="btn-sm primary" id="exportAllBtn" title="Download semua data (chat + todos + level)">📥 Backup</button>
-                <button class="btn-sm" id="importAllBtn" title="Upload backup JSON">📤 Restore</button>
-                <input type="file" id="importAllInput" accept=".json" style="display:none;" />
+                <!-- USER AVATAR with dropdown -->
+                <div class="user-avatar-wrap" id="avatarWrap">
+                    <div class="user-avatar" id="userAvatar">
+                        <img id="userAvatarImg" src="" alt="User" style="display:none;" />
+                        <span class="uname" id="userNameDisplay">Guest</span>
+                        <span class="udrop">▼</span>
+                    </div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-profile">
+                            <div class="pname" id="dropName">—</div>
+                            <div class="pemail" id="dropEmail">—</div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" id="dropSettings">
+                            <span class="icon">⚙️</span> Pengaturan
+                        </button>
+                        <button class="dropdown-item danger" id="dropLogout">
+                            <span class="icon">🚪</span> Logout
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -1379,8 +1488,6 @@
                             Selesaikan tugas untuk naik level.<br />
                             Coba katakan: <em>"Tambah beli susu"</em> atau <em>"Tampilkan daftar"</em>.<br />
                             🎤 <strong>Voice aktif</strong> — saya selalu mendengar.
-                            <br /><br />
-                            🔐 <strong>Login dengan Google</strong> untuk menyimpan data Anda.
                         </div>
                         <div class="msg-time">—</div>
                     </div>
@@ -1406,15 +1513,20 @@
             <!-- TODO PANEL -->
             <aside class="todo-panel">
                 <div class="panel-header">
-                    <h2>📋 Tugas <span id="todoCount">0</span></h2>
-                    <button class="btn" id="clearTodosBtn" style="padding:3px 10px;font-size:11px;background:transparent;color:var(--text-dim);border:1px solid var(--border);">
-                        Kosongkan
-                    </button>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="todos">📋 Tugas</button>
+                        <button class="tab-btn" data-tab="history">📜 Riwayat</button>
+                    </div>
+                    <span class="badge-count" id="todoCount">0</span>
                 </div>
                 <div class="todo-list" id="todoList">
-                    <div class="todo-empty">
-                        <span class="icon">📭</span>
-                        Belum ada tugas.<br />Tambahkan melalui chat!
+                    <!-- Tab: Tugas -->
+                    <div class="tab-content active" id="tabTodos">
+                        <!-- rendered by JS -->
+                    </div>
+                    <!-- Tab: Riwayat -->
+                    <div class="tab-content" id="tabHistory">
+                        <!-- rendered by JS -->
                     </div>
                 </div>
             </aside>
@@ -1461,47 +1573,48 @@
         const keyOverlay = $('#keyOverlay');
         const apiKeyInput = $('#apiKeyInput');
         const saveKeyBtn = $('#saveKeyBtn');
-        const settingsBtn = $('#settingsBtn');
         const settingsModal = $('#settingsModal');
         const settingsCloseBtn = $('#settingsCloseBtn');
         const settingsApiKey = $('#settingsApiKey');
         const settingsSaveKeyBtn = $('#settingsSaveKeyBtn');
         const settingsRemoveKeyBtn = $('#settingsRemoveKeyBtn');
         const apiKeyStatus = $('#apiKeyStatus');
-        const clearTodosBtn = $('#clearTodosBtn');
-        const exportChatBtn = $('#exportChatBtn');
-        const importChatBtn = $('#importChatBtn');
-        const importFileInput = $('#importFileInput');
-        const exportTodosBtn = $('#exportTodosBtn');
-        const importTodosBtn = $('#importTodosBtn');
-        const importTodosInput = $('#importTodosInput');
-        const exportAllBtn = $('#exportAllBtn');
-        const importAllBtn = $('#importAllBtn');
-        const importAllInput = $('#importAllInput');
-        const resetAllDataBtn = $('#resetAllDataBtn');
+        const deleteAllChatsBtn = $('#deleteAllChatsBtn');
+        const chatCount = $('#chatCount');
+        const chatSize = $('#chatSize');
+        const storageBar = $('#storageBar');
+        const profileName = $('#profileName');
+        const profileEmail = $('#profileEmail');
         const toast = $('#toast');
-
-        // Login elements
         const loginOverlay = $('#loginOverlay');
         const googleLoginBtn = $('#googleLoginBtn');
-        const loginHeaderBtn = $('#loginHeaderBtn');
-        const userProfile = $('#userProfile');
+        const avatarWrap = $('#avatarWrap');
         const userAvatar = $('#userAvatar');
-        const userName = $('#userName');
-        const logoutBtn = $('#logoutBtn');
-        const keyHintBtn = $('#keyHintBtn');
-        const backToLoginBtn = $('#backToLoginBtn');
+        const userAvatarImg = $('#userAvatarImg');
+        const userNameDisplay = $('#userNameDisplay');
+        const avatarDropdown = $('#avatarDropdown');
+        const dropName = $('#dropName');
+        const dropEmail = $('#dropEmail');
+        const dropSettings = $('#dropSettings');
+        const dropLogout = $('#dropLogout');
+        const settingsLogoutBtn = $('#settingsLogoutBtn');
 
         // Level elements
         const levelBadge = $('#levelBadge');
         const xpFill = $('#xpFill');
         const xpText = $('#xpText');
 
+        // Tabs
+        const tabBtns = $$('.tab-btn');
+        const tabTodos = $('#tabTodos');
+        const tabHistory = $('#tabHistory');
+
         // ================================================================
         //  STATE
         // ================================================================
         let todos = [];
         let messages = [];
+        let completedHistory = []; // { id, text, completedAt }
         let apiKey = '';
         let isListening = false;
         let isSpeaking = false;
@@ -1517,226 +1630,125 @@
         let userLevel = 1;
         let userXp = 0;
         let totalCompleted = 0;
-        let currentUser = null; // Firebase user object
-        let userId = 'anonymous';
+        let currentUser = null;
+        let currentUid = null;
+        let historyIdCounter = 0;
 
         const XP_PER_TASK = 10;
         const XP_BASE = 100;
 
         // ================================================================
-        //  AUTH - GOOGLE LOGIN
+        //  TOAST
         // ================================================================
+        let toastTimer = null;
 
-        // Check auth state
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // User logged in
-                currentUser = user;
-                userId = user.uid;
-                loginOverlay.classList.remove('open');
-                loginOverlay.style.display = 'none';
-                userProfile.style.display = 'flex';
-                loginHeaderBtn.style.display = 'none';
-
-                // Set avatar and name
-                if (user.photoURL) {
-                    userAvatar.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
-                } else {
-                    userAvatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
-                }
-                userName.textContent = user.displayName || 'User';
-
-                // Load user data from Firebase
-                await loadUserData(user.uid);
-                // Check if API key exists for this user
-                await loadApiKey(user.uid);
-
-                if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
-                    keyOverlay.classList.remove('open');
-                    keyOverlay.style.display = 'none';
-                    startListening();
-                    updateStatus('listening', 'Mendengar...');
-                    updateVoiceUI(true);
-                    voiceOnBadge.classList.add('show');
-                    userInput.placeholder = '🎤 Mendengar...';
-                } else {
-                    keyOverlay.classList.add('open');
-                    keyOverlay.style.display = 'flex';
-                    apiKeyInput.focus();
-                    updateStatus('idle', 'Tunggu API Key');
-                    voiceOnBadge.classList.remove('show');
-                }
-
-                renderTodos();
-                updateLevelUI();
-                renderMessages();
-
-                showToast(`👋 Selamat datang, ${user.displayName || 'User'}!`, 'success', 2500);
-
-            } else {
-                // User logged out
-                currentUser = null;
-                userId = 'anonymous';
-                userProfile.style.display = 'none';
-                loginHeaderBtn.style.display = 'inline-block';
-                loginOverlay.classList.add('open');
-                loginOverlay.style.display = 'flex';
-                keyOverlay.classList.remove('open');
-                keyOverlay.style.display = 'none';
-
-                // Reset state
-                todos = [];
-                messages = [];
-                userLevel = 1;
-                userXp = 0;
-                totalCompleted = 0;
-                apiKey = '';
-                renderTodos();
-                updateLevelUI();
-                renderMessages();
-                stopListening();
-                updateStatus('idle', 'Belum Login');
-                updateVoiceUI(false);
-                voiceOnBadge.classList.remove('show');
-                userInput.placeholder = 'Login dulu...';
-                showToast('🔐 Silakan login dengan Google.', 'info', 3000);
-            }
-        });
-
-        // Google Login
-        googleLoginBtn.addEventListener('click', async () => {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
-                await auth.signInWithPopup(provider);
-            } catch (err) {
-                console.error('Login error:', err);
-                if (err.code === 'auth/popup-closed-by-user') {
-                    showToast('Login dibatalkan.', 'info');
-                } else {
-                    showToast('Gagal login: ' + err.message, 'error');
-                }
-            }
-        });
-
-        // Login header button
-        loginHeaderBtn.addEventListener('click', () => {
-            loginOverlay.classList.add('open');
-            loginOverlay.style.display = 'flex';
-        });
-
-        // Logout
-        logoutBtn.addEventListener('click', async () => {
-            if (confirm('Yakin ingin logout?')) {
-                try {
-                    await auth.signOut();
-                    showToast('👋 Logout berhasil.', 'info');
-                } catch (err) {
-                    showToast('Gagal logout: ' + err.message, 'error');
-                }
-            }
-        });
-
-        // Key hint: go to API key overlay
-        keyHintBtn.addEventListener('click', () => {
-            loginOverlay.classList.remove('open');
-            loginOverlay.style.display = 'none';
-            keyOverlay.classList.add('open');
-            keyOverlay.style.display = 'flex';
-            apiKeyInput.focus();
-        });
-
-        backToLoginBtn.addEventListener('click', () => {
-            keyOverlay.classList.remove('open');
-            keyOverlay.style.display = 'none';
-            loginOverlay.classList.add('open');
-            loginOverlay.style.display = 'flex';
-        });
-
-        // ================================================================
-        //  FIREBASE DATA LAYER (per user)
-        // ================================================================
-        function getUserDbPath() {
-            return userId === 'anonymous' ? 'anonymous' : `users/${userId}`;
+        function showToast(msg, type = 'info', duration = 3000) {
+            toast.textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
         }
 
-        function getDbRef(path) {
-            return db.ref(getUserDbPath() + '/' + path);
+        // ================================================================
+        //  FIREBASE DATA LAYER
+        // ================================================================
+        function getUserDbRef(path) {
+            if (!currentUid) return null;
+            return db.ref('users/' + currentUid + '/appData/' + path);
         }
 
-        async function loadUserData(uid) {
-            try {
-                const snap = await db.ref(`users/${uid}`).once('value');
-                const data = snap.val() || {};
-
-                // Todos
-                if (data.todos) {
-                    const t = Object.values(data.todos);
-                    todos = t.map(item => ({
-                        id: item.id || ++todoIdCounter,
-                        text: item.text || 'tugas',
-                        completed: !!item.completed
-                    }));
-                    let maxId = 0;
-                    todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
-                    todoIdCounter = maxId;
-                } else {
-                    todos = [];
-                    todoIdCounter = 0;
+        function loadAllFromFirebase() {
+            return new Promise((resolve, reject) => {
+                if (!currentUid) {
+                    reject(new Error('No user logged in'));
+                    return;
                 }
+                db.ref('users/' + currentUid + '/appData').once('value').then(snap => {
+                    const data = snap.val() || {};
 
-                // Messages
-                if (data.messages && Array.isArray(data.messages)) {
-                    messages = data.messages;
-                } else {
-                    messages = [];
-                }
+                    // Todos
+                    if (data.todos) {
+                        const t = Object.values(data.todos);
+                        todos = t.map(item => ({
+                            id: item.id || ++todoIdCounter,
+                            text: item.text || 'tugas',
+                            completed: !!item.completed
+                        }));
+                        let maxId = 0;
+                        todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
+                        todoIdCounter = maxId;
+                    } else {
+                        todos = [];
+                        todoIdCounter = 0;
+                    }
 
-                // User level
-                if (data.user) {
-                    userLevel = data.user.level || 1;
-                    userXp = data.user.xp || 0;
-                    totalCompleted = data.user.totalCompleted || 0;
-                } else {
-                    userLevel = 1;
-                    userXp = 0;
-                    totalCompleted = 0;
-                }
+                    // Messages
+                    if (data.messages && Array.isArray(data.messages)) {
+                        messages = data.messages;
+                    } else {
+                        messages = [];
+                    }
 
-                isFirebaseReady = true;
-                return data;
-            } catch (err) {
-                console.error('Load user data error:', err);
-                isFirebaseReady = true;
-                return {};
-            }
-        }
+                    // Completed history
+                    if (data.completedHistory && Array.isArray(data.completedHistory)) {
+                        completedHistory = data.completedHistory;
+                        let maxHId = 0;
+                        completedHistory.forEach(h => { if (h.id > maxHId) maxHId = h.id; });
+                        historyIdCounter = maxHId;
+                    } else {
+                        completedHistory = [];
+                        historyIdCounter = 0;
+                    }
 
-        async function loadApiKey(uid) {
-            try {
-                const snap = await db.ref(`users/${uid}/apiKey`).once('value');
-                apiKey = snap.val() || '';
-            } catch (err) {
-                console.error('Load API key error:', err);
-                apiKey = '';
-            }
+                    // User level
+                    if (data.user) {
+                        userLevel = data.user.level || 1;
+                        userXp = data.user.xp || 0;
+                        totalCompleted = data.user.totalCompleted || 0;
+                    } else {
+                        userLevel = 1;
+                        userXp = 0;
+                        totalCompleted = 0;
+                    }
+
+                    // API Key
+                    if (data.apiKey) {
+                        apiKey = data.apiKey;
+                    } else {
+                        apiKey = '';
+                    }
+
+                    isFirebaseReady = true;
+                    resolve(data);
+                }).catch(err => {
+                    console.error('Firebase load error:', err);
+                    reject(err);
+                });
+            });
         }
 
         function saveTodosToFirebase() {
-            if (!isFirebaseReady || userId === 'anonymous') return;
+            if (!isFirebaseReady || !currentUid) return;
             const obj = {};
             todos.forEach(t => { obj[t.id] = { id: t.id, text: t.text, completed: t.completed }; });
-            getDbRef('todos').set(obj).catch(err => console.error('Save todos error:', err));
+            getUserDbRef('todos').set(obj).catch(err => console.error('Save todos error:', err));
         }
 
         function saveMessagesToFirebase() {
-            if (!isFirebaseReady || userId === 'anonymous') return;
-            getDbRef('messages').set(messages).catch(err => console.error('Save messages error:', err));
+            if (!isFirebaseReady || !currentUid) return;
+            getUserDbRef('messages').set(messages).catch(err => console.error('Save messages error:', err));
+        }
+
+        function saveHistoryToFirebase() {
+            if (!isFirebaseReady || !currentUid) return;
+            getUserDbRef('completedHistory').set(completedHistory).catch(err => console.error('Save history error:', err));
         }
 
         function saveUserToFirebase() {
-            if (!isFirebaseReady || userId === 'anonymous') return;
-            getDbRef('user').set({
+            if (!isFirebaseReady || !currentUid) return;
+            getUserDbRef('user').set({
                 level: userLevel,
                 xp: userXp,
                 totalCompleted: totalCompleted
@@ -1744,13 +1756,117 @@
         }
 
         function saveApiKeyToFirebase(key) {
-            if (!isFirebaseReady || userId === 'anonymous') return;
-            getDbRef('apiKey').set(key).catch(err => console.error('Save API key error:', err));
+            if (!isFirebaseReady || !currentUid) return;
+            getUserDbRef('apiKey').set(key).catch(err => console.error('Save API key error:', err));
         }
 
-        function resetAllFirebaseData() {
-            if (userId === 'anonymous') return Promise.resolve();
-            return db.ref(`users/${userId}`).set(null);
+        function deleteAllChatsFromFirebase() {
+            if (!currentUid) return Promise.reject(new Error('No user'));
+            messages = [];
+            return getUserDbRef('messages').set(null);
+        }
+
+        // ================================================================
+        //  AUTH STATE
+        // ================================================================
+        function onAuthStateChanged(user) {
+            if (user) {
+                currentUser = user;
+                currentUid = user.uid;
+                loginOverlay.classList.remove('open');
+                loginOverlay.style.display = 'none';
+
+                userAvatarImg.src = user.photoURL || '';
+                userAvatarImg.style.display = user.photoURL ? 'block' : 'none';
+                const displayName = user.displayName || user.email || 'User';
+                userNameDisplay.textContent = displayName;
+                dropName.textContent = displayName;
+                dropEmail.textContent = user.email || '—';
+                profileName.textContent = displayName;
+                profileEmail.textContent = user.email || '—';
+
+                loadAllFromFirebase().then(() => {
+                    renderTodos();
+                    renderHistory();
+                    updateLevelUI();
+                    renderMessages();
+                    updateSettingsUI();
+
+                    // Check API key
+                    if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
+                        keyOverlay.classList.remove('open');
+                        keyOverlay.style.display = 'none';
+                        startListening();
+                        updateStatus('listening', 'Mendengar...');
+                        updateVoiceUI(true);
+                        voiceOnBadge.classList.add('show');
+                        userInput.placeholder = '🎤 Mendengar...';
+                    } else {
+                        keyOverlay.classList.add('open');
+                        keyOverlay.style.display = 'flex';
+                        apiKeyInput.focus();
+                        updateStatus('idle', 'Tunggu API Key');
+                        voiceOnBadge.classList.remove('show');
+                    }
+                    showToast('👋 Selamat datang, ' + (user.displayName || user.email) + '!', 'success', 2500);
+                }).catch(err => {
+                    console.warn('Load data error:', err);
+                    todos = [];
+                    messages = [];
+                    completedHistory = [];
+                    userLevel = 1;
+                    userXp = 0;
+                    totalCompleted = 0;
+                    apiKey = '';
+                    isFirebaseReady = true;
+                    renderTodos();
+                    renderHistory();
+                    updateLevelUI();
+                    renderMessages();
+                    updateSettingsUI();
+                    keyOverlay.classList.add('open');
+                    keyOverlay.style.display = 'flex';
+                    apiKeyInput.focus();
+                    updateStatus('idle', 'Tunggu API Key');
+                    voiceOnBadge.classList.remove('show');
+                });
+                initSpeech();
+            } else {
+                currentUser = null;
+                currentUid = null;
+                isFirebaseReady = false;
+                loginOverlay.classList.add('open');
+                loginOverlay.style.display = 'flex';
+                keyOverlay.classList.remove('open');
+                keyOverlay.style.display = 'none';
+                settingsModal.classList.remove('open');
+                avatarDropdown.classList.remove('open');
+
+                userAvatarImg.style.display = 'none';
+                userNameDisplay.textContent = 'Guest';
+                dropName.textContent = 'Guest';
+                dropEmail.textContent = '—';
+                profileName.textContent = '—';
+                profileEmail.textContent = '—';
+
+                stopListening();
+                updateStatus('idle', 'Belum login');
+                updateVoiceUI(false);
+                voiceOnBadge.classList.remove('show');
+                userInput.placeholder = 'Login dulu...';
+
+                todos = [];
+                messages = [];
+                completedHistory = [];
+                userLevel = 1;
+                userXp = 0;
+                totalCompleted = 0;
+                renderTodos();
+                renderHistory();
+                updateLevelUI();
+                renderMessages();
+                updateSettingsUI();
+            }
         }
 
         // ================================================================
@@ -1801,40 +1917,68 @@
         }
 
         // ================================================================
-        //  INIT APP (after auth)
+        //  INIT APP
         // ================================================================
-        async function initApp() {
-            // If user already logged in, data loaded via onAuthStateChanged
-            if (currentUser) {
-                await loadUserData(currentUser.uid);
-                await loadApiKey(currentUser.uid);
-            }
+        function initApp() {
+            auth.onAuthStateChanged(onAuthStateChanged);
 
-            renderTodos();
-            updateLevelUI();
-            renderMessages();
+            googleLoginBtn.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                auth.signInWithPopup(provider).catch(err => {
+                    console.error('Login error:', err);
+                    showToast('Gagal login: ' + err.message, 'error');
+                });
+            });
 
-            initSpeech();
-
-            if (apiKey && apiKey.startsWith('sk-') && apiKey.length > 10) {
-                if (currentUser) {
-                    keyOverlay.classList.remove('open');
-                    keyOverlay.style.display = 'none';
-                    startListening();
-                    updateStatus('listening', 'Mendengar...');
-                    updateVoiceUI(true);
-                    voiceOnBadge.classList.add('show');
-                    userInput.placeholder = '🎤 Mendengar...';
+            // Avatar dropdown toggle
+            userAvatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!currentUser) {
+                    showToast('Login dulu.', 'info');
+                    return;
                 }
-            } else if (currentUser) {
-                keyOverlay.classList.add('open');
-                keyOverlay.style.display = 'flex';
-                apiKeyInput.focus();
-                updateStatus('idle', 'Tunggu API Key');
-                voiceOnBadge.classList.remove('show');
-            }
+                avatarDropdown.classList.toggle('open');
+                avatarWrap.classList.toggle('open');
+            });
 
-            // Event listeners
+            document.addEventListener('click', () => {
+                avatarDropdown.classList.remove('open');
+                avatarWrap.classList.remove('open');
+            });
+
+            dropSettings.addEventListener('click', (e) => {
+                e.stopPropagation();
+                avatarDropdown.classList.remove('open');
+                avatarWrap.classList.remove('open');
+                if (!currentUser) { showToast('Login dulu.', 'info'); return; }
+                openSettings();
+            });
+
+            dropLogout.addEventListener('click', (e) => {
+                e.stopPropagation();
+                avatarDropdown.classList.remove('open');
+                avatarWrap.classList.remove('open');
+                if (currentUser) {
+                    if (confirm('Yakin ingin logout?')) {
+                        auth.signOut().catch(err => {
+                            showToast('Gagal logout: ' + err.message, 'error');
+                        });
+                    }
+                }
+            });
+
+            settingsLogoutBtn.addEventListener('click', () => {
+                if (currentUser) {
+                    if (confirm('Yakin ingin logout?')) {
+                        settingsModal.classList.remove('open');
+                        auth.signOut().catch(err => {
+                            showToast('Gagal logout: ' + err.message, 'error');
+                        });
+                    }
+                }
+            });
+
             sendBtn.addEventListener('click', handleSend);
             userInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -1843,21 +1987,25 @@
                 }
             });
             voiceBtn.addEventListener('click', toggleVoice);
-            clearTodosBtn.addEventListener('click', clearAllTodos);
-            settingsBtn.addEventListener('click', openSettings);
             settingsCloseBtn.addEventListener('click', closeSettings);
             settingsModal.addEventListener('click', (e) => {
                 if (e.target === settingsModal) closeSettings();
             });
 
+            // Settings: API Key
             settingsSaveKeyBtn.addEventListener('click', () => {
                 const key = settingsApiKey.value.trim();
+                if (!key) {
+                    showToast('Masukkan API Key.', 'info');
+                    return;
+                }
                 if (key.startsWith('sk-') && key.length > 10) {
                     apiKey = key;
                     saveApiKeyToFirebase(key);
                     settingsApiKey.value = '';
                     apiKeyStatus.textContent = '✅ tersimpan';
-                    showToast('API Key berhasil disimpan!', 'success');
+                    apiKeyStatus.style.color = 'var(--green)';
+                    showToast('API Key berhasil diperbarui!', 'success');
                     if (keyOverlay.classList.contains('open')) {
                         keyOverlay.classList.remove('open');
                         keyOverlay.style.display = 'none';
@@ -1877,6 +2025,7 @@
                     apiKey = '';
                     saveApiKeyToFirebase('');
                     apiKeyStatus.textContent = '❌ belum diisi';
+                    apiKeyStatus.style.color = 'var(--red)';
                     showToast('API Key dihapus.', 'info');
                     keyOverlay.classList.add('open');
                     keyOverlay.style.display = 'flex';
@@ -1888,29 +2037,25 @@
                 }
             });
 
-            exportChatBtn.addEventListener('click', exportChatHistory);
-            importChatBtn.addEventListener('click', () => importFileInput.click());
-            importFileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) importChatHistory(e.target.files[0]);
-                e.target.value = '';
+            // Settings: Delete all chats
+            deleteAllChatsBtn.addEventListener('click', () => {
+                if (!currentUser) { showToast('Login dulu.', 'info'); return; }
+                if (messages.length === 0) {
+                    showToast('Tidak ada chat untuk dihapus.', 'info');
+                    return;
+                }
+                if (!confirm('Yakin ingin menghapus SEMUA riwayat chat?')) return;
+                deleteAllChatsFromFirebase().then(() => {
+                    messages = [];
+                    renderMessages();
+                    updateSettingsUI();
+                    showToast('🗑️ Semua chat telah dihapus.', 'success');
+                }).catch(err => {
+                    showToast('Gagal hapus chat: ' + err.message, 'error');
+                });
             });
 
-            exportTodosBtn.addEventListener('click', exportTodos);
-            importTodosBtn.addEventListener('click', () => importTodosInput.click());
-            importTodosInput.addEventListener('change', (e) => {
-                if (e.target.files.length) importTodos(e.target.files[0]);
-                e.target.value = '';
-            });
-
-            exportAllBtn.addEventListener('click', exportAllData);
-            importAllBtn.addEventListener('click', () => importAllInput.click());
-            importAllInput.addEventListener('change', (e) => {
-                if (e.target.files.length) importAllData(e.target.files[0]);
-                e.target.value = '';
-            });
-
-            resetAllDataBtn.addEventListener('click', resetAllData);
-
+            // API Key overlay
             saveKeyBtn.addEventListener('click', () => {
                 const key = apiKeyInput.value.trim();
                 if (key.startsWith('sk-') && key.length > 10) {
@@ -1930,16 +2075,33 @@
                     showToast('API Key tidak valid. Harus diawali "sk-"', 'error');
                 }
             });
-
             apiKeyInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') saveKeyBtn.click();
             });
 
+            // Keyboard shortcut: Ctrl+Shift+V
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'v' || e.key === 'V')) {
                     e.preventDefault();
                     toggleVoice();
                 }
+            });
+
+            // Tab switching
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.dataset.tab;
+                    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                    if (tab === 'todos') {
+                        tabTodos.classList.add('active');
+                        renderTodos();
+                    } else {
+                        tabHistory.classList.add('active');
+                        renderHistory();
+                    }
+                });
             });
 
             window.addEventListener('beforeunload', () => {
@@ -1948,7 +2110,6 @@
             });
 
             console.log('🤖 AI Todo Assistant with Firebase Auth & Level System ready!');
-            console.log(`👤 User: ${userId} | 🏆 Level ${userLevel} | XP ${userXp} | ${todos.length} todos | ${messages.length} messages`);
         }
 
         // ================================================================
@@ -1960,7 +2121,8 @@
             for (let i = 0; i < children.length; i++) {
                 const el = children[i];
                 if (el.id === 'typingIndicator') continue;
-                if (messages.length === 0 && el.classList.contains('msg') && el.classList.contains('assistant') && i === 0) {
+                if (messages.length === 0 && el.classList.contains('msg') && el.classList.contains('assistant') && i ===
+                    0) {
                     const textEl = el.querySelector('.msg-text');
                     if (textEl && textEl.textContent.includes('Halo! Saya asisten to-do list')) {
                         continue;
@@ -1974,7 +2136,13 @@
                 const div = document.createElement('div');
                 div.className = `msg ${msg.role}`;
                 const label = msg.role === 'user' ? 'Anda' : 'Asisten';
-                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : '—';
+                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '—';
                 div.innerHTML = `
               <div class="msg-label">${label}</div>
               <div class="msg-text">${escapeHtml(msg.content)}</div>
@@ -1993,8 +2161,6 @@
                 Selesaikan tugas untuk naik level.<br />
                 Coba katakan: <em>"Tambah beli susu"</em> atau <em>"Tampilkan daftar"</em>.<br />
                 🎤 <strong>Voice aktif</strong> — saya selalu mendengar.
-                <br /><br />
-                🔐 <strong>Login dengan Google</strong> untuk menyimpan data Anda.
               </div>
               <div class="msg-time">—</div>
             `;
@@ -2002,6 +2168,7 @@
             }
 
             scrollToBottom();
+            updateSettingsUI();
         }
 
         // ================================================================
@@ -2122,7 +2289,7 @@
         }
 
         function startListening() {
-            if (!recognition) return;
+            if (!recognition || !currentUser) return;
             try {
                 recognition.start();
                 isListening = true;
@@ -2156,6 +2323,10 @@
         function toggleVoice() {
             if (!recognition) {
                 alert('Voice recognition tidak didukung di browser ini.');
+                return;
+            }
+            if (!currentUser) {
+                showToast('Login dulu untuk menggunakan voice.', 'info');
                 return;
             }
             if (isSpeaking) {
@@ -2208,7 +2379,7 @@
             stopSpeaking();
             const spokenText = stripTodoList(text);
             if (!spokenText.trim()) {
-                resumeAfterSpeech();
+                resumeAfterSpeech(voiceModeEnabled);
                 return;
             }
             const utterance = new SpeechSynthesisUtterance(spokenText);
@@ -2296,6 +2467,7 @@
         }
 
         function resumeAfterSpeech(wasVoiceOn) {
+            if (!currentUser) return;
             if (wasVoiceOn && !isProcessing && !isInterrupting) {
                 voiceModeEnabled = true;
                 try {
@@ -2362,17 +2534,178 @@
         }
 
         // ================================================================
-        //  TOAST
+        //  CLIENT-SIDE COMMAND HANDLING
         // ================================================================
-        let toastTimer = null;
+        function handleClientCommand(text) {
+            const lower = text.toLowerCase().trim();
 
-        function showToast(msg, type = 'info', duration = 3000) {
-            toast.textContent = msg;
-            toast.className = 'toast ' + type + ' show';
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
+            // Hapus semua / hapus list / clear
+            if (/^(hapus\s*(semua|list|daftar)|clear\s*all|kosongkan\s*daftar)/i.test(lower)) {
+                if (todos.length === 0) {
+                    addMessage('assistant', '📭 Daftar tugas sudah kosong.');
+                    speakText('Daftar tugas sudah kosong.');
+                    return true;
+                }
+                if (confirm('Hapus semua tugas?')) {
+                    todos = [];
+                    renderTodos();
+                    saveTodosToFirebase();
+                    const msg = '🧹 Semua tugas telah dihapus.';
+                    addMessage('assistant', msg);
+                    speakText('Semua tugas telah dihapus.');
+                } else {
+                    addMessage('assistant', '✅ Dibatalkan.');
+                    speakText('Dibatalkan.');
+                }
+                return true;
+            }
+
+            // Hapus [tugas]
+            const deleteMatch = lower.match(/^(hapus|delete|remove)\s+(.+)/i);
+            if (deleteMatch) {
+                const query = deleteMatch[2].trim();
+                const found = todos.filter(t =>
+                    t.text.toLowerCase().includes(query) && !t.completed
+                );
+                if (found.length === 0) {
+                    const allFound = todos.filter(t => t.text.toLowerCase().includes(query));
+                    if (allFound.length === 0) {
+                        addMessage('assistant', `❌ Tidak ditemukan tugas dengan kata "${query}".`);
+                        speakText(`Tidak ditemukan tugas dengan kata ${query}.`);
+                        return true;
+                    }
+                    const ids = new Set(allFound.map(t => t.id));
+                    todos = todos.filter(t => !ids.has(t.id));
+                    renderTodos();
+                    saveTodosToFirebase();
+                    const msg = `🗑️ Dihapus ${allFound.length} tugas yang mengandung "${query}".`;
+                    addMessage('assistant', msg);
+                    speakText(msg);
+                    return true;
+                }
+                if (found.length === 1) {
+                    const todo = found[0];
+                    todos = todos.filter(t => t.id !== todo.id);
+                    renderTodos();
+                    saveTodosToFirebase();
+                    const msg = `🗑️ "${todo.text}" dihapus.`;
+                    addMessage('assistant', msg);
+                    speakText(msg);
+                    return true;
+                }
+                const names = found.map(t => `"${t.text}"`).join(', ');
+                addMessage('assistant', `🗑️ Dihapus ${found.length} tugas: ${names}`);
+                const ids = new Set(found.map(t => t.id));
+                todos = todos.filter(t => !ids.has(t.id));
+                renderTodos();
+                saveTodosToFirebase();
+                speakText(`${found.length} tugas dihapus.`);
+                return true;
+            }
+
+            // Selesai / tandai [tugas]
+            const completeMatch = lower.match(/^(selesai|tandai|complete|done)\s+(.+)/i);
+            if (completeMatch) {
+                const query = completeMatch[2].trim();
+                const found = todos.filter(t =>
+                    t.text.toLowerCase().includes(query) && !t.completed
+                );
+                if (found.length === 0) {
+                    const allFound = todos.filter(t => t.text.toLowerCase().includes(query));
+                    if (allFound.length === 0) {
+                        addMessage('assistant', `❌ Tidak ditemukan tugas dengan kata "${query}".`);
+                        speakText(`Tidak ditemukan tugas dengan kata ${query}.`);
+                        return true;
+                    }
+                    if (allFound.every(t => t.completed)) {
+                        addMessage('assistant', `✅ "${query}" sudah selesai.`);
+                        speakText(`Tugas ${query} sudah selesai.`);
+                        return true;
+                    }
+                }
+                if (found.length === 1) {
+                    const todo = found[0];
+                    completeTodo(todo);
+                    return true;
+                }
+                // Banyak
+                const ids = new Set(found.map(t => t.id));
+                todos.forEach(t => { if (ids.has(t.id)) completeTodo(t); });
+                renderTodos();
+                saveTodosToFirebase();
+                const count = found.length;
+                const msg = `✅ ${count} tugas selesai! +${count * XP_PER_TASK} XP`;
+                addMessage('assistant', msg);
+                speakText(`${count} tugas selesai.`);
+                return true;
+            }
+
+            // Tambah [tugas]
+            const addMatch = lower.match(/^(tambah|add|buat|new)\s+(.+)/i);
+            if (addMatch) {
+                const taskText = addMatch[2].trim();
+                if (taskText.length < 2) {
+                    addMessage('assistant', '⚠️ Nama tugas terlalu pendek.');
+                    speakText('Nama tugas terlalu pendek.');
+                    return true;
+                }
+                const newTodo = {
+                    id: ++todoIdCounter,
+                    text: taskText,
+                    completed: false
+                };
+                todos.push(newTodo);
+                renderTodos();
+                saveTodosToFirebase();
+                const msg = `✅ "${taskText}" ditambahkan.`;
+                addMessage('assistant', msg);
+                speakText(`Tugas ${taskText} ditambahkan.`);
+                return true;
+            }
+
+            // Tampilkan / lihat daftar
+            if (/^(tampilkan|lihat|show|list|daftar)/i.test(lower)) {
+                if (todos.length === 0) {
+                    addMessage('assistant', '📭 Belum ada tugas.');
+                    speakText('Belum ada tugas.');
+                    return true;
+                }
+                let list = '📋 **Daftar Tugas:**\n';
+                todos.forEach((t, i) => {
+                    list += `${i+1}. ${t.text} ${t.completed ? '✅' : '⬜'}\n`;
+                });
+                addMessage('assistant', list);
+                const spoken = `Ada ${todos.length} tugas. ` +
+                    todos.filter(t => !t.completed).map(t => t.text).join(', ');
+                speakText(spoken || 'Semua tugas selesai!');
+                return true;
+            }
+
+            return false;
+        }
+
+        function completeTodo(todo) {
+            if (todo.completed) return;
+            todo.completed = true;
+
+            // Add to history
+            const historyEntry = {
+                id: ++historyIdCounter,
+                text: todo.text,
+                completedAt: Date.now()
+            };
+            completedHistory.push(historyEntry);
+
+            renderTodos();
+            renderHistory();
+            saveTodosToFirebase();
+            saveHistoryToFirebase();
+
+            totalCompleted++;
+            addXp(XP_PER_TASK);
+            const msg = `✅ "${todo.text}" selesai! +${XP_PER_TASK} XP`;
+            addMessage('assistant', msg);
+            speakText(`Tugas ${todo.text} selesai.`);
         }
 
         // ================================================================
@@ -2382,16 +2715,14 @@
             const text = userInput.value.trim();
             if (!text) return;
             if (isProcessing) return;
+            if (!currentUser) {
+                showToast('Login dulu untuk menggunakan chat.', 'info');
+                return;
+            }
             if (!apiKey) {
                 keyOverlay.classList.add('open');
                 keyOverlay.style.display = 'flex';
                 showToast('Masukkan API Key terlebih dahulu.', 'error');
-                return;
-            }
-            if (!currentUser) {
-                showToast('🔐 Silakan login terlebih dahulu.', 'error');
-                loginOverlay.classList.add('open');
-                loginOverlay.style.display = 'flex';
                 return;
             }
 
@@ -2413,6 +2744,39 @@
             isProcessing = true;
             typingIndicator.classList.add('active');
 
+            const handled = handleClientCommand(text);
+            if (handled) {
+                isProcessing = false;
+                typingIndicator.classList.remove('active');
+                voiceBtn.classList.remove('muted');
+                if (wasVoiceOn && !isSpeaking && !isInterrupting) {
+                    voiceModeEnabled = true;
+                    try {
+                        recognition.start();
+                        isListening = true;
+                        updateVoiceUI(true);
+                        updateStatus('listening', 'Mendengar...');
+                        userInput.placeholder = '🎤 Mendengar...';
+                        micMutedBadge.classList.remove('show');
+                        voiceOnBadge.classList.add('show');
+                    } catch (_) {
+                        voiceModeEnabled = false;
+                        updateVoiceUI(false);
+                        updateStatus('idle', 'Siap');
+                        userInput.placeholder = 'Ketik pesan...';
+                        voiceOnBadge.classList.remove('show');
+                    }
+                } else if (!wasVoiceOn && !isSpeaking) {
+                    updateStatus('idle', 'Siap');
+                    userInput.placeholder = 'Ketik pesan...';
+                    if (!voiceModeEnabled) {
+                        updateVoiceUI(false);
+                        voiceOnBadge.classList.remove('show');
+                    }
+                }
+                return;
+            }
+
             addMessage('user', text);
 
             try {
@@ -2431,9 +2795,32 @@
                         if (newTodo.completed && !prevTodos.has(newTodo.id)) completedCount++;
                     });
 
+                    // Apply changes, track newly completed ones for history
+                    const newlyCompleted = [];
+                    extracted.forEach(newTodo => {
+                        const old = prevTodos.get(newTodo.id);
+                        if (newTodo.completed && (!old || !old.completed)) {
+                            newlyCompleted.push(newTodo.text);
+                        }
+                    });
+
                     todos = extracted;
                     renderTodos();
                     saveTodosToFirebase();
+
+                    // Add to history for newly completed tasks
+                    if (newlyCompleted.length > 0) {
+                        newlyCompleted.forEach(taskText => {
+                            const entry = {
+                                id: ++historyIdCounter,
+                                text: taskText,
+                                completedAt: Date.now()
+                            };
+                            completedHistory.push(entry);
+                        });
+                        renderHistory();
+                        saveHistoryToFirebase();
+                    }
 
                     if (completedCount > 0) {
                         const xpGain = completedCount * XP_PER_TASK;
@@ -2532,35 +2919,35 @@
             const todoText = todos.length ?
                 todos.map((t, i) => `${i+1}. ${t.text} ${t.completed ? '✅' : '⬜'}`).join('\n') :
                 '(kosong)';
-
             return `Anda adalah asisten AI untuk to-do list dengan sistem level. Berikan jawaban SINGKAT dan PADAT.
 
         ATURAN PENTING:
-        1. Jika pengguna meminta untuk MENGHAPUS tugas (misal: "hapus beli susu", "delete tugas 1", "remove semua", "kosongkan daftar"), maka HAPUS tugas tersebut dari daftar.
-        2. Jika pengguna meminta untuk MENAMBAH tugas, tambahkan ke daftar.
-        3. Jika pengguna meminta untuk TANDAI SELESAI, tandai tugas tersebut selesai.
-        4. Jika pengguna meminta TAMPILKAN daftar, tampilkan daftar tugas saat ini.
-        5. Selalu SERTAKAN daftar tugas terbaru di akhir respons dalam format JSON: [{"text":"...","completed":true/false}, ...]
-        6. Jawaban harus 1-2 kalimat saja, tidak bertele-tele.
-        7. Gunakan format daftar yang rapi dengan bullet points.
-        8. Bahasa Indonesia yang sopan dan alami.
+        1. Untuk perintah HAPUS: jika user menyebut "hapus [nama tugas]", hapus tugas itu dari daftar.
+        2. Untuk perintah TAMBAH: tambahkan tugas baru.
+        3. Untuk perintah SELESAI: tandai tugas sebagai selesai.
+        4. Selalu SERTAKAN daftar tugas terbaru di akhir respons dalam format JSON: [{"text":"...","completed":true/false}, ...]
+        5. Jawaban harus 1-2 kalimat saja, tidak bertele-tele.
+        6. Gunakan format daftar seperti:
+           DAFTAR TUGAS BARU:
+           • Beli susu — belum ❌
+           • Shalat Dzuhur — selesai ✅
+        7. Bahasa Indonesia yang sopan dan alami.
 
         DAFTAR TUGAS SAAT INI:
         ${todoText}
 
-        Contoh:
-        - User: "hapus beli susu"
-        Jawaban: "Baik, saya hapus 'beli susu' dari daftar. DAFTAR TUGAS BARU:
+        Contoh jawaban untuk "hapus beli susu":
+        "Baik, saya hapus 'beli susu'. DAFTAR TUGAS BARU:
         • Shalat Dzuhur — selesai ✅
         [{"text":"Shalat Dzuhur","completed":true}]"
 
-        - User: "tambah kerjakan PR"
-        Jawaban: "Saya tambahkan 'kerjakan PR'. DAFTAR TUGAS BARU:
+        Contoh jawaban untuk "tambah jogging":
+        "Baik, saya tambahkan 'jogging'. DAFTAR TUGAS BARU:
         • Shalat Dzuhur — selesai ✅
-        • Kerjakan PR — belum ❌
-        [{"text":"Shalat Dzuhur","completed":true},{"text":"Kerjakan PR","completed":false}]"
+        • Jogging — belum ❌
+        [{"text":"Shalat Dzuhur","completed":true},{"text":"Jogging","completed":false}]"
 
-        Pastikan JSON valid di akhir dan mencerminkan daftar tugas terbaru.`;
+        Pastikan JSON valid di akhir. Jika daftar kosong, kirimkan [].`;
         }
 
         function extractTodosFromText(text) {
@@ -2569,7 +2956,7 @@
             try {
                 const parsed = JSON.parse(jsonMatch[0]);
                 if (Array.isArray(parsed) && parsed.every(item => typeof item === 'object' && 'text' in item)) {
-                    return parsed.map((item, idx) => ({
+                    return parsed.map((item) => ({
                         id: ++todoIdCounter,
                         text: String(item.text).trim(),
                         completed: !!item.completed
@@ -2588,7 +2975,13 @@
             const div = document.createElement('div');
             div.className = `msg ${role}`;
             const label = role === 'user' ? 'Anda' : 'Asisten';
-            const time = new Date(timestamp).toLocaleTimeString();
+            const time = new Date(timestamp).toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
             div.innerHTML = `
             <div class="msg-label">${label}</div>
             <div class="msg-text">${escapeHtml(content)}</div>
@@ -2597,6 +2990,7 @@
             messagesEl.insertBefore(div, typingIndicator);
             scrollToBottom();
             saveMessagesToFirebase();
+            updateSettingsUI();
         }
 
         function escapeHtml(str) {
@@ -2614,7 +3008,7 @@
         // ================================================================
         function renderTodos() {
             if (!todos.length) {
-                todoListEl.innerHTML = `
+                tabTodos.innerHTML = `
               <div class="todo-empty">
                 <span class="icon">📭</span>
                 Belum ada tugas.<br />Tambahkan melalui chat!
@@ -2635,39 +3029,26 @@
               </div>
             `;
             });
-            todoListEl.innerHTML = html;
+            tabTodos.innerHTML = html;
             todoCountEl.textContent = todos.length;
 
-            todoListEl.querySelectorAll('.todo-check').forEach(btn => {
+            tabTodos.querySelectorAll('.todo-check').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = Number(btn.dataset.id);
-                    toggleTodo(id);
+                    const todo = todos.find(t => t.id === id);
+                    if (todo && !todo.completed) {
+                        completeTodo(todo);
+                    } else if (todo && todo.completed) {
+                        showToast('Tugas sudah selesai.', 'info');
+                    }
                 });
             });
-            todoListEl.querySelectorAll('.todo-delete').forEach(btn => {
+            tabTodos.querySelectorAll('.todo-delete').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = Number(btn.dataset.id);
                     deleteTodo(id);
                 });
             });
-        }
-
-        function toggleTodo(id) {
-            const todo = todos.find(t => t.id === id);
-            if (!todo) return;
-            const wasCompleted = todo.completed;
-            todo.completed = !todo.completed;
-            renderTodos();
-            saveTodosToFirebase();
-            if (todo.completed && !wasCompleted) {
-                totalCompleted++;
-                addXp(XP_PER_TASK);
-                showToast(`🏆 +${XP_PER_TASK} XP untuk "${todo.text}"!`, 'success', 2000);
-            }
-            const status = todo.completed ? 'selesai ✅' : 'dibatalkan ❌';
-            const msg = `✅ "${todo.text}" ${status}`;
-            addMessage('assistant', msg);
-            speakText(`Tugas "${todo.text}" ${status}.`);
         }
 
         function deleteTodo(id) {
@@ -2681,24 +3062,94 @@
             speakText(msg);
         }
 
-        function clearAllTodos() {
-            if (!todos.length) return;
-            if (!confirm('Hapus semua tugas?')) return;
-            todos = [];
-            renderTodos();
-            saveTodosToFirebase();
-            const msg = '🧹 Semua tugas dikosongkan.';
-            addMessage('assistant', msg);
-            speakText(msg);
+        // ================================================================
+        //  HISTORY (Riwayat Tugas Selesai)
+        // ================================================================
+        function renderHistory() {
+            if (!completedHistory.length) {
+                tabHistory.innerHTML = `
+              <div class="todo-empty">
+                <span class="icon">📜</span>
+                Belum ada riwayat tugas selesai.
+              </div>
+            `;
+                return;
+            }
+            // Sort newest first
+            const sorted = [...completedHistory].sort((a, b) => b.completedAt - a.completedAt);
+            let html = '';
+            sorted.forEach(item => {
+                const date = new Date(item.completedAt);
+                const formatted = date.toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                html += `
+              <div class="history-item" data-id="${item.id}">
+                <span class="h-icon">✅</span>
+                <span class="h-text">${escapeHtml(item.text)}</span>
+                <span class="h-time">${formatted}</span>
+                <button class="h-delete" data-id="${item.id}" title="Hapus dari riwayat">✕</button>
+              </div>
+            `;
+            });
+            tabHistory.innerHTML = html;
+
+            tabHistory.querySelectorAll('.h-delete').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    completedHistory = completedHistory.filter(h => h.id !== id);
+                    renderHistory();
+                    saveHistoryToFirebase();
+                    showToast('🗑️ Riwayat dihapus.', 'info');
+                });
+            });
         }
 
         // ================================================================
-        //  SETTINGS
+        //  SETTINGS UI
         // ================================================================
+        function updateSettingsUI() {
+            const count = messages.length;
+            chatCount.textContent = count;
+
+            // Calculate size
+            const json = JSON.stringify(messages);
+            const bytes = new Blob([json]).size;
+            const kb = (bytes / 1024).toFixed(1);
+            chatSize.textContent = kb + ' KB';
+
+            // Storage bar (max 1MB = 1024KB)
+            const maxKB = 1024;
+            const pct = Math.min(100, (parseFloat(kb) / maxKB) * 100);
+            storageBar.style.width = pct + '%';
+
+            // API key status
+            if (apiKey && apiKey.startsWith('sk-')) {
+                apiKeyStatus.textContent = '✅ tersimpan';
+                apiKeyStatus.style.color = 'var(--green)';
+            } else {
+                apiKeyStatus.textContent = '❌ belum diisi';
+                apiKeyStatus.style.color = 'var(--red)';
+            }
+        }
+
         function openSettings() {
+            if (!currentUser) {
+                showToast('Login dulu untuk mengakses pengaturan.', 'info');
+                return;
+            }
             settingsModal.classList.add('open');
             settingsApiKey.value = '';
-            apiKeyStatus.textContent = apiKey ? '✅ tersimpan' : '❌ belum diisi';
+            updateSettingsUI();
+            // Refresh profile
+            if (currentUser) {
+                profileName.textContent = currentUser.displayName || currentUser.email || '—';
+                profileEmail.textContent = currentUser.email || '—';
+            }
         }
 
         function closeSettings() {
@@ -2706,171 +3157,9 @@
         }
 
         // ================================================================
-        //  EXPORT / IMPORT
-        // ================================================================
-
-        function exportChatHistory() {
-            const data = JSON.stringify(messages, null, 2);
-            downloadFile(data, 'chat_history.json', 'application/json');
-            showToast('📥 Riwayat chat diunduh.', 'success');
-        }
-
-        function importChatHistory(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        messages = data;
-                        renderMessages();
-                        saveMessagesToFirebase();
-                        showToast(`📤 ${messages.length} pesan dipulihkan.`, 'success');
-                    } else {
-                        showToast('Format JSON tidak valid (harus array).', 'error');
-                    }
-                } catch (err) {
-                    showToast('Gagal membaca file: ' + err.message, 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function exportTodos() {
-            const data = JSON.stringify(todos, null, 2);
-            downloadFile(data, 'todos.json', 'application/json');
-            showToast('📥 Daftar tugas diunduh.', 'success');
-        }
-
-        function importTodos(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        todos = data.map(item => ({
-                            id: item.id || ++todoIdCounter,
-                            text: item.text || 'tugas',
-                            completed: !!item.completed
-                        }));
-                        let maxId = 0;
-                        todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
-                        todoIdCounter = maxId;
-                        renderTodos();
-                        saveTodosToFirebase();
-                        showToast(`📤 ${todos.length} tugas dipulihkan.`, 'success');
-                    } else {
-                        showToast('Format JSON tidak valid (harus array).', 'error');
-                    }
-                } catch (err) {
-                    showToast('Gagal membaca file: ' + err.message, 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function exportAllData() {
-            const data = {
-                todos: todos,
-                messages: messages,
-                user: {
-                    level: userLevel,
-                    xp: userXp,
-                    totalCompleted: totalCompleted
-                },
-                apiKey: apiKey ? '[tersimpan]' : '',
-                exportedAt: new Date().toISOString()
-            };
-            const json = JSON.stringify(data, null, 2);
-            downloadFile(json, 'ai_todo_backup.json', 'application/json');
-            showToast('📥 Backup semua data diunduh.', 'success');
-        }
-
-        function importAllData(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.todos && Array.isArray(data.todos)) {
-                        todos = data.todos.map(item => ({
-                            id: item.id || ++todoIdCounter,
-                            text: item.text || 'tugas',
-                            completed: !!item.completed
-                        }));
-                        let maxId = 0;
-                        todos.forEach(t => { if (t.id > maxId) maxId = t.id; });
-                        todoIdCounter = maxId;
-                    }
-                    if (data.messages && Array.isArray(data.messages)) {
-                        messages = data.messages;
-                    }
-                    if (data.user) {
-                        userLevel = data.user.level || 1;
-                        userXp = data.user.xp || 0;
-                        totalCompleted = data.user.totalCompleted || 0;
-                    }
-                    renderTodos();
-                    renderMessages();
-                    updateLevelUI();
-                    saveTodosToFirebase();
-                    saveMessagesToFirebase();
-                    saveUserToFirebase();
-                    showToast('📤 Backup dipulihkan!', 'success');
-                } catch (err) {
-                    showToast('Gagal membaca file: ' + err.message, 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function resetAllData() {
-            if (!confirm('⚠️ Yakin ingin menghapus SEMUA data di Firebase? (todos, chat, level, API key)')) return;
-            if (!confirm('⚠️ Konfirmasi kedua: ini tidak bisa dibatalkan!')) return;
-            resetAllFirebaseData().then(() => {
-                todos = [];
-                messages = [];
-                userLevel = 1;
-                userXp = 0;
-                totalCompleted = 0;
-                apiKey = '';
-                todoIdCounter = 0;
-                renderTodos();
-                renderMessages();
-                updateLevelUI();
-                showToast('🗑️ Semua data telah direset.', 'info');
-                keyOverlay.classList.add('open');
-                keyOverlay.style.display = 'flex';
-                apiKeyInput.focus();
-                stopListening();
-                updateStatus('idle', 'Tunggu API Key');
-                updateVoiceUI(false);
-                voiceOnBadge.classList.remove('show');
-            }).catch(err => {
-                showToast('Gagal reset: ' + err.message, 'error');
-            });
-        }
-
-        function downloadFile(content, filename, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
-        }
-
-        // ================================================================
         //  START
         // ================================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            // Show login overlay initially
-            loginOverlay.classList.add('open');
-            loginOverlay.style.display = 'flex';
-            // Auth listener will handle the rest
-            initApp();
-        });
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 
 </body>
