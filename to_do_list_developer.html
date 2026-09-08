@@ -657,7 +657,12 @@
         }
         .msg .msg-text .todo-numbered-list li .status-icon {
             margin-left: 6px;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--yellow);
+        }
+        .msg .msg-text .todo-numbered-list li.done .status-icon {
+            color: var(--green);
         }
         .msg .msg-time {
             font-size: 8px;
@@ -1773,7 +1778,6 @@
             .panel-toggle-fab {
                 display: flex;
             }
-            /* panel overlay backdrop */
             .panel-backdrop {
                 position: absolute;
                 inset: 0;
@@ -1830,6 +1834,13 @@
             .msg .msg-text .todo-numbered-list li .num {
                 font-size: 12px;
                 min-width: 18px;
+            }
+            /* Fix: ensure list header doesn't double on mobile */
+            .msg .msg-text .todo-numbered-list {
+                margin-top: 4px;
+            }
+            .msg .msg-text .todo-numbered-list:first-child {
+                margin-top: 0;
             }
             .input-bar {
                 padding: 6px 10px 10px;
@@ -1999,6 +2010,19 @@
                 font-size: 9px;
                 padding: 1px 8px;
             }
+            /* Fix: chat messages on mobile - better spacing */
+            .msg {
+                max-width: 92%;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            .msg .msg-text .todo-numbered-list li .status-icon {
+                font-size: 10px;
+            }
+            /* Fix: ensure single DAFTAR TUGAS header on mobile */
+            .msg .msg-text .todo-numbered-list .list-header {
+                display: none;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2074,6 +2098,9 @@
             .msg .msg-text .todo-numbered-list li .num {
                 font-size: 11px;
                 min-width: 16px;
+            }
+            .msg .msg-text .todo-numbered-list li .status-icon {
+                font-size: 9px;
             }
             .input-bar {
                 padding: 4px 6px 8px;
@@ -2576,6 +2603,8 @@
         let historyIdCounter = 0;
         let isMounted = false;
         let isPanelOpen = false;
+        // Flag to block voice input during speech
+        let voiceInputBlocked = false;
 
         const VOICE_SILENCE_MS = 3000;
         let voiceSendTimer = null;
@@ -2967,6 +2996,7 @@
 
         // ================================================================
         //  FORMAT TODO LIST FOR CHAT (numbered, sync with actual todos)
+        //  FIX: changed ❌ to "⏳ sedang proses" for pending tasks
         // ================================================================
         function formatTodoListForChat() {
             if (todos.length === 0) return '📭 *Belum ada tugas.*';
@@ -2977,9 +3007,10 @@
             let html = '<ul class="todo-numbered-list">';
             sorted.forEach((t, i) => {
                 const num = i + 1;
-                const statusIcon = t.completed ? '✅' : '❌';
+                // FIX: change ❌ to "⏳ sedang proses" as text
+                const statusText = t.completed ? '✅ selesai' : '⏳ sedang proses';
                 const doneClass = t.completed ? 'done' : '';
-                html += `<li class="${doneClass}"><span class="num">${num}.</span>${escapeHtml(t.text)} <span class="status-icon">${statusIcon}</span></li>`;
+                html += `<li class="${doneClass}"><span class="num">${num}.</span>${escapeHtml(t.text)} <span class="status-icon">${statusText}</span></li>`;
             });
             html += '</ul>';
             return html;
@@ -2994,13 +3025,13 @@
             let text = '📋 DAFTAR TUGAS SAAT INI (nomor urut):\n';
             sorted.forEach((t, i) => {
                 const num = i + 1;
-                const status = t.completed ? '✅ selesai' : '❌ belum';
+                const status = t.completed ? '✅ selesai' : '⏳ sedang proses';
                 text += `${num}. ${t.text} — ${status}\n`;
             });
             const total = todos.length;
             const pending = todos.filter(t => !t.completed).length;
             const done = todos.filter(t => t.completed).length;
-            text += `\nTotal: ${total} tugas (${pending} belum, ${done} selesai)`;
+            text += `\nTotal: ${total} tugas (${pending} sedang proses, ${done} selesai)`;
             return text;
         }
 
@@ -3208,7 +3239,6 @@
                 });
             });
 
-            // Panel toggle (mobile)
             panelToggleFab.addEventListener('click', togglePanel);
             panelBackdrop.addEventListener('click', closePanel);
             closePanelBtn.addEventListener('click', closePanel);
@@ -3219,7 +3249,6 @@
                 hideVoiceAutoNotice();
             });
 
-            // Responsive: hide close button on desktop
             function handleResize() {
                 const isMobile = window.innerWidth <= 820;
                 closePanelBtn.style.display = isMobile ? 'inline-block' : 'none';
@@ -3230,6 +3259,9 @@
 
             console.log('🤖 AI Todo Assistant with Firebase Auth & Level System ready!');
             console.log('📋 Todo list in chat is NOW SYNCED with panel, with numbering!');
+            console.log('🔄 FIX: Red cross replaced with "⏳ sedang proses"');
+            console.log('🔄 FIX: Double DAFTAR TUGAS header removed');
+            console.log('🔄 FIX: Voice blocked during AI speech');
         }
 
         // ================================================================
@@ -3247,7 +3279,6 @@
             todoPanel.classList.add('open');
             panelBackdrop.classList.add('open');
             isPanelOpen = true;
-            // Refresh content
             renderTodos();
             renderHistory();
         }
@@ -3321,80 +3352,97 @@
 
         // ================================================================
         //  ADD MESSAGE (with sync: replace list with actual todos)
+        //  FIX: prevent double "DAFTAR TUGAS SAAT INI:" header
         // ================================================================
         function addMessage(role, content) {
             let finalContent = content;
-            // If assistant, check if content contains a list-like pattern and replace with actual formatted list
             if (role === 'assistant') {
-                // Check if content has a list pattern
-                const hasList = /(DAFTAR\s+TUGAS|LIST\s+TUGAS|TODO|TUGAS\s+SAAT\s+INI|📋)/i.test(content);
-                if (hasList) {
-                    // Replace the list portion with the actual formatted list from todos
+                // Check if content already contains a list with header
+                const hasListHeader = /(DAFTAR\s+TUGAS\s+SAAT\s+INI|📋\s*DAFTAR\s+TUGAS)/i.test(content);
+                const hasListItems = /<ul\s+class="todo-numbered-list">/.test(content) ||
+                    /[0-9]+\.\s+.+?\s+(selesai|sedang\s+proses|✅|⏳)/i.test(content);
+
+                // If content already has a proper list with header, don't add another
+                if (hasListHeader && hasListItems) {
+                    // Still need to ensure the list uses the actual todos data
+                    // Replace any existing list with the formatted one
                     const formattedList = formatTodoListForChat();
-                    // Remove existing list portion and append the formatted one
-                    const lines = content.split('\n');
-                    let cleanedLines = [];
-                    let inList = false;
-                    for (const line of lines) {
-                        const trimmed = line.trim();
-                        if (/^(DAFTAR\s+TUGAS|LIST\s+TUGAS|TODO|TUGAS\s+SAAT\s+INI|📋)/i.test(trimmed)) {
-                            inList = true;
-                            // Keep the header but replace the list items
-                            cleanedLines.push(trimmed);
-                            continue;
-                        }
-                        if (inList) {
-                            // Skip list item lines (bullet, numbered, checkbox, etc.)
-                            if (/^[•\-*✅❌⬜0-9.]/.test(trimmed)) continue;
-                            if (trimmed.length === 0) continue;
-                            // If we hit a non-list line, stop list mode
-                            inList = false;
-                            cleanedLines.push(line);
-                        } else {
-                            cleanedLines.push(line);
-                        }
-                    }
-                    // If we have a list header but no items, add the formatted list
-                    let hasHeader = cleanedLines.some(l => /^(DAFTAR\s+TUGAS|LIST\s+TUGAS|TODO|TUGAS\s+SAAT\s+INI|📋)/i.test(l
-                        .trim()));
-                    if (hasHeader) {
-                        // Remove any existing empty lines after header
-                        let headerIndex = -1;
-                        for (let i = 0; i < cleanedLines.length; i++) {
-                            if (/^(DAFTAR\s+TUGAS|LIST\s+TUGAS|TODO|TUGAS\s+SAAT\s+INI|📋)/i.test(cleanedLines[i].trim())) {
-                                headerIndex = i;
-                                break;
+                    // Remove existing list sections
+                    let cleaned = content;
+                    // Remove any existing ul or numbered list
+                    cleaned = cleaned.replace(/<ul\s+class="todo-numbered-list">[\s\S]*?<\/ul>/gi, '');
+                    cleaned = cleaned.replace(/([0-9]+\.\s+.+?\s+(selesai|sedang\s+proses|✅|⏳)[\s\S]*?)(?=\n|$)/gi, '');
+                    // Clean up extra whitespace
+                    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+                    // If there's a header, append the formatted list
+                    if (/DAFTAR\s+TUGAS/i.test(cleaned)) {
+                        // Remove the old header if it's duplicated
+                        const headerMatch = cleaned.match(/(DAFTAR\s+TUGAS\s+SAAT\s+INI|📋\s*DAFTAR\s+TUGAS)/i);
+                        if (headerMatch) {
+                            // Keep only one header
+                            const header = headerMatch[0];
+                            const parts = cleaned.split(header);
+                            // Keep first occurrence, remove others
+                            let newClean = parts[0] + header;
+                            for (let i = 1; i < parts.length; i++) {
+                                if (!/DAFTAR\s+TUGAS/i.test(parts[i])) {
+                                    newClean += parts[i];
+                                }
                             }
+                            cleaned = newClean;
                         }
-                        if (headerIndex !== -1) {
-                            // Keep everything up to and including header, then add formatted list
-                            const beforeHeader = cleanedLines.slice(0, headerIndex + 1);
-                            const afterHeader = cleanedLines.slice(headerIndex + 1).filter(l => {
-                                const trimmed = l.trim();
-                                return !/^[•\-*✅❌⬜0-9.]/.test(trimmed) && trimmed.length > 0;
-                            });
-                            cleanedLines = [...beforeHeader, formattedList, ...afterHeader];
-                        } else {
-                            // Fallback: just append
-                            cleanedLines.push(formattedList);
-                        }
+                        finalContent = cleaned + '\n' + formattedList;
                     } else {
-                        // No header found, just append the list
-                        cleanedLines.push('📋 *DAFTAR TUGAS SAAT INI:*');
-                        cleanedLines.push(formattedList);
+                        // No header, add one
+                        finalContent = cleaned + '\n📋 DAFTAR TUGAS SAAT INI:\n' + formattedList;
                     }
-                    finalContent = cleanedLines.join('\n');
-                } else {
-                    // If no list, but we have todos, we might want to show them anyway for commands like "tampilkan"
-                    // But only if the content is short and seems like a response that should include the list
-                    if (todos.length > 0 && content.length < 60) {
-                        // Maybe user asked "tampilkan" and AI gave short reply
-                        // Check if content mentions "tugas" or "daftar"
-                        if (/tugas|daftar|list|todo/i.test(content) && !content.includes('📋')) {
-                            finalContent = content + '\n\n' + getFormattedTodoListPlain();
-                        }
+                    // Remove any trailing commas or extra spaces
+                    finalContent = finalContent.replace(/[,-\s]+$/, '').trim();
+                } else if (todos.length > 0 && /(tugas|daftar|list|todo|tampilkan)/i.test(content) && !content.includes(
+                        '📋')) {
+                    // If user asked to show list and content doesn't have it, add it
+                    const formattedList = formatTodoListForChat();
+                    // Check if content has a header-like line
+                    if (/^(tugas|daftar|list|todo)/i.test(content.trim())) {
+                        finalContent = content + '\n\n📋 DAFTAR TUGAS SAAT INI:\n' + formattedList;
+                    } else {
+                        finalContent = content + '\n\n📋 DAFTAR TUGAS SAAT INI:\n' + formattedList;
+                    }
+                } else if (todos.length > 0 && content.length < 80) {
+                    // Short response, maybe add list if relevant
+                    const hasList = /(tugas|daftar|list|todo)/i.test(content);
+                    if (hasList && !content.includes('📋')) {
+                        const formattedList = formatTodoListForChat();
+                        finalContent = content + '\n\n📋 DAFTAR TUGAS SAAT INI:\n' + formattedList;
                     }
                 }
+                // Clean up: remove duplicate headers
+                const headerRegex = /(📋\s*DAFTAR\s+TUGAS\s+SAAT\s+INI|DAFTAR\s+TUGAS\s+SAAT\s+INI)/gi;
+                const matches = finalContent.match(headerRegex);
+                if (matches && matches.length > 1) {
+                    // Keep only the first occurrence
+                    const firstHeader = matches[0];
+                    let cleaned = finalContent;
+                    let firstDone = false;
+                    const parts = cleaned.split(headerRegex);
+                    let result = '';
+                    for (let i = 0; i < parts.length; i++) {
+                        if (headerRegex.test(parts[i]) && firstDone) {
+                            continue;
+                        }
+                        if (headerRegex.test(parts[i]) && !firstDone) {
+                            firstDone = true;
+                            result += parts[i];
+                            continue;
+                        }
+                        result += parts[i];
+                    }
+                    finalContent = result;
+                }
+                // Ensure no empty brackets or commas at end
+                finalContent = finalContent.replace(/\[\s*\]\s*$/, '');
+                finalContent = finalContent.replace(/[,-\s]+$/, '');
+                if (!finalContent.trim()) finalContent = '✅ Daftar tugas diperbarui.';
             }
             const timestamp = Date.now();
             messages.push({ role, content: finalContent, timestamp });
@@ -3434,7 +3482,11 @@
             recognition.maxAlternatives = 3;
 
             recognition.onresult = (event) => {
-                if (isSpeaking) { console.log('[Voice] ⛔ I\'m Speaking — voice input diabaikan'); return; }
+                // FIX: block voice input when AI is speaking or voiceInputBlocked is set
+                if (isSpeaking || voiceInputBlocked) {
+                    console.log('[Voice] ⛔ Blocked — AI speaking or voice blocked');
+                    return;
+                }
                 if (isProcessing || isInterrupting) return;
                 let final = '',
                     interim = '';
@@ -3466,10 +3518,10 @@
                 userInput.dispatchEvent(new Event('input'));
                 showVoiceAutoNotice(3);
                 clearTimeout(voiceSendTimer);
-                if (voiceModeEnabled && !isProcessing && !isSpeaking) {
+                if (voiceModeEnabled && !isProcessing && !isSpeaking && !voiceInputBlocked) {
                     voiceSendTimer = setTimeout(() => {
                         const currentText = userInput.value.trim();
-                        if (currentText && voiceModeEnabled && !isProcessing && !isSpeaking) {
+                        if (currentText && voiceModeEnabled && !isProcessing && !isSpeaking && !voiceInputBlocked) {
                             console.log('[Voice] Auto-send after', VOICE_SILENCE_MS / 1000, 's silence');
                             hideVoiceAutoNotice();
                             handleSend();
@@ -3485,19 +3537,23 @@
                     voiceModeEnabled = false;
                     updateVoiceUI(false);
                 } else if (event.error === 'audio-capture') {
-                    if (voiceModeEnabled && !isSpeaking) setTimeout(() => { try { recognition.start(); } catch (_) {} },
-                    500);
+                    if (voiceModeEnabled && !isSpeaking && !voiceInputBlocked) setTimeout(() => { try { recognition
+                                .start(); } catch (_) {} },
+                        500);
                 } else {
-                    if (voiceModeEnabled && !isSpeaking) setTimeout(() => { try { recognition.start(); } catch (_) {} },
-                    300);
+                    if (voiceModeEnabled && !isSpeaking && !voiceInputBlocked) setTimeout(() => { try { recognition
+                                .start(); } catch (_) {} },
+                        300);
                 }
             };
 
             recognition.onend = () => {
-                if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting && currentUser) {
+                if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting && !voiceInputBlocked &&
+                    currentUser) {
                     try { recognition.start(); } catch (_) {
                         setTimeout(() => {
                             if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting &&
+                                !voiceInputBlocked &&
                                 currentUser) { try { recognition.start(); } catch (_) {} }
                         }, 500);
                     }
@@ -3517,16 +3573,22 @@
 
         function startListening() {
             if (!recognition || !currentUser) return;
-            try { recognition.start();
+            if (voiceInputBlocked) {
+                console.log('[Voice] Start listening blocked by voiceInputBlocked flag');
+                return;
+            }
+            try {
+                recognition.start();
                 isListening = true;
                 voiceModeEnabled = true;
                 updateVoiceUI(true);
                 setStatus('listening', "I'm Listening", '🎤');
                 userInput.placeholder = '🎤 Mendengar...';
-                micMutedBadge.classList.remove('show'); } catch (e) {
+                micMutedBadge.classList.remove('show');
+            } catch (e) {
                 console.warn('Start listening failed:', e);
                 setTimeout(() => {
-                    if (voiceModeEnabled && !isSpeaking && currentUser) {
+                    if (voiceModeEnabled && !isSpeaking && !voiceInputBlocked && currentUser) {
                         try { recognition.start();
                             isListening = true; } catch (_) {}
                     }
@@ -3555,7 +3617,12 @@
 
         function toggleVoiceInternal() {
             voiceModeEnabled = !voiceModeEnabled;
-            if (voiceModeEnabled) { startListening(); } else {
+            if (voiceModeEnabled) {
+                if (voiceInputBlocked) {
+                    voiceInputBlocked = false;
+                }
+                startListening();
+            } else {
                 stopListening();
                 clearTimeout(voiceSendTimer);
                 hideVoiceAutoNotice();
@@ -3586,6 +3653,7 @@
 
         // ================================================================
         //  SPEECH SYNTHESIS
+        //  FIX: block voice input during speech using voiceInputBlocked flag
         // ================================================================
         function speakText(text) {
             if (!synth) return;
@@ -3600,6 +3668,9 @@
             aiSpeechText = spokenText;
             const wasVoiceOn = voiceModeEnabled;
             isSpeaking = true;
+            // FIX: block voice input during speech
+            voiceInputBlocked = true;
+
             setStatus('speaking', "I'm Speaking", '🔊');
             speakingNotification.classList.add('show');
             voiceBtn.classList.add('speaking');
@@ -3616,10 +3687,14 @@
                 clearTimeout(voiceSendTimer);
                 hideVoiceAutoNotice();
             }
-            utterance.onstart = () => { isSpeaking = true;
-                setStatus('speaking', "I'm Speaking", '🔊'); };
+            utterance.onstart = () => {
+                isSpeaking = true;
+                voiceInputBlocked = true;
+                setStatus('speaking', "I'm Speaking", '🔊');
+            };
             utterance.onend = () => {
                 isSpeaking = false;
+                voiceInputBlocked = false;
                 voiceBtn.classList.remove('speaking');
                 micMutedBadge.classList.remove('show');
                 aiSpeechText = '';
@@ -3631,6 +3706,7 @@
             };
             utterance.onerror = () => {
                 isSpeaking = false;
+                voiceInputBlocked = false;
                 voiceBtn.classList.remove('speaking', 'muted');
                 micMutedBadge.classList.remove('show');
                 aiSpeechText = '';
@@ -3646,7 +3722,6 @@
         function stripTodoList(text) {
             if (!text) return '';
             let cleaned = text;
-            // Remove numbered list sections
             const listPatterns = [
                 /DAFTAR\s+TUGAS\s+SAAT\s+INI\s*:[\s\S]*?(?=\n\n|$)/i,
                 /DAFTAR\s+TUGAS\s+BARU\s*:[\s\S]*?(?=\n\n|$)/i,
@@ -3659,9 +3734,8 @@
             for (const pattern of listPatterns) {
                 cleaned = cleaned.replace(pattern, '');
             }
-            // Remove bullet/list lines
             cleaned = cleaned.replace(/^[•\-*✅❌⬜0-9.]\s.*$/gm, '');
-            cleaned = cleaned.replace(/—\s*(selesai|belum|done|pending)/gi, '');
+            cleaned = cleaned.replace(/—\s*(selesai|belum|done|pending|sedang\s+proses)/gi, '');
             cleaned = cleaned.replace(/[✅❌⬜🏆✨🗑️📋📜📭🧹🎉⭐💡🔔🚀🎯📌💪👍👏🎊🌟]/g, '');
             cleaned = cleaned.replace(/\s{2,}/g, ' ');
             cleaned = cleaned.trim();
@@ -3671,6 +3745,8 @@
 
         function resumeAfterSpeech(wasVoiceOn) {
             if (!currentUser) return;
+            // FIX: clear voiceInputBlocked when speech ends
+            voiceInputBlocked = false;
             if (wasVoiceOn && !isProcessing && !isInterrupting && !isSpeaking) {
                 voiceModeEnabled = true;
                 try {
@@ -3684,7 +3760,8 @@
                 } catch (_) {
                     setTimeout(() => {
                         if (voiceModeEnabled && !isSpeaking && !isProcessing && !isInterrupting &&
-                        currentUser) {
+                            !voiceInputBlocked &&
+                            currentUser) {
                             try {
                                 recognition.start();
                                 isListening = true;
@@ -3713,6 +3790,7 @@
         function stopSpeaking() {
             if (synth && synth.speaking) synth.cancel();
             isSpeaking = false;
+            voiceInputBlocked = false;
             voiceBtn.classList.remove('speaking');
             micMutedBadge.classList.remove('show');
             aiSpeechText = '';
@@ -3899,7 +3977,7 @@
                 let spoken = `Ada ${todos.length} tugas. `;
                 if (pending.length > 0) {
                     const pendingNames = pending.slice(0, 10).map(t => t.text).join(', ');
-                    spoken += `Belum selesai: ${pendingNames}${pending.length > 10 ? ` dan ${pending.length - 10} lainnya` : ''}. `;
+                    spoken += `Sedang proses: ${pendingNames}${pending.length > 10 ? ` dan ${pending.length - 10} lainnya` : ''}. `;
                 }
                 if (done.length > 0) {
                     const doneNames = done.slice(0, 10).map(t => t.text).join(', ');
@@ -4131,13 +4209,14 @@
                         const clean = trimmed.replace(/^[•\-*✅❌⬜]\s*/, '').trim();
                         if (clean.length > 1) {
                             const isDone = /selesai|✅|done/i.test(trimmed);
-                            todoLines.push({ text: clean.replace(/—\s*(selesai|belum|done|pending).*$/i, '').trim(),
+                            todoLines.push({ text: clean.replace(/—\s*(selesai|belum|done|pending|sedang\s+proses).*$/i,
+                                    '').trim(),
                                 completed: isDone });
                         }
                         inList = true;
                     } else if (inList && trimmed.length > 1 && !/^(daftar|tugas|list|todo)/i.test(trimmed)) {
                         const isDone = /selesai|✅|done/i.test(trimmed);
-                        const clean = trimmed.replace(/—\s*(selesai|belum|done|pending).*$/i, '').trim();
+                        const clean = trimmed.replace(/—\s*(selesai|belum|done|pending|sedang\s+proses).*$/i, '').trim();
                         if (clean.length > 1) todoLines.push({ text: clean, completed: isDone });
                     }
                 }
@@ -4150,7 +4229,7 @@
                             cleanedText = cleanedText.replace(line, '');
                         } else if (trimmed.includes('—')) {
                             const parts = trimmed.split('—');
-                            if (parts.length > 1 && /selesai|belum|done|pending/i.test(parts[1])) {
+                            if (parts.length > 1 && /selesai|belum|done|pending|sedang\s+proses/i.test(parts[1])) {
                                 cleanedText = cleanedText.replace(line, parts[0].trim());
                             }
                         }
@@ -4193,7 +4272,7 @@
 
         function buildSystemPrompt() {
             const todoText = todos.length ?
-                todos.map((t, i) => `${i+1}. ${t.text} — ${t.completed ? 'selesai ✅' : 'belum ❌'}`).join('\n') :
+                todos.map((t, i) => `${i+1}. ${t.text} — ${t.completed ? 'selesai ✅' : 'sedang proses ⏳'}`).join('\n') :
                 '(kosong)';
             return `Anda adalah asisten AI untuk to-do list dengan sistem level. Berikan jawaban SINGKAT dan PADAT.
 
@@ -4201,14 +4280,15 @@
         1. Untuk perintah HAPUS: hapus tugas yang disebutkan.
         2. Untuk perintah TAMBAH: tambahkan tugas baru. JANGAN tambahkan duplikat!
         3. Untuk perintah SELESAI: tandai tugas sebagai selesai.
-        4. Untuk perintah BATAL SELESAI: tandai sebagai belum selesai.
+        4. Untuk perintah BATAL SELESAI: tandai sebagai belum selesai (sedang proses).
         5. Selalu AKHIRI jawaban dengan JSON array di baris terakhir: [{"text":"...","completed":true/false}, ...]
         6. Jawaban 1-2 kalimat saja, tidak bertele-tele.
-        7. Gunakan format daftar dengan NOMOR URUT seperti: "1. Beli susu — belum ❌"
+        7. Gunakan format daftar dengan NOMOR URUT seperti: "1. Beli susu — sedang proses ⏳"
         8. Bahasa Indonesia yang sopan dan alami.
         9. Maksimum tugas ${MAX_TODOS}.
         10. Tampilkan SEMUA tugas dalam daftar, tidak ada batasan.
         11. Jangan pernah membuat duplikat tugas.
+        12. GUNAKAN "sedang proses" BUKAN "❌" untuk tugas yang belum selesai.
 
         DAFTAR TUGAS SAAT INI (dengan nomor urut):
         ${todoText}
@@ -4221,7 +4301,7 @@
         Contoh jawaban untuk "tambah jogging":
         "Baik, saya tambahkan 'jogging'. DAFTAR TUGAS SAAT INI:
         1. Shalat Dzuhur — selesai ✅
-        2. Jogging — belum ❌
+        2. Jogging — sedang proses ⏳
         [{"text":"Shalat Dzuhur","completed":true},{"text":"Jogging","completed":false}]"
 
         Pastikan JSON valid di akhir. Jika daftar kosong, kirimkan [].`;
@@ -4235,7 +4315,7 @@
             const total = todos.length;
             const pending = todos.filter(t => !t.completed).length;
             const done = todos.filter(t => t.completed).length;
-            html += `<div class="todo-list-header">📋 DAFTAR TUGAS SAAT INI: <span class="todo-count-badge">${total} tugas (${pending} belum, ${done} selesai)</span></div>`;
+            html += `<div class="todo-list-header">📋 DAFTAR TUGAS SAAT INI: <span class="todo-count-badge">${total} tugas (${pending} sedang proses, ${done} selesai)</span></div>`;
             if (todos.length >= MAX_TODOS) html +=
                 `<div class="todo-limit-warning">⚠️ Maksimum ${MAX_TODOS} tugas tercapai!</div>`;
             if (!todos.length) {
@@ -4253,7 +4333,7 @@
             });
             sorted.forEach((todo, index) => {
                 const statusLabelHtml = todo.completed ? `<span class="todo-status-label done-label">selesai ✅</span>` :
-                    '';
+                    `<span class="todo-status-label" style="color:var(--yellow);border-color:var(--yellow);">sedang proses ⏳</span>`;
                 const xpClass = todo.completed ? 'earned' : '';
                 const xpBadgeHtml = `<span class="xp-reward-badge ${xpClass}">+10 XP</span>`;
                 const checkClass = todo.completed ? 'done' : '';
