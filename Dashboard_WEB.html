@@ -1195,7 +1195,20 @@
             </svg>
         `;
 
-        // DATA MENU — tambahkan "To Do List Developer"
+        // --- Shopee Logo (keranjang belanja) ---
+        const shopeeLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="28" stroke="#EE4D2D" stroke-width="1.5" opacity="0.2" />
+                <path d="M14 18L18 18L22 40L46 40L50 24L20 24" stroke="#EE4D2D" stroke-width="2.5" fill="rgba(238,77,45,0.05)" />
+                <circle cx="28" cy="44" r="4" stroke="#EE4D2D" stroke-width="2" fill="rgba(238,77,45,0.1)" />
+                <circle cx="42" cy="44" r="4" stroke="#EE4D2D" stroke-width="2" fill="rgba(238,77,45,0.1)" />
+                <path d="M24 28L30 28M34 28L40 28" stroke="#EE4D2D" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M20 32L26 32M38 32L44 32" stroke="#EE4D2D" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+                <circle cx="32" cy="32" r="1.5" fill="#EE4D2D" opacity="0.3" />
+            </svg>
+        `;
+
+        // DATA MENU — tambahkan Shopee
         const menuData = [
             { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/",
                 category: "Komunikasi", keywords: "wa web" },
@@ -1289,7 +1302,7 @@
                 category: "Developer · Tools",
                 keywords: "open coding custom editor developer tools asbah maghrib"
             },
-            // TO DO LIST DEVELOPER — TAMBAHAN BARU (link yang diminta)
+            // TO DO LIST DEVELOPER
             {
                 name: "To Do List Developer",
                 logo: todoListLogoSVG,
@@ -1298,6 +1311,16 @@
                 url: "https://asbahmaghrib.github.io/developer/to_do_list_developer",
                 category: "Developer · Produktivitas",
                 keywords: "to do list developer tugas produktivitas asbah maghrib"
+            },
+            // SHOPEE — TAMBAHAN BARU
+            {
+                name: "Shopee",
+                logo: shopeeLogoSVG,
+                icon: "fas fa-shopping-cart",
+                color: "#EE4D2D",
+                url: "https://shopee.co.id/",
+                category: "Belanja Online",
+                keywords: "shopee belanja online e-commerce jual beli"
             }
         ];
 
@@ -1522,7 +1545,6 @@
 
                 let iconHTML = '';
                 if (item.logo) {
-                    // Logo SVG murni — tanpa teks tambahan
                     iconHTML = item.logo;
                 } else {
                     iconHTML = `<i class="${item.icon}" style="color:${item.color}"></i>`;
