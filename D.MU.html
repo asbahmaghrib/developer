@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D.MU - Layanan Jasa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js">
+    </script>
+
+    <style>
+        /* ─────────── RESET & BASE ─────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6f9fc;
+            color: #1a1a2e;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* ─────────── SCROLLBAR ─────────── */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e8edf3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a7de1;
+            border-radius: 12px;
+        }
+
+        /* ─────────── HEADER / BRAND ─────────── */
+        .header {
+            background: linear-gradient(135deg, #0b1a33 0%, #1a3a6b 50%, #2a7de1 100%);
+            padding: 28px 24px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 6px 30px rgba(10, 30, 70, 0.25);
+            border-radius: 0 0 32px 32px;
+        }
+
+        .header .brand {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        }
+        .header .brand span {
+            color: #ffd866;
+        }
+
+        .header .tagline {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .header .datetime {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.08);
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .header .datetime i {
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        /* ─────────── SETTINGS GEAR ─────────── */
+        .settings-trigger {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: none;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            font-size: 1.5rem;
+            color: #1a3a6b;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-trigger:hover {
+            transform: rotate(90deg) scale(1.05);
+            background: #ffffff;
+            box-shadow: 0 6px 28px rgba(42, 125, 225, 0.35);
+            color: #2a7de1;
+        }
+        .settings-trigger i {
+            transition: transform 0.4s ease;
+        }
+        .settings-trigger:hover i {
+            transform: rotate(90deg);
+        }
+
+        /* ─────────── SEARCH BAR ─────────── */
+        .search-wrapper {
+            max-width: 720px;
+            margin: -18px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 60px;
+            padding: 4px 4px 4px 22px;
+            box-shadow: 0 8px 32px rgba(10, 30, 70, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .search-box:focus-within {
+            box-shadow: 0 8px 40px rgba(42, 125, 225, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .search-box i {
+            color: #8899bb;
+            font-size: 1.1rem;
+            margin-right: 12px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 16px 0;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #1a1a2e;
+        }
+        .search-box input::placeholder {
+            color: #aab8d0;
+            font-weight: 400;
+        }
+
+        .search-box .clear-btn {
+            background: none;
+            border: none;
+            color: #aab8d0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 12px;
+            display: none;
+            transition: color 0.2s;
+        }
+        .search-box .clear-btn.visible {
+            display: block;
+        }
+        .search-box .clear-btn:hover {
+            color: #e74c5e;
+        }
+
+        .search-box .search-btn {
+            background: linear-gradient(135deg, #2a7de1, #1a4f9e);
+            border: none;
+            border-radius: 60px;
+            padding: 12px 28px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .search-box .search-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(42, 125, 225, 0.4);
+        }
+
+        /* ─────────── COUNTER ─────────── */
+        .counter {
+            max-width: 1200px;
+            margin: 28px auto 0;
+            padding: 0 24px;
+            font-size: 0.9rem;
+            color: #5a6f8c;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .counter .count-badge {
+            background: #e8edf3;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1a3a6b;
+        }
+
+        /* ─────────── LOADING OVERLAY ─────────── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e8edf3;
+            border-top-color: #2a7de1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-overlay p {
+            margin-top: 16px;
+            color: #4a5f7a;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─────────── PRODUCT GRID ─────────── */
+        .product-grid {
+            max-width: 1280px;
+            margin: 24px auto 0;
+            padding: 0 20px 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(10, 30, 70, 0.10);
+            border-color: rgba(42, 125, 225, 0.12);
+        }
+
+        .product-card .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #eef2f7;
+            transition: transform 0.4s ease;
+            image-rendering: auto;
+        }
+        .product-card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        .product-card .card-body {
+            padding: 18px 20px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card .card-body .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0b1a33;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .product-card .card-body .price-wrapper {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin: 4px 0 8px;
+        }
+
+        .product-card .card-body .price-original {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #aab8d0;
+            text-decoration: line-through;
+        }
+
+        .product-card .card-body .price-discount {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #e74c3c;
+        }
+
+        .product-card .card-body .price-discount small {
+            font-weight: 400;
+            font-size: 0.8rem;
+            color: #6a7f9e;
+        }
+
+        .product-card .card-body .price-period {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6a7f9e;
+            background: #f0f4fa;
+            padding: 2px 12px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-left: 2px;
+        }
+
+        .product-card .card-body .product-desc {
+            font-size: 0.92rem;
+            color: #4a5f7a;
+            line-height: 1.5;
+            flex: 1;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 4.5rem;
+        }
+
+        .product-card .card-body .wa-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            width: 100%;
+            margin-top: auto;
+        }
+        .product-card .card-body .wa-btn i {
+            font-size: 1.2rem;
+        }
+        .product-card .card-body .wa-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 24px rgba(37, 211, 102, 0.35);
+        }
+
+        /* ─────────── MODAL OVERLAY ─────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(11, 26, 51, 0.55);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 32px;
+            max-width: 820px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px 32px 28px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f7;
+            padding-bottom: 16px;
+        }
+        .modal-header h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0b1a33;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-header h2 i {
+            color: #2a7de1;
+        }
+
+        .modal-close {
+            background: #f0f4fa;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 1.3rem;
+            color: #4a5f7a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #e74c5e;
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* ─────────── EDIT PRODUCT LIST ─────────── */
+        .edit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .edit-item {
+            background: #f8faff;
+            border-radius: 18px;
+            padding: 18px 20px;
+            border: 1px solid #e8edf3;
+            transition: all 0.2s ease;
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 16px;
+            align-items: start;
+        }
+        .edit-item:hover {
+            border-color: #2a7de1;
+            background: #f2f8ff;
+        }
+
+        .edit-item .edit-img-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .edit-item .edit-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #eef2f7;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            image-rendering: auto;
+        }
+
+        .edit-item .edit-img-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 14px;
+            background: #eef2f7;
+            border: 2px dashed #c8d6e8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8a9fb8;
+            font-size: 0.7rem;
+            gap: 4px;
+            text-align: center;
+            padding: 8px;
+        }
+        .edit-item .edit-img-placeholder i {
+            font-size: 1.6rem;
+            color: #b0c0d4;
+        }
+
+        .edit-item .edit-img-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .edit-item .edit-img-actions .upload-btn {
+            background: #2a7de1;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .edit-item .edit-img-actions .upload-btn:hover {
+            background: #1a4f9e;
+        }
+
+        .edit-item .edit-img-actions .del-img-btn {
+            background: #eef2f7;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            color: #e74c5e;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .edit-item .edit-img-actions .del-img-btn:hover {
+            background: #fde8ea;
+        }
+
+        .edit-item .edit-img-actions .file-input-hidden {
+            display: none;
+        }
+
+        .edit-item .edit-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .edit-item .edit-fields input,
+        .edit-item .edit-fields textarea,
+        .edit-item .edit-fields select {
+            font-family: 'Inter', sans-serif;
+            border: 1px solid #dce3ec;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            background: #ffffff;
+            transition: border 0.2s ease;
+            width: 100%;
+            color: #1a1a2e;
+        }
+        .edit-item .edit-fields input:focus,
+        .edit-item .edit-fields textarea:focus,
+        .edit-item .edit-fields select:focus {
+            outline: none;
+            border-color: #2a7de1;
+            box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.12);
+        }
+        .edit-item .edit-fields textarea {
+            resize: vertical;
+            min-height: 44px;
+            max-height: 80px;
+        }
+
+        .edit-item .edit-fields .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .edit-item .edit-fields .field-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 0.7fr 1fr;
+            gap: 10px;
+        }
+
+        .edit-item .edit-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding-top: 4px;
+        }
+
+        .edit-item .edit-actions .btn-save {
+            background: linear-gradient(135deg, #2a7de1, #1a4f9e);
+            border: none;
+            border-radius: 40px;
+            padding: 8px 18px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        .edit-item .edit-actions .btn-save:hover {
+            transform: scale(1.04);
+            box-shadow: 0 4px 16px rgba(42, 125, 225, 0.3);
+        }
+
+        .edit-item .edit-actions .btn-delete {
+            background: none;
+            border: none;
+            color: #b0c0d4;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.2s ease;
+            padding: 4px 8px;
+        }
+        .edit-item .edit-actions .btn-delete:hover {
+            color: #e74c5e;
+        }
+
+        /* ─────────── ADD PRODUCT BUTTON ─────────── */
+        .add-product-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #2a7de1, #1a4f9e);
+            border: none;
+            border-radius: 60px;
+            padding: 14px 32px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            margin-top: 12px;
+            box-shadow: 0 4px 16px rgba(42, 125, 225, 0.25);
+        }
+        .add-product-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 28px rgba(42, 125, 225, 0.35);
+        }
+
+        /* ─────────── EMPTY STATE ─────────── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6a7f9e;
+        }
+        .empty-state i {
+            font-size: 3.4rem;
+            color: #c8d6e8;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-weight: 600;
+            color: #2a3f5e;
+            margin-bottom: 6px;
+        }
+
+        /* ─────────── RESPONSIVE ─────────── */
+        @media (max-width: 768px) {
+            .header .brand {
+                font-size: 2.2rem;
+            }
+            .header .tagline {
+                font-size: 0.9rem;
+            }
+            .header .datetime {
+                font-size: 0.7rem;
+                padding: 3px 14px;
+            }
+
+            .search-box {
+                padding: 4px 4px 4px 16px;
+                border-radius: 40px;
+            }
+            .search-box input {
+                padding: 12px 0;
+                font-size: 0.9rem;
+            }
+            .search-box .search-btn {
+                padding: 10px 18px;
+                font-size: 0.8rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 18px;
+                padding: 0 16px 30px;
+            }
+
+            .modal {
+                padding: 20px 16px;
+                border-radius: 24px;
+            }
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .edit-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 14px;
+            }
+            .edit-item .edit-img-wrapper {
+                flex-direction: row;
+                gap: 12px;
+                align-items: center;
+            }
+            .edit-item .edit-img {
+                width: 70px;
+                height: 70px;
+            }
+            .edit-item .edit-img-placeholder {
+                width: 70px;
+                height: 70px;
+            }
+            .edit-item .edit-fields .field-row {
+                grid-template-columns: 1fr;
+            }
+            .edit-item .edit-fields .field-row-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .edit-item .edit-actions {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 12px;
+                margin-top: 4px;
+            }
+
+            .settings-trigger {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+                top: 14px;
+                right: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .product-card .card-img {
+                height: 140px;
+            }
+            .product-card .card-body {
+                padding: 12px 14px 14px;
+            }
+            .product-card .card-body .product-name {
+                font-size: 0.95rem;
+            }
+            .product-card .card-body .price-original {
+                font-size: 0.85rem;
+            }
+            .product-card .card-body .price-discount {
+                font-size: 1.1rem;
+            }
+            .product-card .card-body .price-period {
+                font-size: 0.7rem;
+                padding: 1px 10px;
+            }
+            .product-card .card-body .product-desc {
+                font-size: 0.8rem;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 2.6rem;
+                line-height: 1.3rem;
+            }
+            .product-card .card-body .wa-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+            .product-card .card-body .wa-btn i {
+                font-size: 1rem;
+            }
+            .edit-item .edit-fields .field-row-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─────────── TOAST NOTIFICATION ─────────── */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0b1a33;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 600;
+            opacity: 0;
+            transition: all 0.4s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 90%;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ─────────── DISCOUNT BADGE ON CARD ─────────── */
+        .discount-badge {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        /* ─────────── FIREBASE STATUS INDICATOR ─────────── */
+        .firebase-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+        .firebase-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .firebase-status .dot.online {
+            background: #4caf50;
+        }
+        .firebase-status .dot.offline {
+            background: #f44336;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── LOADING OVERLAY ─── -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>D.MU "Fokus Mempermudah Kebutuhan Anda"</p>
+    </div>
+
+    <!-- ─── HEADER ─── -->
+    <header class="header">
+        <div class="brand">D.<span>MU</span></div>
+        <div class="tagline">Fokus Mempermudah Kebutuhan Anda</div>
+        <div class="datetime" id="dateTimeDisplay">
+            <i class="far fa-calendar-alt"></i> <span id="dateTimeText">Loading...</span>
+            <span class="firebase-status" id="firebaseStatus">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">--</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- ─── SETTINGS TRIGGER ─── -->
+    <button class="settings-trigger" id="settingsTrigger" aria-label="Pengaturan">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- ─── SEARCH ─── -->
+    <div class="search-wrapper">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari jasa..." autocomplete="off" />
+            <button class="clear-btn" id="clearBtn" aria-label="Hapus pencarian">
+                <i class="fas fa-times-circle"></i>
+            </button>
+            <button class="search-btn" id="searchBtn">Cari</button>
+        </div>
+    </div>
+
+    <!-- ─── COUNTER ─── -->
+    <div class="counter">
+        <span id="resultCount">Menampilkan 0 jasa</span>
+        <span class="count-badge" id="totalBadge">Total: 0</span>
+    </div>
+
+    <!-- ─── PRODUCT GRID ─── -->
+    <div class="product-grid" id="productGrid"></div>
+
+    <!-- ─── TOAST ─── -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- ─── MODAL: SETTINGS / EDIT PRODUCTS ─── -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-pen-fancy"></i> Kelola Produk</h2>
+                <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="editListContainer">
+                <!-- dynamically rendered -->
+            </div>
+
+            <button class="add-product-btn" id="addProductBtn">
+                <i class="fas fa-plus-circle"></i> Tambah Produk Baru
+            </button>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- ─── JAVASCRIPT ─── -->
+    <!-- ════════════════════════════════════════════════ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── FIREBASE CONFIG ────────────────────────────
+            const firebaseConfig = {
+                apiKey: "AIzaSyA4fZb7G0sg0cjmGfW5W20nMMftRn2Mbx4",
+                authDomain: "d-mu-developer.firebaseapp.com",
+                projectId: "d-mu-developer",
+                storageBucket: "d-mu-developer.firebasestorage.app",
+                messagingSenderId: "771251763698",
+                appId: "1:771251763698:web:155ae3f240d5ed3cb7936b",
+                measurementId: "G-K63SM4XMEH"
+            };
+
+            // ─── INIT FIREBASE ──────────────────────────────
+            let db;
+            let servicesRef;
+            let firebaseReady = false;
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                servicesRef = db.ref('services');
+                firebaseReady = true;
+                updateStatus(true);
+            } catch (err) {
+                console.error('Firebase init error:', err);
+                firebaseReady = false;
+                updateStatus(false);
+                showToast('❌ Gagal terhubung ke Firebase');
+            }
+
+            function updateStatus(online) {
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                if (online) {
+                    dot.className = 'dot online';
+                    text.textContent = 'Online';
+                } else {
+                    dot.className = 'dot offline';
+                    text.textContent = 'Firebase Offline';
+                }
+            }
+
+            // ─── DATA ──────────────────────────────────────
+            const STORAGE_KEY = 'dmu_services'; // fallback key (tidak dipakai)
+            const WA_NUMBER = '6282299327018';
+            const WA_MESSAGE = 'Halo%20saya%20ingin%20bertanya%20tentang%20layanan%20Anda';
+
+            const PERIOD_OPTIONS = [
+                { value: 'per jasa', label: 'Per Jasa' },
+                { value: 'per hari', label: 'Per Hari' },
+                { value: 'per minggu', label: 'Per Minggu' },
+                { value: 'per bulan', label: 'Per Bulan' },
+                { value: 'per web', label: 'Per Web' },
+                { value: 'per file', label: 'Per File' },
+                { value: 'per tugas', label: 'Per Tugas' }
+            ];
+
+            // ─── STATE ──────────────────────────────────────
+            let services = [];
+            let filteredServices = [];
+            let searchQuery = '';
+            let isLoading = true;
+            let isSaving = false;
+
+            // ─── DOM REFS ──────────────────────────────────
+            const grid = document.getElementById('productGrid');
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+            const searchBtn = document.getElementById('searchBtn');
+            const resultCount = document.getElementById('resultCount');
+            const totalBadge = document.getElementById('totalBadge');
+            const settingsTrigger = document.getElementById('settingsTrigger');
+            const settingsModal = document.getElementById('settingsModal');
+            const modalClose = document.getElementById('modalClose');
+            const editContainer = document.getElementById('editListContainer');
+            const addBtn = document.getElementById('addProductBtn');
+            const toast = document.getElementById('toast');
+            const dateTimeText = document.getElementById('dateTimeText');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            let toastTimer = null;
+
+            // ─── DATE/TIME ──────────────────────────────────
+            function updateDateTime() {
+                const now = new Date();
+                const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+                const day = now.getDate();
+                const month = months[now.getMonth()];
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                dateTimeText.textContent = `${day} ${month} ${year} / ${hours}:${minutes}:${seconds}`;
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            // ─── HELPERS ────────────────────────────────────
+            function formatPrice(num) {
+                return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            function generateId() {
+                return Date.now() + Math.floor(Math.random() * 1000);
+            }
+
+            function showToast(msg) {
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.textContent = msg;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2200);
+            }
+
+            function getDiscountedPrice(price, discountPercent) {
+                if (!discountPercent || discountPercent <= 0) return price;
+                return Math.round(price * (1 - discountPercent / 100));
+            }
+
+            function getPeriodLabel(value) {
+                const found = PERIOD_OPTIONS.find(p => p.value === value);
+                return found ? found.label : value;
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ─── FIREBASE: LOAD & SAVE ──────────────────────
+
+            /** Load data from Firebase Realtime Database */
+            async function loadData() {
+                if (!firebaseReady) {
+                    showToast('❌ Firebase tidak tersedia');
+                    return false;
+                }
+                try {
+                    const snapshot = await servicesRef.get();
+                    const data = snapshot.val();
+
+                    if (data) {
+                        if (Array.isArray(data)) {
+                            services = data;
+                        } else if (typeof data === 'object' && data !== null) {
+                            // Konversi object dengan key numerik / Firebase key ke array
+                            const values = Object.values(data);
+                            // Cek apakah semua key adalah numerik (array yang disimpan)
+                            const keys = Object.keys(data);
+                            const allNumeric = keys.every(k => !isNaN(Number(k)));
+                            if (allNumeric && keys.length === values.length) {
+                                services = values;
+                            } else {
+                                // Data disimpan dengan Firebase push keys, gunakan values
+                                services = values;
+                            }
+                        } else {
+                            services = [];
+                        }
+                    } else {
+                        services = [];
+                    }
+
+                    // Pastikan setiap item memiliki id
+                    services.forEach(s => {
+                        if (!s.id) s.id = generateId();
+                        // Normalisasi field
+                        if (s.discount === undefined) s.discount = 0;
+                        if (!s.period) s.period = 'per jasa';
+                        if (!s.image) s.image = '';
+                        if (!s.description) s.description = '';
+                    });
+
+                    return true;
+                } catch (error) {
+                    console.error('Error loading data from Firebase:', error);
+                    showToast('❌ Gagal memuat data dari Firebase');
+                    return false;
+                }
+            }
+
+            /** Save data to Firebase Realtime Database */
+            async function saveData() {
+                if (!firebaseReady) {
+                    showToast('❌ Firebase tidak tersedia');
+                    return false;
+                }
+                if (isSaving) return true;
+                try {
+                    isSaving = true;
+                    await servicesRef.set(services);
+                    isSaving = false;
+                    return true;
+                } catch (error) {
+                    isSaving = false;
+                    console.error('Error saving data to Firebase:', error);
+                    showToast('❌ Gagal menyimpan data ke Firebase');
+                    return false;
+                }
+            }
+
+            // ─── PROSES GAMBAR HD ──────────────────────────
+            function processImageForHD(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            try {
+                                const MAX_SIZE = 1200;
+                                let width = img.width;
+                                let height = img.height;
+                                let newWidth = width;
+                                let newHeight = height;
+
+                                if (width > MAX_SIZE || height > MAX_SIZE) {
+                                    if (width > height) {
+                                        newWidth = MAX_SIZE;
+                                        newHeight = Math.round(height * (MAX_SIZE / width));
+                                    } else {
+                                        newHeight = MAX_SIZE;
+                                        newWidth = Math.round(width * (MAX_SIZE / height));
+                                    }
+                                }
+
+                                const canvas = document.createElement('canvas');
+                                canvas.width = newWidth;
+                                canvas.height = newHeight;
+                                const ctx = canvas.getContext('2d');
+                                ctx.imageSmoothingEnabled = true;
+                                ctx.imageSmoothingQuality = 'high';
+                                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                                resolve(dataUrl);
+                            } catch (err) {
+                                reject(err);
+                            }
+                        };
+                        img.onerror = function() {
+                            reject(new Error('Gagal memuat gambar'));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.onerror = function() {
+                        reject(new Error('Gagal membaca file'));
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // ─── RENDER PRODUCT CARDS ──────────────────────
+            function renderCards(items) {
+                if (!items || items.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1;">
+                            <i class="fas fa-box-open"></i>
+                            <h3>Belum ada jasa</h3>
+                            <p style="color:#8a9fb8;">Klik ikon <i class="fas fa-cog" style="color:#2a7de1;"></i> untuk menambahkan produk.</p>
+                        </div>
+                    `;
+                    resultCount.textContent = 'Menampilkan 0 jasa';
+                    totalBadge.textContent = 'Total: ' + services.length;
+                    return;
+                }
+
+                let html = '';
+                items.forEach(item => {
+                    const originalPrice = item.price || 0;
+                    const discount = item.discount || 0;
+                    const finalPrice = getDiscountedPrice(originalPrice, discount);
+                    const hasDiscount = discount > 0;
+                    const periodLabel = getPeriodLabel(item.period || 'per jasa');
+
+                    const img = item.image || '';
+                    const imgTag = img ?
+                        `<img class="card-img" src="${img}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400/eef2f7/8a9fb8?text=Gambar'">` :
+                        `<div class="card-img" style="display:flex;align-items:center;justify-content:center;color:#8a9fb8;background:#eef2f7;font-size:0.9rem;"><i class="fas fa-image" style="font-size:2rem;opacity:0.3;"></i></div>`;
+
+                    const priceHtml = hasDiscount ?
+                        `
+                            <span class="price-original">${formatPrice(originalPrice)}</span>
+                            <span class="price-discount">${formatPrice(finalPrice)} <small>/ ${periodLabel}</small></span>
+                            <span class="discount-badge">-${discount}%</span>
+                        ` :
+                        `
+                            <span class="price-discount">${formatPrice(originalPrice)} <small>/ ${periodLabel}</small></span>
+                        `;
+
+                    html += `
+                        <div class="product-card" data-id="${item.id}">
+                            ${imgTag}
+                            <div class="card-body">
+                                <div class="product-name">${escapeHtml(item.name)}</div>
+                                <div class="price-wrapper">
+                                    ${priceHtml}
+                                </div>
+                                <div class="product-desc">${escapeHtml(item.description || 'Tidak ada deskripsi.')}</div>
+                                <button class="wa-btn" data-name="${escapeHtml(item.name)}" data-price="${formatPrice(finalPrice)}" data-period="${periodLabel}">
+                                    <i class="fab fa-whatsapp"></i> Tanya via WA
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.innerHTML = html;
+                resultCount.textContent = `Menampilkan ${items.length} jasa`;
+                totalBadge.textContent = 'Total: ' + services.length;
+
+                grid.querySelectorAll('.wa-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const name = this.getAttribute('data-name') || 'jasa';
+                        const price = this.getAttribute('data-price') || '';
+                        const period = this.getAttribute('data-period') || '';
+                        const msg =
+                            `Halo%20saya%20tertarik%20dengan%20jasa%20"${encodeURIComponent(name)}"%20(${encodeURIComponent(price)}%20/ ${encodeURIComponent(period)})`;
+                        window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, '_blank');
+                    });
+                });
+            }
+
+            // ─── FILTER & SEARCH ───────────────────────────
+            function filterAndRender() {
+                const q = searchQuery.trim().toLowerCase();
+                if (!q) {
+                    filteredServices = [...services];
+                } else {
+                    filteredServices = services.filter(s =>
+                        s.name.toLowerCase().includes(q) ||
+                        (s.description && s.description.toLowerCase().includes(q))
+                    );
+                }
+                renderCards(filteredServices);
+            }
+
+            // ─── RENDER EDIT LIST (modal) ──────────────────
+            function renderEditList() {
+                if (!services || services.length === 0) {
+                    editContainer.innerHTML = `
+                        <div class="empty-state" style="padding:30px 10px;">
+                            <i class="fas fa-plus-circle" style="font-size:2.4rem;"></i>
+                            <h3>Belum ada produk</h3>
+                            <p style="color:#8a9fb8;">Klik "Tambah Produk Baru" untuk memulai.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="edit-list">';
+                services.forEach((item, index) => {
+                    const img = item.image || '';
+                    const hasImg = !!img;
+                    const periodOptions = PERIOD_OPTIONS.map(p =>
+                        `<option value="${p.value}" ${item.period === p.value ? 'selected' : ''}>${p.label}</option>`
+                    ).join('');
+
+                    html += `
+                        <div class="edit-item" data-index="${index}">
+                            <div class="edit-img-wrapper">
+                                ${hasImg ? 
+                                    `<img class="edit-img" src="${img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/100x100/eef2f7/8a9fb8?text=Error'">` :
+                                    `<div class="edit-img-placeholder"><i class="fas fa-image"></i> <span>Tidak ada gambar</span></div>`
+                                }
+                                <div class="edit-img-actions">
+                                    <button class="upload-btn" data-index="${index}"><i class="fas fa-upload"></i> Upload</button>
+                                    ${hasImg ? `<button class="del-img-btn" data-index="${index}"><i class="fas fa-trash-alt"></i> Hapus</button>` : ''}
+                                    <input type="file" class="file-input-hidden" accept="image/*" data-index="${index}" />
+                                </div>
+                            </div>
+                            <div class="edit-fields">
+                                <input type="text" class="edit-name" value="${escapeHtml(item.name)}" placeholder="Nama jasa" />
+                                <div class="field-row-3">
+                                    <input type="number" class="edit-price" value="${item.price}" placeholder="Harga" min="0" step="1000" />
+                                    <input type="number" class="edit-discount" value="${item.discount || 0}" placeholder="Diskon %" min="0" max="100" step="1" />
+                                    <select class="edit-period">${periodOptions}</select>
+                                </div>
+                                <textarea class="edit-desc" rows="2" placeholder="Deskripsi">${escapeHtml(item.description || '')}</textarea>
+                            </div>
+                            <div class="edit-actions">
+                                <button class="btn-save" data-index="${index}"><i class="fas fa-save"></i> Simpan</button>
+                                <button class="btn-delete" data-index="${index}" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                editContainer.innerHTML = html;
+
+                // ── event: upload image (HD) ──
+                editContainer.querySelectorAll('.upload-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.getAttribute('data-index'), 10);
+                        const fileInput = this.closest('.edit-item').querySelector('.file-input-hidden');
+                        if (fileInput) fileInput.click();
+                    });
+                });
+
+                editContainer.querySelectorAll('.file-input-hidden').forEach(input => {
+                    input.addEventListener('change', async function(e) {
+                        const idx = parseInt(this.getAttribute('data-index'), 10);
+                        const file = this.files[0];
+                        if (!file) return;
+                        if (!file.type.startsWith('image/')) {
+                            showToast('❌ Harap pilih file gambar.');
+                            this.value = '';
+                            return;
+                        }
+                        try {
+                            const dataUrl = await processImageForHD(file);
+                            services[idx].image = dataUrl;
+                            const ok = await saveData();
+                            if (ok) {
+                                filterAndRender();
+                                renderEditList();
+                                showToast('✅ Gambar HD berhasil diunggah!');
+                            }
+                        } catch (err) {
+                            showToast('❌ Gagal memproses gambar: ' + err.message);
+                            this.value = '';
+                        }
+                    });
+                });
+
+                // ── event: delete image ──
+                editContainer.querySelectorAll('.del-img-btn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const idx = parseInt(this.getAttribute('data-index'), 10);
+                        if (isNaN(idx)) return;
+                        if (confirm('Hapus gambar dari produk ini?')) {
+                            services[idx].image = '';
+                            const ok = await saveData();
+                            if (ok) {
+                                filterAndRender();
+                                renderEditList();
+                                showToast('🗑️ Gambar dihapus.');
+                            }
+                        }
+                    });
+                });
+
+                // ── event: save ──
+                editContainer.querySelectorAll('.btn-save').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const idx = parseInt(this.getAttribute('data-index'), 10);
+                        const item = services[idx];
+                        if (!item) return;
+                        const container = this.closest('.edit-item');
+                        const nameInput = container.querySelector('.edit-name');
+                        const priceInput = container.querySelector('.edit-price');
+                        const discountInput = container.querySelector('.edit-discount');
+                        const periodSelect = container.querySelector('.edit-period');
+                        const descInput = container.querySelector('.edit-desc');
+
+                        const newName = nameInput.value.trim() || 'Tanpa Nama';
+                        const newPrice = parseFloat(priceInput.value) || 0;
+                        const newDiscount = Math.min(100, Math.max(0, parseFloat(discountInput.value) || 0));
+                        const newPeriod = periodSelect.value || 'per jasa';
+                        const newDesc = descInput.value.trim() || '';
+
+                        item.name = newName;
+                        item.price = newPrice;
+                        item.discount = newDiscount;
+                        item.period = newPeriod;
+                        item.description = newDesc;
+
+                        const ok = await saveData();
+                        if (ok) {
+                            filterAndRender();
+                            renderEditList();
+                            showToast('✅ Produk berhasil diperbarui!');
+                        }
+                    });
+                });
+
+                // ── event: delete product ──
+                editContainer.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const idx = parseInt(this.getAttribute('data-index'), 10);
+                        if (isNaN(idx)) return;
+                        const name = services[idx]?.name || 'Produk';
+                        if (confirm(`Hapus "${name}" ?`)) {
+                            services.splice(idx, 1);
+                            const ok = await saveData();
+                            if (ok) {
+                                filterAndRender();
+                                renderEditList();
+                                showToast(`🗑️ "${name}" telah dihapus.`);
+                            }
+                        }
+                    });
+                });
+            }
+
+            // ─── ADD PRODUCT ────────────────────────────────
+            async function addNewProduct() {
+                const newItem = {
+                    id: generateId(),
+                    name: 'Jasa Baru',
+                    price: 100000,
+                    discount: 0,
+                    period: 'per jasa',
+                    description: 'Deskripsi jasa ini.',
+                    image: ''
+                };
+                services.push(newItem);
+                const ok = await saveData();
+                if (ok) {
+                    filterAndRender();
+                    renderEditList();
+                    const modal = settingsModal.querySelector('.modal');
+                    if (modal) modal.scrollTop = modal.scrollHeight;
+                    showToast('✨ Produk baru ditambahkan!');
+                }
+            }
+
+            // ─── MODAL CONTROL ─────────────────────────────
+            function openModal() {
+                renderEditList();
+                settingsModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                settingsModal.classList.remove('active');
+                document.body.style.overflow = '';
+                filterAndRender();
+            }
+
+            // ─── SEARCH HANDLERS ────────────────────────────
+            function handleSearch() {
+                searchQuery = searchInput.value;
+                clearBtn.classList.toggle('visible', searchQuery.length > 0);
+                filterAndRender();
+            }
+
+            function clearSearch() {
+                searchInput.value = '';
+                searchQuery = '';
+                clearBtn.classList.remove('visible');
+                filterAndRender();
+                searchInput.focus();
+            }
+
+            // ─── INIT ──────────────────────────────────────
+            async function init() {
+                // Sembunyikan loading overlay setelah data dimuat
+                try {
+                    const loaded = await loadData();
+                    if (!loaded) {
+                        // Jika gagal load, coba dengan array kosong
+                        services = [];
+                    }
+                } catch (err) {
+                    console.error('Init error:', err);
+                    services = [];
+                }
+
+                // Pastikan data valid
+                if (!Array.isArray(services)) services = [];
+                services.forEach(s => {
+                    if (!s.id) s.id = generateId();
+                    if (s.discount === undefined) s.discount = 0;
+                    if (!s.period) s.period = 'per jasa';
+                    if (!s.image) s.image = '';
+                    if (!s.description) s.description = '';
+                });
+
+                isLoading = false;
+                loadingOverlay.classList.add('hidden');
+
+                filterAndRender();
+
+                // ── Event listeners ──
+                searchInput.addEventListener('input', handleSearch);
+                searchBtn.addEventListener('click', handleSearch);
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                });
+                clearBtn.addEventListener('click', clearSearch);
+
+                settingsTrigger.addEventListener('click', openModal);
+                modalClose.addEventListener('click', closeModal);
+                settingsModal.addEventListener('click', (e) => {
+                    if (e.target === settingsModal) closeModal();
+                });
+
+                addBtn.addEventListener('click', addNewProduct);
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && settingsModal.classList.contains('active')) {
+                        closeModal();
+                    }
+                });
+
+                // ── Auto-save protection: simpan setiap 30 detik (opsional) ──
+                // Tidak perlu karena setiap perubahan sudah langsung disimpan
+            }
+
+            // ─── RUN ────────────────────────────────────────
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                init();
+            } else {
+                document.addEventListener('DOMContentLoaded', init);
+            }
+
+        })();
+    </script>
+
+</body>
+</html>
