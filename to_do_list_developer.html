@@ -479,6 +479,10 @@
             font-size: 13px;
             color: var(--yellow);
         }
+        .voice-auto-notice.task-mode {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
 
         /* ----- SPEAKING NOTIFICATION ----- */
         .speaking-notification {
@@ -771,6 +775,10 @@
         .input-bar textarea::placeholder {
             color: var(--text-dim);
         }
+        .input-bar.task-mode-on textarea {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
         .input-bar .char-counter {
             font-size: 9px;
             color: var(--text-dim);
@@ -904,6 +912,83 @@
             100% {
                 transform: scaleY(1);
             }
+        }
+
+        /* ================================================================ */
+        /* ===== TASK MODE BUTTON (BARU) ===== */
+        /* ================================================================ */
+        .btn-task {
+            background: var(--border);
+            color: var(--text);
+            border: none;
+            font-size: 15px;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            position: relative;
+            min-width: 58px;
+            justify-content: center;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .btn-task:hover {
+            filter: brightness(1.15);
+        }
+        .btn-task.active {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: #fff;
+            box-shadow: 0 0 24px var(--accent-glow);
+            animation: pulse-btn 1.6s infinite;
+        }
+        .btn-task .task-indicator {
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-left: 2px;
+        }
+        .btn-task.active .task-indicator {
+            color: #fff;
+        }
+        .btn-task .task-spark {
+            display: none;
+            font-size: 10px;
+            margin-left: 1px;
+            animation: pulse-icon 1.2s infinite;
+        }
+        .btn-task.active .task-spark {
+            display: inline-block;
+        }
+
+        /* Banner kecil penanda mode tugas */
+        .task-mode-banner {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 16px;
+            border-radius: 30px;
+            box-shadow: 0 6px 24px rgba(108, 140, 255, 0.45);
+            z-index: 90;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            white-space: nowrap;
+        }
+        .task-mode-banner.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* ----- TODO PANEL (desktop) ----- */
@@ -1889,6 +1974,15 @@
                 min-width: 48px;
                 height: 32px;
             }
+            .btn-task {
+                font-size: 14px;
+                padding: 6px 10px;
+                min-width: 48px;
+                height: 32px;
+            }
+            .btn-task .task-indicator {
+                font-size: 7px;
+            }
             .user-avatar .uname {
                 max-width: 40px;
                 font-size: 10px;
@@ -2078,6 +2172,10 @@
                 font-size: 8px;
                 padding: 1px 6px;
             }
+            .task-mode-banner {
+                font-size: 10px;
+                padding: 4px 12px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2191,6 +2289,15 @@
                 padding: 4px 6px;
                 min-width: 34px;
                 height: 26px;
+            }
+            .btn-task {
+                font-size: 11px;
+                padding: 4px 6px;
+                min-width: 34px;
+                height: 26px;
+            }
+            .btn-task .task-indicator {
+                font-size: 6px;
             }
             .btn-primary {
                 padding: 4px 8px;
@@ -2432,6 +2539,10 @@
                 font-size: 11px;
                 padding: 1px 5px;
             }
+            .task-mode-banner {
+                font-size: 8px;
+                padding: 3px 10px;
+            }
         }
 
         /* ================================================================ */
@@ -2596,6 +2707,9 @@
 
             <!-- CHAT -->
             <section class="chat-area">
+                <!-- Banner Mode Tugas -->
+                <div class="task-mode-banner" id="taskModeBanner">📝 MODE TUGAS AKTIF — perintah Anda akan difilter AI</div>
+
                 <div class="messages" id="messagesContainer">
                     <div class="msg assistant">
                         <div class="msg-label">Asisten</div>
@@ -2606,6 +2720,8 @@
                             🎤 <strong>Voice aktif</strong> — saya selalu mendengar.<br />
                             ⏱️ Voice otomatis terkirim setelah 3 detik diam.<br />
                             🚫 <strong>Tugas duplikat otomatis ditolak!</strong><br />
+                            📝 <strong>Mode Tugas</strong> — tombol 📝 di samping voice: jika ON, setiap perintah akan
+                            dianalisis AI menjadi tugas yang sudah difilter teksnya.<br />
                             📋 Daftar tugas di chat selalu <strong>sinkron</strong> dengan panel.
                         </div>
                         <div class="msg-time">—</div>
@@ -2615,7 +2731,7 @@
                     </div>
                 </div>
 
-                <div class="input-bar">
+                <div class="input-bar" id="inputBar">
                     <div class="input-wrap">
                         <textarea id="userInput" placeholder="Ketik pesan... (Shift+Enter untuk newline)" maxlength="10000" rows="1"></textarea>
                         <div class="char-counter" id="charCounter">0 / 10000</div>
@@ -2625,6 +2741,10 @@
                         <span class="voice-wave" id="voiceWave">
                             <span></span><span></span><span></span><span></span><span></span>
                         </span>
+                    </button>
+                    <button class="btn-task" id="taskModeBtn" title="Mode Tugas: ON/OFF (Ctrl+Shift+T)">
+                        📝 <span class="task-indicator" id="taskIndicator">OFF</span>
+                        <span class="task-spark">✨</span>
                     </button>
                     <button class="btn btn-primary" id="sendBtn">Kirim</button>
                 </div>
@@ -2746,6 +2866,12 @@
         const todoPanel = $('#todoPanel');
         const mainContainer = $('#mainContainer');
 
+        // ===== TASK MODE REFS (BARU) =====
+        const taskModeBtn = $('#taskModeBtn');
+        const taskIndicator = $('#taskIndicator');
+        const taskModeBanner = $('#taskModeBanner');
+        const inputBar = $('#inputBar');
+
         // ================================================================
         //  STATE
         // ================================================================
@@ -2774,6 +2900,9 @@
         let isPanelOpen = false;
         let voiceInputBlocked = false;
 
+        // ===== TASK MODE STATE (BARU) =====
+        let taskModeEnabled = false;
+
         const VOICE_SILENCE_MS = 3000;
         let voiceSendTimer = null;
         let voiceCountdownInterval = null;
@@ -2782,6 +2911,19 @@
         const XP_PER_TASK = 10;
         const MAX_TODOS = 300;
         const MAX_CHARS = 10000;
+        const MAX_AI_TASKS = 20;
+
+        // Perintah manajemen yang TIDAK diproses sebagai tugas baru
+        const TASK_MGMT_PREFIX = /^(selesai|tandai|complete|done|cek|centang|batal\s*selesai|undo|uncomplete|belum\s*selesai|kembalikan|hapus|delete|remove|buang|tampilkan|lihat|show|list|kosongkan|daftar\s*tugas|riwayat|history)\b/i;
+
+        // ================================================================
+        //  HELPER PLACEHOLDER (TASK MODE AWARE)
+        // ================================================================
+        function ph(base) {
+            if (!taskModeEnabled || !currentUser) return base;
+            if (/ketik pesan/i.test(base)) return '📝 Ketik perintah tugas...';
+            return '📝 ' + base;
+        }
 
         // ================================================================
         //  CONFIRM TOAST
@@ -2976,6 +3118,7 @@
             voiceCountdownValue = seconds || 3;
             voiceCountdown.textContent = voiceCountdownValue + 's';
             voiceAutoNotice.classList.add('show');
+            voiceAutoNotice.classList.toggle('task-mode', taskModeEnabled);
             clearInterval(voiceCountdownInterval);
             voiceCountdownInterval = setInterval(() => {
                 voiceCountdownValue--;
@@ -3227,7 +3370,8 @@
                     startListening();
                     setStatus('listening', "I'm Listening", '🎤');
                     updateVoiceUI(true);
-                    userInput.placeholder = '🎤 Mendengar...';
+                    updateTaskModeUI();
+                    userInput.placeholder = ph('🎤 Mendengar...');
                     showToast('👋 Selamat datang, ' + (user.displayName || user.email) + '!', 'success', 2500);
                     if (!isMounted) { isMounted = true;
                         initSpeech(); }
@@ -3248,7 +3392,8 @@
                     startListening();
                     setStatus('listening', "I'm Listening", '🎤');
                     updateVoiceUI(true);
-                    userInput.placeholder = '🎤 Mendengar...';
+                    updateTaskModeUI();
+                    userInput.placeholder = ph('🎤 Mendengar...');
                     if (!isMounted) { isMounted = true;
                         initSpeech(); }
                 });
@@ -3353,6 +3498,10 @@
             }
 
             voiceBtn.addEventListener('click', toggleVoice);
+
+            // ===== TASK MODE TOGGLE (BARU) =====
+            taskModeBtn.addEventListener('click', toggleTaskMode);
+
             settingsCloseBtn.addEventListener('click', closeSettings);
             settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettings(); });
 
@@ -3386,6 +3535,10 @@
                 if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'v' || e.key === 'V')) {
                     e.preventDefault();
                     toggleVoice();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 't' || e.key === 'T')) {
+                    e.preventDefault();
+                    toggleTaskMode();
                 }
                 if (e.key === 'Escape') {
                     closePanel();
@@ -3423,9 +3576,163 @@
             window.addEventListener('resize', handleResize);
             handleResize();
 
+            updateTaskModeUI();
+
             console.log('🤖 AI Todo Assistant with Firebase Auth & Level System ready!');
+            console.log('📝 TASK MODE: tombol 📝 di samping voice (Ctrl+Shift+T).');
             console.log('📋 Todo list in chat is NOW SYNCED with panel, with numbering!');
             console.log('🔇 FIX: AI voice no longer reads the todo list — only the reply text.');
+        }
+
+        // ================================================================
+        //  TASK MODE (BARU)
+        // ================================================================
+        function toggleTaskMode() {
+            if (!currentUser) { showToast('Login dulu untuk memakai Mode Tugas.', 'info'); return; }
+            taskModeEnabled = !taskModeEnabled;
+            updateTaskModeUI();
+
+            if (taskModeEnabled) {
+                showToast('📝 Mode Tugas AKTIF — setiap perintah akan dianalisis AI menjadi tugas bersih.', 'success', 3500);
+                taskModeBanner.classList.add('show');
+                setTimeout(() => taskModeBanner.classList.remove('show'), 2600);
+                if (!isSpeaking && !isProcessing) {
+                    userInput.focus();
+                }
+            } else {
+                showToast('📝 Mode Tugas nonaktif — kembali ke mode chat biasa.', 'info', 2500);
+                taskModeBanner.classList.remove('show');
+            }
+        }
+
+        function updateTaskModeUI() {
+            if (taskModeEnabled) {
+                taskModeBtn.classList.add('active');
+                taskIndicator.textContent = 'ON';
+                taskModeBtn.title = 'Mode Tugas AKTIF — klik untuk matikan (Ctrl+Shift+T)';
+                inputBar.classList.add('task-mode-on');
+            } else {
+                taskModeBtn.classList.remove('active');
+                taskIndicator.textContent = 'OFF';
+                taskModeBtn.title = 'Aktifkan Mode Tugas (Ctrl+Shift+T)';
+                inputBar.classList.remove('task-mode-on');
+                taskModeBanner.classList.remove('show');
+            }
+            // Perbarui placeholder bila sedang tidak sibuk
+            if (currentUser && !isSpeaking && !isProcessing) {
+                if (isListening) {
+                    userInput.placeholder = ph('🎤 Mendengar...');
+                } else {
+                    userInput.placeholder = ph('Ketik pesan...');
+                }
+            }
+        }
+
+        // ================================================================
+        //  AI TASK ANALYZER — filter perintah menjadi tugas bersih
+        // ================================================================
+        function buildTaskAnalyzerPrompt() {
+            const existingList = todos.length
+                ? todos.map(t => `- ${t.text}${t.completed ? ' (sudah selesai)' : ''}`).join('\n')
+                : '(belum ada tugas)';
+
+            return `Anda adalah "Task Analyzer" — mesin AI yang mengubah perintah atau ucapan pengguna menjadi DAFTAR TUGAS yang bersih, rapi, jelas, dan siap dikerjakan.
+
+TUGAS ANDA:
+1. Baca perintah/ucapan pengguna.
+2. Filter dan bersihkan teksnya menjadi judul tugas yang baik.
+3. Pisahkan menjadi beberapa tugas jika perintah berisi lebih dari satu pekerjaan.
+4. Abaikan kata pengisi (filler) dan kata perintah yang tidak perlu.
+
+ATURAN FILTER TEKS:
+- Hapus kata pengisi / kata perintah seperti: "tolong", "please", "coba", "saya mau", "aku mau", "ingin", "mau", "pengen", "ingatkan aku", "ingatkan", "jangan lupa", "buatkan", "buat", "tambahkan", "tambah", "catat", "note", "notes", "todo", "tugas", "daftar", "list", "bantu", "bantuin", "mohon", "ya", "dong", "nih", "sih", "kak", "bang", "mas", "mbak", "oke", "ok".
+- Awali tugas dengan KATA KERJA imperatif. Contoh: Beli, Cuci, Bersihkan, Kerjakan, Selesaikan, Kirim, Hubungi, Telepon, Bayar, Ambil, Jemput, Baca, Belajar, Olahraga, Masak, Setrika, Rapikan, Perbaiki, Simpan, Print, Isi, Daftar, Hadir, Cek.
+- Maksimal 60 karakter per tugas.
+- Tanpa emoji, tanpa tanda kutip, tanpa titik di akhir, tanpa tanda baca berlebihan.
+- Kapital hanya pada huruf pertama kata pertama (kecuali nama orang, tempat, atau merek).
+- Jangan mengubah makna. Jangan menambah asumsi yang tidak disebutkan.
+- Jika ada keterangan waktu/tempat penting, sertakan singkat dalam tanda kurung. Contoh: "Bayar listrik (besok)", "Ambil paket (kantor pos)".
+- Jika satu kalimat memuat beberapa tugas, pisahkan menjadi item terpisah.
+
+ATURAN PENTING:
+- Jika perintah BUKAN tugas (misalnya sapaan, pertanyaan, obrolan, curhat, basa-basi), kembalikan "tasks": [].
+- JANGAN membuat tugas yang sudah ada di daftar tugas saat ini (hindari duplikat).
+- Maksimal ${MAX_AI_TASKS} tugas baru per perintah.
+- Field "reply" adalah balasan singkat 1 kalimat dalam Bahasa Indonesia, tanpa emoji, ramah dan jelas.
+- Balas HANYA dengan JSON valid, tanpa penjelasan tambahan, tanpa markdown, tanpa blok kode.
+
+DAFTAR TUGAS YANG SUDAH ADA (jangan duplikat):
+${existingList}
+
+Format JSON yang WAJIB digunakan:
+{"reply":"<balasan singkat 1 kalimat>","tasks":[{"text":"<judul tugas bersih>"}]}
+
+Contoh 1 — pengguna: "tolong ingatkan aku buat beliin susu dan roti besok pagi ya"
+{"reply":"Baik, saya tambahkan 2 tugas baru.","tasks":[{"text":"Beli susu"},{"text":"Beli roti (besok pagi)"}]}
+
+Contoh 2 — pengguna: "halo apa kabar"
+{"reply":"Halo! Saya siap membantu. Sebutkan tugas yang ingin dicatat.","tasks":[]}`;
+        }
+
+        async function analyzeTasksWithAI(userText) {
+            const systemPrompt = buildTaskAnalyzerPrompt();
+            const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userText }
+                    ],
+                    temperature: 0.2,
+                    max_tokens: 900,
+                    stream: false
+                })
+            });
+            if (!resp.ok) {
+                const errData = await resp.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `HTTP ${resp.status}`);
+            }
+            const data = await resp.json();
+            const raw = (data.choices?.[0]?.message?.content || '').trim();
+
+            let parsed = {};
+            try {
+                parsed = JSON.parse(raw);
+            } catch (_) {
+                const m = raw.match(/\{[\s\S]*\}/);
+                if (m) {
+                    try { parsed = JSON.parse(m[0]); } catch (__) { parsed = {}; }
+                }
+            }
+
+            const reply = typeof parsed.reply === 'string' ? parsed.reply.trim() : '';
+
+            let tasks = [];
+            if (Array.isArray(parsed.tasks)) {
+                tasks = parsed.tasks
+                    .map(t => {
+                        if (typeof t === 'string') return t;
+                        if (t && typeof t.text === 'string') return t.text;
+                        return '';
+                    })
+                    .map(t => t.replace(/^[\s"'`\-•*0-9.]+/, '').replace(/[\s"'`.,;:]+$/, '').replace(/\s{2,}/g, ' ').trim())
+                    .filter(t => t.length >= 2 && t.length <= 120);
+            }
+
+            // Dedupe di dalam hasil analisis
+            const seen = new Set();
+            tasks = tasks.filter(t => {
+                const k = t.toLowerCase();
+                if (seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            });
+
+            if (tasks.length > MAX_AI_TASKS) tasks = tasks.slice(0, MAX_AI_TASKS);
+
+            return { reply, tasks };
         }
 
         // ================================================================
@@ -3505,6 +3812,8 @@
                 🎤 <strong>Voice aktif</strong> — saya selalu mendengar.<br />
                 ⏱️ Voice otomatis terkirim setelah 3 detik diam.<br />
                 🚫 <strong>Tugas duplikat otomatis ditolak!</strong><br />
+                📝 <strong>Mode Tugas</strong> — tombol 📝 di samping voice: jika ON, setiap perintah akan
+                dianalisis AI menjadi tugas yang sudah difilter teksnya.<br />
                 📋 Daftar tugas di chat selalu <strong>sinkron</strong> dengan panel.
               </div>
               <div class="msg-time">—</div>
@@ -3713,7 +4022,7 @@
                 voiceModeEnabled = true;
                 updateVoiceUI(true);
                 setStatus('listening', "I'm Listening", '🎤');
-                userInput.placeholder = '🎤 Mendengar...';
+                userInput.placeholder = ph('🎤 Mendengar...');
                 micMutedBadge.classList.remove('show');
             } catch (e) {
                 console.warn('Start listening failed:', e);
@@ -3734,7 +4043,7 @@
             hideVoiceAutoNotice();
             updateVoiceUI(false);
             if (!isSpeaking) setStatus('idle', 'Siap', '⏸️');
-            userInput.placeholder = 'Ketik pesan...';
+            userInput.placeholder = ph('Ketik pesan...');
         }
 
         function toggleVoice() {
@@ -3760,7 +4069,7 @@
                 voiceBtn.classList.remove('muted');
                 updateVoiceUI(false);
                 if (!isSpeaking) setStatus('idle', 'Siap', '⏸️');
-                userInput.placeholder = 'Ketik pesan...';
+                userInput.placeholder = ph('Ketik pesan...');
             }
         }
 
@@ -3782,13 +4091,12 @@
         }
 
         // ================================================================
-        //  SPEECH SYNTHESIS — FIX: strip todo list before speaking
+        //  SPEECH SYNTHESIS — strip todo list sebelum berbicara
         // ================================================================
         function speakText(text) {
             if (!synth) return;
             stopSpeaking();
 
-            // ===== FIX: Remove todo list from spoken text =====
             const spokenText = stripTodoList(text);
             if (!spokenText.trim()) {
                 resumeAfterSpeech(voiceModeEnabled);
@@ -3854,7 +4162,7 @@
         }
 
         // ================================================================
-        //  STRIP TODO LIST — FIX: comprehensive removal of all list formats
+        //  STRIP TODO LIST — hapus semua format daftar sebelum diucapkan
         // ================================================================
         function stripTodoList(text) {
             if (!text) return '';
@@ -3862,12 +4170,10 @@
 
             // 1. Remove HTML list blocks completely
             cleaned = cleaned.replace(/<ul\s+class="todo-numbered-list">[\s\S]*?<\/ul>/gi, '');
-            // Remove any remaining <li> tags with content
             cleaned = cleaned.replace(/<li[^>]*>[\s\S]*?<\/li>/gi, '');
-            // Remove <span> tags that might contain status
             cleaned = cleaned.replace(/<span[^>]*>[\s\S]*?<\/span>/gi, '');
 
-            // 2. Remove plain text list headers (with various formats)
+            // 2. Remove plain text list headers
             const headerPatterns = [
                 /📋\s*DAFTAR\s+TUGAS\s+SAAT\s+INI\s*:?[\s\S]*?(?=\n\n|$)/gi,
                 /📋\s*DAFTAR\s+TUGAS[\s\S]*?(?=\n\n|$)/gi,
@@ -3884,11 +4190,10 @@
                 cleaned = cleaned.replace(pattern, '');
             }
 
-            // 3. Remove numbered list items (plain text)
+            // 3. Remove numbered / bullet list items (plain text)
             cleaned = cleaned.replace(/^[0-9]+\.\s+.+?[\n\r]?/gm, '');
             cleaned = cleaned.replace(/^\s*[0-9]+\.\s+.+?$/gm, '');
             cleaned = cleaned.replace(/^[•\-*]\s+.+?$/gm, '');
-            cleaned = cleaned.replace(/^[✅❌⬜⏳]\s+.+?$/gm, '');
 
             // 4. Remove inline status indicators
             cleaned = cleaned.replace(/—\s*(selesai|belum|done|pending|sedang\s+proses)/gi, '');
@@ -3896,11 +4201,11 @@
             cleaned = cleaned.replace(/⏳\s*sedang\s+proses/gi, '');
             cleaned = cleaned.replace(/✅\s*selesai/gi, '');
 
-            // 5. Remove any remaining "📋 DAFTAR TUGAS SAAT INI" text
+            // 5. Remove leftover headers
             cleaned = cleaned.replace(/📋\s*DAFTAR\s+TUGAS\s+SAAT\s+INI\s*:?/gi, '');
             cleaned = cleaned.replace(/DAFTAR\s+TUGAS\s+SAAT\s+INI\s*:?/gi, '');
 
-            // 6. Clean up extra whitespace, empty lines, and trailing punctuation
+            // 6. Clean up
             cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
             cleaned = cleaned.replace(/[,-\s]+$/, '');
             cleaned = cleaned.replace(/^\s*[\n\r]+/, '');
@@ -3925,7 +4230,7 @@
                     isListening = true;
                     updateVoiceUI(true);
                     setStatus('listening', "I'm Listening", '🎤');
-                    userInput.placeholder = '🎤 Mendengar...';
+                    userInput.placeholder = ph('🎤 Mendengar...');
                     voiceBtn.classList.remove('muted');
                     micMutedBadge.classList.remove('show');
                 } catch (_) {
@@ -3938,7 +4243,7 @@
                                 isListening = true;
                                 updateVoiceUI(true);
                                 setStatus('listening', "I'm Listening", '🎤');
-                                userInput.placeholder = '🎤 Mendengar...';
+                                userInput.placeholder = ph('🎤 Mendengar...');
                                 voiceBtn.classList.remove('muted');
                                 micMutedBadge.classList.remove('show');
                             } catch (__) {}
@@ -3947,13 +4252,13 @@
                 }
             } else if (!wasVoiceOn && !isProcessing) {
                 if (!isSpeaking) setStatus('idle', 'Siap', '⏸️');
-                userInput.placeholder = 'Ketik pesan...';
+                userInput.placeholder = ph('Ketik pesan...');
                 voiceBtn.classList.remove('muted');
                 if (!voiceModeEnabled) updateVoiceUI(false);
             } else {
                 if (!isProcessing && !voiceModeEnabled && !isSpeaking) {
                     setStatus('idle', 'Siap', '⏸️');
-                    userInput.placeholder = 'Ketik pesan...';
+                    userInput.placeholder = ph('Ketik pesan...');
                 }
             }
         }
@@ -4164,7 +4469,7 @@
         }
 
         // ================================================================
-        //  HANDLE SEND (with sync)
+        //  HANDLE SEND (dengan Mode Tugas)
         // ================================================================
         async function handleSend() {
             const text = userInput.value.trim();
@@ -4193,6 +4498,71 @@
             isProcessing = true;
             typingIndicator.classList.add('active');
 
+            // ============================================================
+            //  MODE TUGAS — analisis AI untuk memfilter teks menjadi tugas
+            // ============================================================
+            if (taskModeEnabled && !TASK_MGMT_PREFIX.test(text)) {
+                addMessage('user', text);
+                try {
+                    const { reply, tasks } = await analyzeTasksWithAI(text);
+
+                    if (tasks.length > 0) {
+                        const result = addBulkWithCheck(tasks);
+
+                        let displayMsg;
+                        if (result.success) {
+                            displayMsg = (reply ? reply + '\n\n' : '') + result.msg;
+                        } else {
+                            displayMsg = (reply ? reply + '\n\n' : '') + result.msg;
+                        }
+                        addMessage('assistant', displayMsg);
+
+                        if (result.success) {
+                            const speakOut = reply || `${result.added.length} tugas ditambahkan.`;
+                            speakText(speakOut);
+                            showToast(`📝 ${result.added.length} tugas ditambahkan (Mode Tugas).`, 'success', 2800);
+                        } else {
+                            speakText(result.msg.replace(/[⚠️❌📝]/g, '').trim() || 'Tidak ada tugas baru.');
+                            showToast('📝 Tidak ada tugas baru yang bisa ditambahkan.', 'info', 2800);
+                        }
+                    } else {
+                        // Bukan sebuah tugas → jawab seperti chat biasa
+                        const response = await callDeepSeek(text);
+                        const assistantReply = response.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa merespons.';
+                        const { cleanedReply } = extractTodosAndClean(assistantReply);
+                        let cleanReply = (cleanedReply || assistantReply)
+                            .replace(/\[\s*\{[\s\S]*?\}\s*\]/g, '')
+                            .replace(/\*\*/g, '*')
+                            .replace(/[,-\s]+$/, '')
+                            .trim();
+                        if (!cleanReply) cleanReply = 'Tidak ada tugas yang terdeteksi dari perintah Anda.';
+                        if (reply) cleanReply = reply + '\n\n' + cleanReply;
+                        addMessage('assistant', cleanReply);
+                        speakText(reply || cleanReply);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    const errMsg = '⚠️ ' + (err.message || 'Terjadi kesalahan, coba lagi.');
+                    addMessage('assistant', errMsg);
+                    setStatus('error', 'Error', '❌');
+                    setTimeout(() => {
+                        if (!isSpeaking && !voiceModeEnabled) {
+                            setStatus('idle', 'Siap', '⏸️');
+                            userInput.placeholder = ph('Ketik pesan...');
+                        }
+                    }, 1500);
+                } finally {
+                    isProcessing = false;
+                    typingIndicator.classList.remove('active');
+                    voiceBtn.classList.remove('muted');
+                    resumeAfterSpeech(wasVoiceOn);
+                }
+                return;
+            }
+
+            // ============================================================
+            //  MODE NORMAL (chat biasa)
+            // ============================================================
             const bulkTasks = parseBulkTasks(text);
             if (bulkTasks && bulkTasks.length > 0) {
                 const lower = text.toLowerCase();
@@ -4328,7 +4698,7 @@
                 setStatus('error', 'Error', '❌');
                 setTimeout(() => {
                     if (!isSpeaking && !voiceModeEnabled) { setStatus('idle', 'Siap', '⏸️');
-                        userInput.placeholder = 'Ketik pesan...'; }
+                        userInput.placeholder = ph('Ketik pesan...'); }
                 }, 1500);
             } finally {
                 isProcessing = false;
